@@ -155,6 +155,8 @@ Optionally, if you are using an odd system and/or want to install this
 manually then all you need to do is rename `edir.py` as `edir` and make
 it executable somewhere in your path.
 
+Edir runs on pure Python. No 3rd party packages are required.
+
 ## Environment Variables
 
 ### EDIR_EDIT_COMMAND
