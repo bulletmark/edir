@@ -44,11 +44,12 @@ class Path:
         self.path = path
         self.newpath = None
         self.temppath = None
-        self.diagrepr = str(self.path)
-        self.linerepr = self.diagrepr \
-                if path.anchor == '/' else './{}'.format(path)
         self.is_dir = path.is_dir()
-        if self.is_dir:
+
+        self.diagrepr = str(self.path)
+        self.linerepr = self.diagrepr if self.diagrepr.startswith('/') \
+                else './' + self.diagrepr
+        if self.is_dir and not self.diagrepr.endswith('/'):
             self.linerepr += '/'
             self.diagrepr += '/'
 
@@ -162,7 +163,10 @@ class Path:
                 sys.exit('ERROR: line {} number {} edited twice:\n{}'.format(
                     count, num, rawline))
 
-            path.newpath = pathlib.Path(pathstr.rstrip('/'))
+            if len(pathstr) > 1:
+                pathstr = pathstr.rstrip('/')
+
+            path.newpath = pathlib.Path(pathstr)
 
 def editfile(fp):
     'Run the editor command'
