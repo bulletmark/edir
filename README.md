@@ -236,6 +236,8 @@ class edir(Command):
     '''
     def execute(self):
         self.fm.run('edir -q ' + self.rest(1))
+    def tab(self, tabnum):
+        return self._tab_directory_content()
 ```
 
 ## License
