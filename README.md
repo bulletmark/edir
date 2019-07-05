@@ -86,8 +86,8 @@ the following ways:
 10. `edir` shows a message "No files or directories" if there is nothing
    to edit, rather than opening an empty file to edit.
 
-11. `edir` filters out any duplicate paths you may accidently specify on
-    it's command line.
+11. `edir` filters out any duplicate paths you may inadvertently specify
+    on it's command line.
 
 12. `edir` always invokes a consistent duplicate renaming scheme. E.g. if
     you rename `b`, `c`, `d` all to the same pre-existing name `a` then
