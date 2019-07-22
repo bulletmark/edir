@@ -194,10 +194,10 @@ Edit all files under current directory and subdirectories:
     find | edir -f
 ```
 
-## EDIR Command Line Options
+## Command Line Options
 
 ```
-usage: edir [-h] [-a] [-r] [-q] [-f | -d | -l] [args [args ...]]
+usage: edir [-h] [-a] [-r] [-q] [-f | -d] [-l] [args [args ...]]
 
 Program to rename and remove files and directories using your editor.
 

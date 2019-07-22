@@ -202,7 +202,7 @@ def main():
             help='only show files')
     grp.add_argument('-d', '--dirs', action='store_true',
             help='only show directories')
-    grp.add_argument('-l', '--nolinks', action='store_true',
+    opt.add_argument('-l', '--nolinks', action='store_true',
             help='ignore all symlinks')
     opt.add_argument('args', nargs='*',
             help='file|dir, or "-" for stdin')
