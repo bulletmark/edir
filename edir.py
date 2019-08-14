@@ -280,7 +280,8 @@ def main():
     # Pass 4. Delete all remaining dirs
     for p in paths:
         if p.is_dir and not p.newpath:
-            note = ' recursively' if args.recurse and p.path.iterdir() else ''
+            note = ' recursively' if args.recurse and \
+                    list(p.path.iterdir()) else ''
             err = remove(p.path, recurse=args.recurse)
             if err:
                 print('{} remove ERROR: {}'.format(p.diagrepr, err),
