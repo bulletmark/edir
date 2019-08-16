@@ -12,7 +12,7 @@ readme = here.joinpath('README.md').read_text()
 
 setup(
     name=name,
-    version='1.2',
+    version='1.3',
     description='Utility to rename and remove files/dirs using your editor',
     long_description=readme,
     long_description_content_type='text/markdown',
