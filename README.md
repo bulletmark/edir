@@ -176,19 +176,19 @@ to make `edir` not print rename and remove actions.
 
 ## Examples
 
-Edit all files and directories in the current directory:
+Rename and/or delete any files and directories in the current directory:
 
 ```
     edir
 ```
 
-Edit all jpeg files in current dir:
+Rename and/or delete any jpeg files in current dir:
 
 ```
    edir *.jpg
 ```
 
-Edit all files under current directory and subdirectories:
+Rename and/or delete any files under current directory and subdirectories:
 
 ```
     find | edir -f
