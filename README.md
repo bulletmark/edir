@@ -104,7 +104,11 @@ the following ways:
     invocation of your editor, and/or to set default `edir` command
     arguments. See below.
 
-15. `edir` is very strict about the format of the lines you edit and
+15. Contrary to what it's name implies, `vidir` actually respects your
+    `$EDITOR` variable and runs your preferred editor like `edir` does
+    but `edir` has been given a generic name to make this more apparent.
+
+16. `edir` is very strict about the format of the lines you edit and
     immediately exits with an error message (before changing anything)
     if you format one of the lines incorrectly. All lines in the edited
     list:
@@ -121,7 +125,7 @@ the following ways:
     line so an easy way to swap two file names is just to swap their
     numbers.
 
-16. `edir` always removes and renames files consistently. The sequence of
+17. `edir` always removes and renames files consistently. The sequence of
      operations applied is:
 
     1. Deleted files are removed and all renamed files and directories
