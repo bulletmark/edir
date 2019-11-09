@@ -146,9 +146,9 @@ the following ways:
 
 Arch users can install [edir from the AUR](https://aur.archlinux.org/packages/edir/).
 
-Note python 3.5 or later is required. Note [edir is on
-PyPI](https://pypi.org/project/edir/) so you can `sudo pip install
-edir` or:
+Python 3.5 or later is required. Note [edir is on
+PyPI](https://pypi.org/project/edir/) so you can `sudo pip install edir`
+or:
 
 ```
 $ git clone http://github.com/bulletmark/edir
