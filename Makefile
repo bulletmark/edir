@@ -12,34 +12,35 @@
 # General Public License at <http://www.gnu.org/licenses/> for more
 # details.
 
-DOC = README.md
-
 NAME = edir
+
+DOC = README.md
 DOCOUT = $(DOC:.md=.html)
 
 all:
-	@echo "Type sudo make install|uninstall, or make doc|check|clean"
+	@echo "Type sudo make install|uninstall"
+	@echo "or make sdist|upload|doc|check|clean"
 
 install:
-	@./install.sh -d "$(DESTDIR)"
+	pip3 install .
 
 uninstall:
-	@./install.sh -d "$(DESTDIR)" -u $(NAME)
+	pip3 uninstall $(NAME)
 
 sdist:
 	python3 setup.py sdist
 
 upload: sdist
-	twine upload dist/*
+	twine3 upload dist/*
 
 doc:	$(DOCOUT)
 
-check:
-	flake8 $(NAME).py $(NAME) setup.py
-	vermin -i -q $(NAME).py
-
 $(DOCOUT): $(DOC)
 	markdown $< >$@
+
+check:
+	flake8 $(NAME).py $(NAME) setup.py
+	vermin -i -q $(NAME).py $(NAME) setup.py
 
 clean:
 	@rm -vrf $(DOCOUT) *.egg-info build/ dist/ __pycache__/

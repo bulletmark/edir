@@ -147,12 +147,12 @@ the following ways:
 Arch users can install [edir from the AUR](https://aur.archlinux.org/packages/edir/).
 
 Python 3.5 or later is required. Note [edir is on
-PyPI](https://pypi.org/project/edir/) so you can `sudo pip install edir`
+PyPI](https://pypi.org/project/edir/) so you can `sudo pip3 install edir`
 or:
 
 ```
 $ git clone http://github.com/bulletmark/edir
-$ sudo make install
+$ sudo pip3 install ./edir
 ```
 
 Optionally, if you are using an odd system and/or want to install this
