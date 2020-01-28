@@ -152,7 +152,8 @@ or:
 
 ```
 $ git clone http://github.com/bulletmark/edir
-$ sudo pip3 install ./edir
+$ cd edir
+$ sudo pip3 install .
 ```
 
 Optionally, if you are using an odd system and/or want to install this
