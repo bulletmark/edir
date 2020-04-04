@@ -8,9 +8,8 @@ from shutil import rmtree
 
 # Some constants
 PROG = pathlib.Path(sys.argv[0]).stem
-PROG_UPPER = PROG.upper()
-EDIT_CMD = PROG_UPPER + '_EDIT_COMMAND'
-DEF_ARGS = PROG_UPPER + '_DEFAULT_ARGS'
+CNFFILE = pathlib.Path('~/.config/{}-flags.conf'.format(PROG)).expanduser()
+EDITOR = PROG.upper() + '_EDITOR'
 
 # The temp dir we will use in the dir of each target move
 TEMPDIR = '.tmp-' + PROG
@@ -171,7 +170,7 @@ class Path:
 def editfile(fp):
     'Run the editor command'
     # Use explicit editor (+ arguments) or choose default
-    editcmd = shlex.split(os.getenv(EDIT_CMD, ''))
+    editcmd = shlex.split(os.getenv(EDITOR, ''))
     if not editcmd:
         editcmd = [os.getenv('VISUAL') or os.getenv('EDITOR') or 'vi']
 
@@ -208,8 +207,12 @@ def main():
             help='file|dir, or "-" for stdin')
 
     # Add default args from env vars
-    arglist = shlex.split(os.getenv(DEF_ARGS, '')) + sys.argv[1:]
-    args = opt.parse_args(arglist)
+
+    # Merge in default args from user config file. Then parse the
+    # command line.
+    cnfargs = shlex.split(CNFFILE.read_text().strip()) \
+            if CNFFILE.exists() else []
+    args = opt.parse_args(cnfargs + sys.argv[1:])
     verbose = not args.quiet
 
     # Set input list to a combination of arguments and stdin

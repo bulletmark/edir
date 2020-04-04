@@ -41,6 +41,7 @@ $(DOCOUT): $(DOC)
 check:
 	flake8 $(NAME).py $(NAME) setup.py
 	vermin -i -q --no-tips $(NAME).py $(NAME) setup.py
+	python3 setup.py check
 
 clean:
 	@rm -vrf $(DOCOUT) *.egg-info build/ dist/ __pycache__/

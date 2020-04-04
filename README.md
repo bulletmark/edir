@@ -162,22 +162,26 @@ it executable somewhere in your path.
 
 Edir runs on pure Python. No 3rd party packages are required.
 
-## Environment Variables
-
-### EDIR_EDIT_COMMAND
+### EDIR_EDITOR Environment Variable
 
 `edir` selects your editor from the first environment value found of:
-`$EDIR_EDIT_COMMAND`, `$VISUAL`, `$EDITOR`, then falls back to "vi" if
+`$EDIR_EDITOR`, `$VISUAL`, `$EDITOR`, then falls back to "vi" if
 none of these are set.
 
-You can set `EDIR_EDIT_COMMAND` explicitly to an editor + arguments
+You can also `EDIR_EDITOR` explicitly to an editor + arguments
 string if you want `edir` to call your editor with specific arguments.
 
-### EDIR_DEFAULT_ARGS
+## EDIR Command Default Arguments
 
-This allow you to set default starting arguments to `edir`. Type `edir
--h` to see the arguments supported. E.g. export `EDIR_DEFAULT_ARGS="-q"`
-to make `edir` not print rename and remove actions.
+You can add default arguments to a personal configuration file
+`~/.config/edir-flags.conf`. If that file exists then each line of arguments
+will be concatenated and automatically prepended to your `edir` command
+line arguments.
+
+This allow you to set default preferred starting arguments to `edir`.
+Type `edir -h` to see the arguments supported.
+E.g. `echo "-q" >~/.config/edir-flags.conf` to make `edir` not print
+rename and remove actions.
 
 ## Examples
 
