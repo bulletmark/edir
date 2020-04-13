@@ -274,7 +274,7 @@ def main():
     # Pass 3. Rename all temp files and dirs to final target
     for p in paths:
         if p.restore_temp() and verbose:
-            print('{} => {}{}'.format(p.diagrepr, p.newpath,
+            print('{} -> {}{}'.format(p.diagrepr, p.newpath,
                 '/' if p.is_dir else ''))
 
     # Remove all the temporary dirs we created
