@@ -100,15 +100,17 @@ the following ways:
 13. `edir` creates the temporary editing file with a `.sh` extension so
     your EDITOR may syntax highlight the entries.
 
-14. `edir` provides an environment value to add custom options to the
-    invocation of your editor, and/or to set default `edir` command
-    arguments. See below.
+14. `edir` provides an optional environment value to add custom options
+    to the invocation of your editor. See section below.
 
-15. Contrary to what it's name implies, `vidir` actually respects your
+15. `edir` provides an optional configuration file to set default `edir`
+    command line arguments. See section below.
+
+16. Contrary to what it's name implies, `vidir` actually respects your
     `$EDITOR` variable and runs your preferred editor like `edir` does
     but `edir` has been given a generic name to make this more apparent.
 
-16. `edir` is very strict about the format of the lines you edit and
+17. `edir` is very strict about the format of the lines you edit and
     immediately exits with an error message (before changing anything)
     if you format one of the lines incorrectly. All lines in the edited
     list:
@@ -125,7 +127,7 @@ the following ways:
     line so an easy way to swap two file names is just to swap their
     numbers.
 
-17. `edir` always removes and renames files consistently. The sequence of
+18. `edir` always removes and renames files consistently. The sequence of
      operations applied is:
 
     1. Deleted files are removed and all renamed files and directories
@@ -217,7 +219,7 @@ optional arguments:
   -h, --help     show this help message and exit
   -a, --all      include/show all (including hidden) files
   -r, --recurse  recursively remove any files and directories in removed
-                 directories that are non-empty
+                 directories
   -q, --quiet    do not print rename/remove actions
   -f, --files    only show files
   -d, --dirs     only show directories

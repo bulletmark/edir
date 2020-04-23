@@ -2,7 +2,14 @@
 'Program to rename and remove files and directories using your editor.'
 # Author: Mark Blakeney, May 2019.
 
-import sys, os, argparse, subprocess, tempfile, itertools, shlex, pathlib
+import sys
+import os
+import argparse
+import subprocess
+import tempfile
+import itertools
+import shlex
+import pathlib
 from collections import OrderedDict
 from shutil import rmtree
 
@@ -193,7 +200,7 @@ def main():
             help='include/show all (including hidden) files')
     opt.add_argument('-r', '--recurse', action='store_true',
             help='recursively remove any files and directories in '
-            'removed directories that are non-empty')
+            'removed directories')
     opt.add_argument('-q', '--quiet', action='store_true',
             help='do not print rename/remove actions')
     grp = opt.add_mutually_exclusive_group()
