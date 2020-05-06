@@ -174,14 +174,14 @@ class Path:
 
             path.newpath = pathlib.Path(pathstr)
 
-def editfile(fp):
+def editfile(filename):
     'Run the editor command'
     # Use explicit editor (+ arguments) or choose default
     editcmd = shlex.split(os.getenv(EDITOR, ''))
     if not editcmd:
         editcmd = [os.getenv('VISUAL') or os.getenv('EDITOR') or 'vi']
 
-    editcmd.append(fp.name)
+    editcmd.append(filename)
 
     # Run the editor ..
     with open('/dev/tty') as tty:
@@ -250,7 +250,7 @@ def main():
     # Create a temp file for the user to edit then read the lines back
     with tempfile.NamedTemporaryFile('r+t', suffix='.sh') as fp:
         Path.writefile(fp)
-        editfile(fp)
+        editfile(fp.name)
         Path.readfile(fp)
 
     # Reduce paths to only those that were removed or changed by the user

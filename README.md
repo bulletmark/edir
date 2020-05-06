@@ -183,7 +183,7 @@ line arguments.
 This allow you to set default preferred starting arguments to `edir`.
 Type `edir -h` to see the arguments supported.
 E.g. `echo "-q" >~/.config/edir-flags.conf` to make `edir` not print
-rename and remove actions.
+rename and remove actions by default.
 
 ## Examples
 
