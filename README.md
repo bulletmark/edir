@@ -78,18 +78,22 @@ the following ways:
     as opposed to `find | edir -`. Note that `vidir` requires the second
     form.
 
-8. `edir` adds options to only show files (`-f/--files`), or to only
-    show directories (`-d/--dirs`).
+8. `edir` adds a `-F/--files` option to only show files, or `-D/--dirs`
+    to only show directories.
 
-9. `edir` adds an option to ignore symbolic links (`-l/--nolinks`).
+9. `edir` adds a `-L/--nolinks` option to ignore symbolic links.
 
-10. `edir` shows a message "No files or directories" if there is nothing
+10. `edir` adds a `-d/--dirnames` option to edit specified directory
+    names directly, not their contents. I.e. this is like `ls -d mydir`
+    compared to `ls mydir`.
+
+11. `edir` shows a message "No files or directories" if there is nothing
    to edit, rather than opening an empty file to edit.
 
-11. `edir` filters out any duplicate paths you may inadvertently specify
+12. `edir` filters out any duplicate paths you may inadvertently specify
     on it's command line.
 
-12. `edir` always invokes a consistent duplicate renaming scheme. E.g. if
+13. `edir` always invokes a consistent duplicate renaming scheme. E.g. if
     you rename `b`, `c`, `d` all to the same pre-existing name `a` then
     `edir` will rename `b` to `a~`, `c` to `a~1`, `d` to `a~2`.
     Depending on order of operations, `vidir` is not always consistent
@@ -97,20 +101,20 @@ the following ways:
     be a bug in `vidir` that nobody has ever bothered to
     report/address?).
 
-13. `edir` creates the temporary editing file with a `.sh` extension so
+14. `edir` creates the temporary editing file with a `.sh` extension so
     your EDITOR may syntax highlight the entries.
 
-14. `edir` provides an optional environment value to add custom options
+15. `edir` provides an optional environment value to add custom options
     to the invocation of your editor. See section below.
 
-15. `edir` provides an optional configuration file to set default `edir`
+16. `edir` provides an optional configuration file to set default `edir`
     command line arguments. See section below.
 
-16. Contrary to what it's name implies, `vidir` actually respects your
+17. Contrary to what it's name implies, `vidir` actually respects your
     `$EDITOR` variable and runs your preferred editor like `edir` does
     but `edir` has been given a generic name to make this more apparent.
 
-17. `edir` is very strict about the format of the lines you edit and
+18. `edir` is very strict about the format of the lines you edit and
     immediately exits with an error message (before changing anything)
     if you format one of the lines incorrectly. All lines in the edited
     list:
@@ -127,7 +131,7 @@ the following ways:
     line so an easy way to swap two file names is just to swap their
     numbers.
 
-18. `edir` always removes and renames files consistently. The sequence of
+19. `edir` always removes and renames files consistently. The sequence of
      operations applied is:
 
     1. Deleted files are removed and all renamed files and directories
@@ -202,28 +206,29 @@ Rename and/or delete any jpeg files in current dir:
 Rename and/or delete any files under current directory and subdirectories:
 
 ```
-    find | edir -f
+    find | edir -F
 ```
 
 ## Command Line Options
 
 ```
-usage: edir [-h] [-a] [-r] [-q] [-f | -d] [-l] [args [args ...]]
+usage: edir [-h] [-a] [-r] [-q] [-d] [-F | -D] [-L] [args [args ...]]
 
 Program to rename and remove files and directories using your editor.
 
 positional arguments:
-  args           file|dir, or "-" for stdin
+  args            file|dir, or "-" for stdin
 
 optional arguments:
-  -h, --help     show this help message and exit
-  -a, --all      include/show all (including hidden) files
-  -r, --recurse  recursively remove any files and directories in removed
-                 directories
-  -q, --quiet    do not print rename/remove actions
-  -f, --files    only show files
-  -d, --dirs     only show directories
-  -l, --nolinks  ignore all symlinks
+  -h, --help      show this help message and exit
+  -a, --all       include/show all (including hidden) files
+  -r, --recurse   recursively remove any files and directories in removed
+                  directories
+  -q, --quiet     do not print rename/remove actions
+  -d, --dirnames  edit given directory names directly, not their contents
+  -F, --files     only show files
+  -D, --dirs      only show directories
+  -L, --nolinks   ignore all symlinks
 ```
 
 ## Embed in Ranger File Manager

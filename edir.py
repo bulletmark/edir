@@ -203,12 +203,14 @@ def main():
             'removed directories')
     opt.add_argument('-q', '--quiet', action='store_true',
             help='do not print rename/remove actions')
+    opt.add_argument('-d', '--dirnames', action='store_true',
+            help='edit given directory names directly, not their contents')
     grp = opt.add_mutually_exclusive_group()
-    grp.add_argument('-f', '--files', action='store_true',
+    grp.add_argument('-F', '--files', action='store_true',
             help='only show files')
-    grp.add_argument('-d', '--dirs', action='store_true',
+    grp.add_argument('-D', '--dirs', action='store_true',
             help='only show directories')
-    opt.add_argument('-l', '--nolinks', action='store_true',
+    opt.add_argument('-L', '--nolinks', action='store_true',
             help='ignore all symlinks')
     opt.add_argument('args', nargs='*',
             help='file|dir, or "-" for stdin')
@@ -238,7 +240,7 @@ def main():
                 if name != '.':
                     Path.add(line.rstrip('\n\r'), False)
         else:
-            Path.add(name, True)
+            Path.add(name, not args.dirnames)
 
     # Sanity check that we have something to edit
     if not Path.paths:
