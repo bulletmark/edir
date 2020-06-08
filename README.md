@@ -1,13 +1,16 @@
 ## EDIR - Rename and Delete Files and Directories Using Your Editor
 
 [edir](http://github.com/bulletmark/edir) is a command line utility to
-rename and remove filenames and directories using your text editor.
-Run it in the current directory and `edir` will open your editor on a
-list of files and directories in that directory. Each item in the
-directory will appear on its own numbered line. These numbers are how
-`edir` keeps track of what items are changed. Delete lines to remove
+rename and remove filenames and directories using your text editor. Run
+it in the current directory and `edir` will open your editor on a list
+of files and directories in that directory. Each item in the directory
+will appear on its own numbered line. These numbers are how `edir` keeps
+track of what items are changed. Delete lines to remove
 files/directories, or edit lines to rename files/directories. You can
-also switch pairs of numbers to swap files or directories.
+also switch pairs of numbers to swap files or directories. Optionally,
+it can use [Git](https://git-scm.com/) to rename or delete
+files/directories if run from within a [Git](https://git-scm.com/)
+repository.
 
 ## Comparison to Vidir
 
@@ -87,13 +90,18 @@ the following ways:
     names directly, not their contents. I.e. this is like `ls -d mydir`
     compared to `ls mydir`.
 
-11. `edir` shows a message "No files or directories" if there is nothing
+11. `edir` adds a `-g/--git` option to use `git mv` instead of `mv` and
+    `git rm` instead of `rm` when working in a
+    [Git](https://git-scm.com/) repository. See the description in the
+    section below about this and other git options.
+
+12. `edir` shows a message "No files or directories" if there is nothing
    to edit, rather than opening an empty file to edit.
 
-12. `edir` filters out any duplicate paths you may inadvertently specify
+13. `edir` filters out any duplicate paths you may inadvertently specify
     on it's command line.
 
-13. `edir` always invokes a consistent duplicate renaming scheme. E.g. if
+14. `edir` always invokes a consistent duplicate renaming scheme. E.g. if
     you rename `b`, `c`, `d` all to the same pre-existing name `a` then
     `edir` will rename `b` to `a~`, `c` to `a~1`, `d` to `a~2`.
     Depending on order of operations, `vidir` is not always consistent
@@ -101,20 +109,20 @@ the following ways:
     be a bug in `vidir` that nobody has ever bothered to
     report/address?).
 
-14. `edir` creates the temporary editing file with a `.sh` extension so
+15. `edir` creates the temporary editing file with a `.sh` extension so
     your EDITOR may syntax highlight the entries.
 
-15. `edir` provides an optional environment value to add custom options
+16. `edir` provides an optional environment value to add custom options
     to the invocation of your editor. See section below.
 
-16. `edir` provides an optional configuration file to set default `edir`
+17. `edir` provides an optional configuration file to set default `edir`
     command line arguments. See section below.
 
-17. Contrary to what it's name implies, `vidir` actually respects your
+18. Contrary to what it's name implies, `vidir` actually respects your
     `$EDITOR` variable and runs your preferred editor like `edir` does
     but `edir` has been given a generic name to make this more apparent.
 
-18. `edir` is very strict about the format of the lines you edit and
+19. `edir` is very strict about the format of the lines you edit and
     immediately exits with an error message (before changing anything)
     if you format one of the lines incorrectly. All lines in the edited
     list:
@@ -131,7 +139,7 @@ the following ways:
     line so an easy way to swap two file names is just to swap their
     numbers.
 
-19. `edir` always removes and renames files consistently. The sequence of
+20. `edir` always removes and renames files consistently. The sequence of
      operations applied is:
 
     1. Deleted files are removed and all renamed files and directories
@@ -147,6 +155,19 @@ the following ways:
     In simple terms, remember that files are processed before directories
     so you can rename files into a different directory and then delete
     the original directory, all in one edit.
+
+## Renames and Deletes in a GIT Repository
+
+When working within a [Git](https://git-scm.com/) repository, you likely
+want to `git mv` instead of `mv` and `git rm` instead of `rm` so `edir`
+adds a `-g/--git` option for this.
+
+You can also specify `--git-auto` option which does git moves and
+deletes automatically if invoked from within a Git repository, otherwise
+if not in a repository then `edir` works normally. This option exists so
+users can choose to set this as a default option, see the section below
+on how to set default options. If you set `--git-auto` as the default,
+then you can use `-G/--no-git-auto` to turn that option off temporarily.
 
 ## Installation
 
@@ -186,8 +207,9 @@ line arguments.
 
 This allow you to set default preferred starting arguments to `edir`.
 Type `edir -h` to see the arguments supported.
-E.g. `echo "-q" >~/.config/edir-flags.conf` to make `edir` not print
-rename and remove actions by default.
+
+The options `--git-auto`, `--quiet`, `--all`, `--recurse`, are good
+candidates to consider setting as default.
 
 ## Examples
 
@@ -212,23 +234,31 @@ Rename and/or delete any files under current directory and subdirectories:
 ## Command Line Options
 
 ```
-usage: edir [-h] [-a] [-r] [-q] [-d] [-F | -D] [-L] [args [args ...]]
+usage: edir [-h] [-a] [-r] [-q] [-d] [-g] [--git-auto] [-G] [-F | -D] [-L]
+            [args [args ...]]
 
 Program to rename and remove files and directories using your editor.
 
 positional arguments:
-  args            file|dir, or "-" for stdin
+  args               file|dir, or "-" for stdin
 
 optional arguments:
-  -h, --help      show this help message and exit
-  -a, --all       include/show all (including hidden) files
-  -r, --recurse   recursively remove any files and directories in removed
-                  directories
-  -q, --quiet     do not print rename/remove actions
-  -d, --dirnames  edit given directory names directly, not their contents
-  -F, --files     only show files
-  -D, --dirs      only show directories
-  -L, --nolinks   ignore all symlinks
+  -h, --help         show this help message and exit
+  -a, --all          include/show all (including hidden) files
+  -r, --recurse      recursively remove any files and directories in removed
+                     directories
+  -q, --quiet        do not print rename/remove actions
+  -d, --dirnames     edit given directory names directly, not their contents
+  -g, --git          do "git mv" instead of "mv" and "git rm" instead of "rm"
+  --git-auto         apply --git option automatically if invoked from within a
+                     git repository
+  -G, --no-git-auto  negate the --git-auto option (useful if you have set
+                     --git-auto as your default)
+  -F, --files        only show files
+  -D, --dirs         only show directories
+  -L, --nolinks      ignore all symlinks
+
+Note you can set default starting arguments in ~/.config/edir-flags.conf.
 ```
 
 ## Embed in Ranger File Manager

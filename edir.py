@@ -22,8 +22,19 @@ EDITOR = PROG.upper() + '_EDITOR'
 TEMPDIR = '.tmp-' + PROG
 args = None
 
-def remove(path, recurse=False):
+def remove(path, *, git=False, recurse=False):
     'Delete given file/directory'
+    if not recurse and path.is_dir() and any(path.iterdir()):
+        return 'Directory not empty'
+
+    if git:
+        ropt = '-r' if recurse else ''
+        res = subprocess.run('git rm -f {} {}'.format(ropt,
+            str(path)).split(), stdout=subprocess.DEVNULL,
+            stderr=subprocess.PIPE, universal_newlines=True)
+        return 'git error: {}'.format(res.stderr.strip()) \
+                if res.stderr else None
+
     if recurse:
         try:
             rmtree(str(path))
@@ -39,6 +50,14 @@ def remove(path, recurse=False):
             return str(e)
 
     return None
+
+def rename(pathsrc, pathdest):
+    'Rename given pathsrc to pathdest'
+    if args.git:
+        subprocess.run('git mv -f {} {}'.format(str(pathsrc),
+            str(pathdest)).split(), stdout=subprocess.DEVNULL)
+    else:
+        pathsrc.replace(pathdest)
 
 class Path:
     'Class to manage each instance of a file/dir'
@@ -76,26 +95,26 @@ class Path:
         try:
             tempdir.mkdir(parents=True, exist_ok=True)
         except Exception:
-            print('{} rename ERROR: Can not write in {}'.format(
+            print('{} mkdir ERROR: Can not write in {}'.format(
                 self.diagrepr, tempdir.parent), file=sys.stderr)
         else:
             self.temppath = self.inc_path(tempdir / self.newpath.name)
             self.tempdirs.add(tempdir)
-            self.path.replace(self.temppath)
+            rename(self.path, self.temppath)
 
     def restore_temp(self):
         'Restore temp path to it\'s final destination'
         if not self.temppath:
             return False
         self.newpath = self.inc_path(self.newpath)
-        self.temppath.replace(self.newpath)
+        rename(self.temppath, self.newpath)
         return True
 
     @classmethod
     def remove_temps(cls):
         'Remove all the temp dirs we created in rename_temp() above'
         for p in cls.tempdirs:
-            remove(p, recurse=True)
+            remove(p, git=False, recurse=True)
 
         cls.tempdirs.clear()
 
@@ -195,7 +214,9 @@ def main():
     'Main code'
     global args
     # Process command line options
-    opt = argparse.ArgumentParser(description=__doc__.strip())
+    opt = argparse.ArgumentParser(description=__doc__.strip(),
+            epilog='Note you can set default starting arguments in '
+            '~/.config/edir-flags.conf.')
     opt.add_argument('-a', '--all', action='store_true',
             help='include/show all (including hidden) files')
     opt.add_argument('-r', '--recurse', action='store_true',
@@ -205,6 +226,14 @@ def main():
             help='do not print rename/remove actions')
     opt.add_argument('-d', '--dirnames', action='store_true',
             help='edit given directory names directly, not their contents')
+    opt.add_argument('-g', '--git', action='store_true',
+            help='do "git mv" instead of "mv" and "git rm" instead of "rm"')
+    opt.add_argument('--git-auto', action='store_true',
+            help='apply --git option automatically if invoked from '
+            'within a git repository')
+    opt.add_argument('-G', '--no-git-auto', action='store_true',
+            help='negate the --git-auto option (useful if you have set '
+            '--git-auto as your default)')
     grp = opt.add_mutually_exclusive_group()
     grp.add_argument('-F', '--files', action='store_true',
             help='only show files')
@@ -249,6 +278,17 @@ def main():
         print('No {}.'.format(desc))
         return None
 
+    if args.git or (args.git_auto and not args.no_git_auto):
+        res = subprocess.run('git rev-parse --is-inside-work-tree'.split(),
+            stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
+            universal_newlines=True)
+        is_git_repo = res.stdout and res.stdout.strip() == 'true'
+
+        if args.git and not is_git_repo:
+            opt.error('must be within a git repo to use -g/--git option')
+
+        args.git = True
+
     # Create a temp file for the user to edit then read the lines back
     with tempfile.NamedTemporaryFile('r+t', suffix='.sh') as fp:
         Path.writefile(fp)
@@ -264,7 +304,7 @@ def main():
         if p.newpath:
             p.rename_temp()
         elif not p.is_dir:
-            err = remove(p.path)
+            err = remove(p.path, git=args.git)
             if err:
                 print('{} remove ERROR: {}'.format(p.diagrepr, err),
                         file=sys.stderr)
@@ -274,7 +314,7 @@ def main():
     # Pass 2: Delete all empty removed dirs.
     for p in paths:
         if p.is_dir and not p.newpath:
-            if remove(p.path) is None:
+            if remove(p.path, git=args.git) is None:
                 # Have removed, so flag as finished for final dirs pass below
                 p.is_dir = False
                 if verbose:
@@ -294,7 +334,7 @@ def main():
         if p.is_dir and not p.newpath:
             note = ' recursively' if args.recurse and \
                     any(p.path.iterdir()) else ''
-            err = remove(p.path, recurse=args.recurse)
+            err = remove(p.path, git=args.git, recurse=args.recurse)
             if err:
                 print('{} remove ERROR: {}'.format(p.diagrepr, err),
                         file=sys.stderr)
