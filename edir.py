@@ -15,7 +15,7 @@ from shutil import rmtree
 
 # Some constants
 PROG = pathlib.Path(sys.argv[0]).stem
-CNFFILE = pathlib.Path('~/.config/{}-flags.conf'.format(PROG)).expanduser()
+CNFFILE = pathlib.Path(f'~/.config/{PROG}-flags.conf').expanduser()
 EDITOR = PROG.upper() + '_EDITOR'
 
 # The temp dir we will use in the dir of each target move
@@ -29,11 +29,10 @@ def remove(path, *, git=False, recurse=False):
 
     if git:
         ropt = '-r' if recurse else ''
-        res = subprocess.run('git rm -f {} {}'.format(ropt,
-            str(path)).split(), stdout=subprocess.DEVNULL,
-            stderr=subprocess.PIPE, universal_newlines=True)
-        return 'git error: {}'.format(res.stderr.strip()) \
-                if res.stderr else None
+        res = subprocess.run(f'git rm -f {ropt} {path}'.split(),
+                stdout=subprocess.DEVNULL, stderr=subprocess.PIPE,
+                universal_newlines=True)
+        return f'git error: {res.stderr.strip()}' if res.stderr else None
 
     if recurse:
         try:
@@ -54,8 +53,8 @@ def remove(path, *, git=False, recurse=False):
 def rename(pathsrc, pathdest):
     'Rename given pathsrc to pathdest'
     if args.git:
-        subprocess.run('git mv -f {} {}'.format(str(pathsrc),
-            str(pathdest)).split(), stdout=subprocess.DEVNULL)
+        subprocess.run(f'git mv -f {pathsrc} {pathdest}'.split(),
+                stdout=subprocess.DEVNULL)
     else:
         pathsrc.replace(pathdest)
 
@@ -87,7 +86,7 @@ class Path:
         for c in itertools.count():
             if not path.is_symlink() and not path.exists():
                 return path
-            path = path.with_name(name + ('~' if c <= 0 else ('~{}'.format(c))))
+            path = path.with_name(name + ('~' if c <= 0 else f'~{c}'))
 
     def rename_temp(self):
         'Move this path to a temp place in advance of final move'
@@ -95,15 +94,15 @@ class Path:
         try:
             tempdir.mkdir(parents=True, exist_ok=True)
         except Exception:
-            print('{} mkdir ERROR: Can not write in {}'.format(
-                self.diagrepr, tempdir.parent), file=sys.stderr)
+            print(f'{self.diagrepr} mkdir ERROR: '
+                    f'Can not write in {tempdir.parent}', file=sys.stderr)
         else:
             self.temppath = self.inc_path(tempdir / self.newpath.name)
             self.tempdirs.add(tempdir)
             rename(self.path, self.temppath)
 
     def restore_temp(self):
-        'Restore temp path to it\'s final destination'
+        'Restore temp path to final destination'
         if not self.temppath:
             return False
         self.newpath = self.inc_path(self.newpath)
@@ -140,7 +139,7 @@ class Path:
         'Add file[s]/dir[s] to the list of paths'
         path = pathlib.Path(name)
         if not path.exists():
-            sys.exit('ERROR: {} does not exist'.format(name))
+            sys.exit(f'ERROR: {name} does not exist')
 
         if expand and path.is_dir():
             for child in sorted(path.iterdir()):
@@ -152,8 +151,8 @@ class Path:
     @classmethod
     def writefile(cls, fp):
         'Write the file for user to edit'
-        fp.writelines('{}\t{}\n'.format(i, p.linerepr)
-                for i, p in enumerate(cls.paths, 1))
+        fp.writelines(f'{i}\t{p.linerepr}\n' for i, p in
+                enumerate(cls.paths, 1))
         fp.flush()
 
     @classmethod
@@ -170,23 +169,21 @@ class Path:
             try:
                 n, pathstr = line.split(maxsplit=1)
             except Exception:
-                sys.exit('ERROR: line {} invalid:\n{}'.format(
-                    count, rawline))
+                sys.exit(f'ERROR: line {count} invalid:\n{rawline}')
             try:
                 num = int(n)
             except Exception:
-                sys.exit('ERROR: line {} number {} invalid:\n{}'.format(
-                    count, n, rawline))
+                sys.exit(f'ERROR: line {count} number {n} invalid:\n{rawline}')
 
             if num <= 0 or num > len(cls.paths):
-                sys.exit('ERROR: line {} number {} out of range:\n{}'.format(
-                    count, num, rawline))
+                sys.exit(f'ERROR: line {count} number {num} '
+                        f'out of range:\n{rawline}')
 
             path = cls.paths[num - 1]
 
             if path.newpath:
-                sys.exit('ERROR: line {} number {} edited twice:\n{}'.format(
-                    count, num, rawline))
+                sys.exit(f'ERROR: line {count} number {num} edited twice:'
+                        f'\n{rawline}')
 
             if len(pathstr) > 1:
                 pathstr = pathstr.rstrip('/')
@@ -208,7 +205,7 @@ def editfile(filename):
 
     # Check if editor returned error
     if res.returncode != 0:
-        sys.exit('ERROR: {} returned {}'.format(editcmd, res.returncode))
+        sys.exit(f'ERROR: {editcmd} returned {res.returncode}')
 
 def main():
     'Main code'
@@ -275,19 +272,20 @@ def main():
     if not Path.paths:
         desc = 'files' if args.files else \
                 'directories' if args.dirs else 'files or directories'
-        print('No {}.'.format(desc))
+        print(f'No {desc}.')
         return None
 
+    # Check if we are in a git repo
     if args.git or (args.git_auto and not args.no_git_auto):
         res = subprocess.run('git rev-parse --is-inside-work-tree'.split(),
-            stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
-            universal_newlines=True)
+                stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
+                universal_newlines=True)
         is_git_repo = res.stdout and res.stdout.strip() == 'true'
 
         if args.git and not is_git_repo:
             opt.error('must be within a git repo to use -g/--git option')
 
-        args.git = True
+        args.git = is_git_repo
 
     # Create a temp file for the user to edit then read the lines back
     with tempfile.NamedTemporaryFile('r+t', suffix='.sh') as fp:
@@ -306,10 +304,9 @@ def main():
         elif not p.is_dir:
             err = remove(p.path, git=args.git)
             if err:
-                print('{} remove ERROR: {}'.format(p.diagrepr, err),
-                        file=sys.stderr)
+                print(f'{p.diagrepr} remove ERROR: {err}', file=sys.stderr)
             elif verbose:
-                print('{} removed'.format(p.diagrepr))
+                print(f'{p.diagrepr} removed')
 
     # Pass 2: Delete all empty removed dirs.
     for p in paths:
@@ -318,13 +315,13 @@ def main():
                 # Have removed, so flag as finished for final dirs pass below
                 p.is_dir = False
                 if verbose:
-                    print('{} removed'.format(p.diagrepr))
+                    print(f'{p.diagrepr} removed')
 
     # Pass 3. Rename all temp files and dirs to final target
     for p in paths:
         if p.restore_temp() and verbose:
-            print('{} -> {}{}'.format(p.diagrepr, p.newpath,
-                '/' if p.is_dir else ''))
+            appdash = '/' if p.is_dir else ''
+            print(f'{p.diagrepr} -> {p.newpath}{appdash}')
 
     # Remove all the temporary dirs we created
     Path.remove_temps()
@@ -336,10 +333,9 @@ def main():
                     any(p.path.iterdir()) else ''
             err = remove(p.path, git=args.git, recurse=args.recurse)
             if err:
-                print('{} remove ERROR: {}'.format(p.diagrepr, err),
-                        file=sys.stderr)
+                print(f'{p.diagrepr} remove ERROR: {err}', file=sys.stderr)
             elif verbose:
-                print('{} removed{}'.format(p.diagrepr, note))
+                print(f'{p.diagrepr} removed{note}')
 
 if __name__ == '__main__':
     sys.exit(main())

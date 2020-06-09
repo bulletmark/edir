@@ -13,7 +13,7 @@ executable = stat.S_IEXEC | stat.S_IXGRP | stat.S_IXOTH
 
 setup(
     name=name,
-    version='1.9',
+    version='1.10',
     description='Utility to rename and remove files/dirs using your editor',
     long_description=here.joinpath('README.md').read_text(),
     long_description_content_type='text/markdown',
@@ -23,7 +23,7 @@ setup(
     keywords='vidir',
     license='GPLv3',
     py_modules=[module],
-    python_requires='>=3.5',
+    python_requires='>=3.6',
     classifiers=[
         'Programming Language :: Python :: 3',
     ],
