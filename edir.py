@@ -218,7 +218,7 @@ def main():
     opt = argparse.ArgumentParser(description=__doc__.strip(),
             epilog='Note you can set default starting arguments in '
             '~/.config/edir-flags.conf. The negation options allow you to '
-            'temporarily override the defaults.')
+            'temporarily override your defaults.')
     opt.add_argument('-a', '--all', action='store_true',
             help='include/show all (including hidden) files')
     opt.add_argument('-A', '--no-all', action='store_true',
@@ -238,7 +238,7 @@ def main():
             help='apply --git option automatically if invoked from '
             'within a git repository')
     opt.add_argument('-G', '--no-git', action='store_true',
-            help='negate the -g/--git/-G/--git-auto options')
+            help='negate the -g/--git/--git-auto options')
     opt.add_argument('-d', '--dirnames', action='store_true',
             help='edit given directory names directly, not their contents')
     grp = opt.add_mutually_exclusive_group()

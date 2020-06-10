@@ -267,14 +267,14 @@ optional arguments:
   -g, --git         do "git mv" instead of "mv" and "git rm" instead of "rm"
   --git-auto        apply --git option automatically if invoked from within a
                     git repository
-  -G, --no-git      negate the -g/--git/-G/--git-auto options
+  -G, --no-git      negate the -g/--git/--git-auto options
   -d, --dirnames    edit given directory names directly, not their contents
   -F, --files       only show files
   -D, --dirs        only show directories
   -L, --nolinks     ignore all symlinks
 
 Note you can set default starting arguments in ~/.config/edir-flags.conf. The
-negation options allow you to temporarily override the defaults.
+negation options allow you to temporarily override your defaults.
 ```
 
 ## Embed in Ranger File Manager
