@@ -282,10 +282,10 @@ negation options allow you to temporarily override the defaults.
 In many ways `edir` (and `vidir`) are better than the
 [ranger](https://ranger.github.io/)
 [bulkrename](https://github.com/ranger/ranger/wiki/Official-user-guide#bulk-renaming)
-command (which does not handle name clashes etc). To add `edir` as a
-command within [ranger](https://ranger.github.io/), add or create the
-following in `~/.config/ranger/commands.py`. Then run it from within
-[ranger](https://ranger.github.io/) by typing `:edir`.
+command (which does not handle name swaps and clashes etc). To add
+`edir` as a command within [ranger](https://ranger.github.io/), add or
+create the following in `~/.config/ranger/commands.py`. Then run it from
+within [ranger](https://ranger.github.io/) by typing `:edir`.
 
 ```python
 from ranger.api.commands import Command
