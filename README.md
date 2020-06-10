@@ -209,8 +209,11 @@ line arguments.
 This allow you to set default preferred starting arguments to `edir`.
 Type `edir -h` to see the arguments supported.
 
-The options `--git-auto`, `--quiet`, `--all`, `--recurse`, are good
-candidates to consider setting as default.
+The options `--all`, `--recurse`, `--quiet`, `--git-auto` are sensible
+candidates to consider setting as default. If you set these then
+"on-the-fly" negation options `-A`, `-R`, `-Q`, `-G` are also provided
+to temporarily override and disable each of these default options on the
+command line.
 
 ## Examples
 
@@ -232,34 +235,46 @@ Rename and/or delete any files under current directory and subdirectories:
     find | edir -F
 ```
 
+Use [`fd`](https://github.com/sharkdp/fd) to view and `git mv/rm`
+repository files only, in the current directory only:
+
+```
+    fd -d1 -tf | edir -g
+```
+
 ## Command Line Options
 
 ```
-usage: edir [-h] [-a] [-r] [-q] [-d] [-g] [--git-auto] [-G] [-F | -D] [-L]
+usage: edir [-h] [-a] [-A] [-r] [-R] [-q] [-Q] [-g] [--git-auto] [-G] [-d]
+            [-F | -D] [-L]
             [args [args ...]]
 
-Program to rename and remove files and directories using your editor.
+Program to rename and remove files and directories using your editor. Can also
+use git to action the rename and remove if run within a git repository.
 
 positional arguments:
-  args               file|dir, or "-" for stdin
+  args              file|dir, or "-" for stdin
 
 optional arguments:
-  -h, --help         show this help message and exit
-  -a, --all          include/show all (including hidden) files
-  -r, --recurse      recursively remove any files and directories in removed
-                     directories
-  -q, --quiet        do not print rename/remove actions
-  -d, --dirnames     edit given directory names directly, not their contents
-  -g, --git          do "git mv" instead of "mv" and "git rm" instead of "rm"
-  --git-auto         apply --git option automatically if invoked from within a
-                     git repository
-  -G, --no-git-auto  negate the --git-auto option (useful if you have set
-                     --git-auto as your default)
-  -F, --files        only show files
-  -D, --dirs         only show directories
-  -L, --nolinks      ignore all symlinks
+  -h, --help        show this help message and exit
+  -a, --all         include/show all (including hidden) files
+  -A, --no-all      negate the -a/--all/ option
+  -r, --recurse     recursively remove any files and directories in removed
+                    directories
+  -R, --no-recurse  negate the -r/--recurse/ option
+  -q, --quiet       do not print rename/remove actions
+  -Q, --no-quiet    negate the -q/--quiet/ option
+  -g, --git         do "git mv" instead of "mv" and "git rm" instead of "rm"
+  --git-auto        apply --git option automatically if invoked from within a
+                    git repository
+  -G, --no-git      negate the -g/--git/-G/--git-auto options
+  -d, --dirnames    edit given directory names directly, not their contents
+  -F, --files       only show files
+  -D, --dirs        only show directories
+  -L, --nolinks     ignore all symlinks
 
-Note you can set default starting arguments in ~/.config/edir-flags.conf.
+Note you can set default starting arguments in ~/.config/edir-flags.conf. The
+negation options allow you to temporarily override the defaults.
 ```
 
 ## Embed in Ranger File Manager

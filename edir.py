@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-'Program to rename and remove files and directories using your editor.'
+'''
+Program to rename and remove files and directories using your editor.
+Can also use git to action the rename and remove if run within a git
+repository.
+'''
 # Author: Mark Blakeney, May 2019.
 
 import sys
@@ -213,24 +217,30 @@ def main():
     # Process command line options
     opt = argparse.ArgumentParser(description=__doc__.strip(),
             epilog='Note you can set default starting arguments in '
-            '~/.config/edir-flags.conf.')
+            '~/.config/edir-flags.conf. The negation options allow you to '
+            'temporarily override the defaults.')
     opt.add_argument('-a', '--all', action='store_true',
             help='include/show all (including hidden) files')
+    opt.add_argument('-A', '--no-all', action='store_true',
+            help='negate the -a/--all/ option')
     opt.add_argument('-r', '--recurse', action='store_true',
             help='recursively remove any files and directories in '
             'removed directories')
+    opt.add_argument('-R', '--no-recurse', action='store_true',
+            help='negate the -r/--recurse/ option')
     opt.add_argument('-q', '--quiet', action='store_true',
             help='do not print rename/remove actions')
-    opt.add_argument('-d', '--dirnames', action='store_true',
-            help='edit given directory names directly, not their contents')
+    opt.add_argument('-Q', '--no-quiet', action='store_true',
+            help='negate the -q/--quiet/ option')
     opt.add_argument('-g', '--git', action='store_true',
             help='do "git mv" instead of "mv" and "git rm" instead of "rm"')
     opt.add_argument('--git-auto', action='store_true',
             help='apply --git option automatically if invoked from '
             'within a git repository')
-    opt.add_argument('-G', '--no-git-auto', action='store_true',
-            help='negate the --git-auto option (useful if you have set '
-            '--git-auto as your default)')
+    opt.add_argument('-G', '--no-git', action='store_true',
+            help='negate the -g/--git/-G/--git-auto options')
+    opt.add_argument('-d', '--dirnames', action='store_true',
+            help='edit given directory names directly, not their contents')
     grp = opt.add_mutually_exclusive_group()
     grp.add_argument('-F', '--files', action='store_true',
             help='only show files')
@@ -241,13 +251,23 @@ def main():
     opt.add_argument('args', nargs='*',
             help='file|dir, or "-" for stdin')
 
-    # Add default args from env vars
-
     # Merge in default args from user config file. Then parse the
     # command line.
     cnfargs = shlex.split(CNFFILE.read_text().strip()) \
             if CNFFILE.exists() else []
     args = opt.parse_args(cnfargs + sys.argv[1:])
+
+    # Override with negation options
+    if args.no_all:
+        args.all = False
+    if args.no_recurse:
+        args.recurse = False
+    if args.no_quiet:
+        args.quiet = False
+    if args.no_git:
+        args.git = False
+        args.git_auto = False
+
     verbose = not args.quiet
 
     # Set input list to a combination of arguments and stdin
@@ -276,7 +296,7 @@ def main():
         return None
 
     # Check if we are in a git repo
-    if args.git or (args.git_auto and not args.no_git_auto):
+    if args.git or args.git_auto:
         res = subprocess.run('git rev-parse --is-inside-work-tree'.split(),
                 stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
                 universal_newlines=True)
