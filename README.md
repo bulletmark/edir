@@ -167,8 +167,8 @@ deletes automatically if invoked from within a Git repository, otherwise
 if not in a repository then `edir` works normally. This option exists so
 users can choose to set this as a default option, see the section below
 on how to set default options. If you set `--git-auto` as the default,
-then you can use `-G/--no-git-auto` on the command line to turn that
-default option off temporarily.
+then you can use `-G/--no-git` on the command line to turn that default
+option off temporarily.
 
 ## Installation
 
