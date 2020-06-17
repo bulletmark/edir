@@ -24,9 +24,11 @@ EDITOR = PROG.upper() + '_EDITOR'
 
 # The temp dir we will use in the dir of each target move
 TEMPDIR = '.tmp-' + PROG
-args = None
 
-def remove(path, *, git=False, recurse=False):
+args = None
+gitfiles = set()
+
+def remove(path, git=False, recurse=False):
     'Delete given file/directory'
     if not recurse and path.is_dir() and any(path.iterdir()):
         return 'Directory not empty'
@@ -54,9 +56,9 @@ def remove(path, *, git=False, recurse=False):
 
     return None
 
-def rename(pathsrc, pathdest):
+def rename(pathsrc, pathdest, is_git=False):
     'Rename given pathsrc to pathdest'
-    if args.git:
+    if is_git:
         subprocess.run(f'git mv -f {pathsrc} {pathdest}'.split(),
                 stdout=subprocess.DEVNULL)
     else:
@@ -73,8 +75,9 @@ class Path:
         self.newpath = None
         self.temppath = None
         self.is_dir = path.is_dir()
-
         self.diagrepr = str(self.path)
+        self.is_git = self.diagrepr in gitfiles
+
         self.linerepr = self.diagrepr if self.diagrepr.startswith('/') \
                 else './' + self.diagrepr
         if self.is_dir and not self.diagrepr.endswith('/'):
@@ -103,21 +106,21 @@ class Path:
         else:
             self.temppath = self.inc_path(tempdir / self.newpath.name)
             self.tempdirs.add(tempdir)
-            rename(self.path, self.temppath)
+            rename(self.path, self.temppath, self.is_git)
 
     def restore_temp(self):
         'Restore temp path to final destination'
         if not self.temppath:
             return False
         self.newpath = self.inc_path(self.newpath)
-        rename(self.temppath, self.newpath)
+        rename(self.temppath, self.newpath, self.is_git)
         return True
 
     @classmethod
     def remove_temps(cls):
         'Remove all the temp dirs we created in rename_temp() above'
         for p in cls.tempdirs:
-            remove(p, git=False, recurse=True)
+            remove(p, git=None, recurse=True)
 
         cls.tempdirs.clear()
 
@@ -257,6 +260,8 @@ def main():
             if CNFFILE.exists() else []
     args = opt.parse_args(cnfargs + sys.argv[1:])
 
+    verbose = not args.quiet
+
     # Override with negation options
     if args.no_all:
         args.all = False
@@ -268,7 +273,16 @@ def main():
         args.git = False
         args.git_auto = False
 
-    verbose = not args.quiet
+    # Check if we are in a git repo
+    if args.git or args.git_auto:
+        res = subprocess.run('git ls-files'.split(),
+                stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
+                universal_newlines=True)
+        if res.stdout:
+            gitfiles.update(res.stdout.strip().splitlines())
+
+        if args.git and not gitfiles:
+            opt.error('must be within a git repo to use -g/--git option')
 
     # Set input list to a combination of arguments and stdin
     filelist = args.args
@@ -295,18 +309,6 @@ def main():
         print(f'No {desc}.')
         return None
 
-    # Check if we are in a git repo
-    if args.git or args.git_auto:
-        res = subprocess.run('git rev-parse --is-inside-work-tree'.split(),
-                stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
-                universal_newlines=True)
-        is_git_repo = res.stdout and res.stdout.strip() == 'true'
-
-        if args.git and not is_git_repo:
-            opt.error('must be within a git repo to use -g/--git option')
-
-        args.git = is_git_repo
-
     # Create a temp file for the user to edit then read the lines back
     with tempfile.NamedTemporaryFile('r+t', suffix='.sh') as fp:
         Path.writefile(fp)
@@ -322,7 +324,7 @@ def main():
         if p.newpath:
             p.rename_temp()
         elif not p.is_dir:
-            err = remove(p.path, git=args.git)
+            err = remove(p.path, p.is_git)
             if err:
                 print(f'{p.diagrepr} remove ERROR: {err}', file=sys.stderr)
             elif verbose:
@@ -331,7 +333,7 @@ def main():
     # Pass 2: Delete all empty removed dirs.
     for p in paths:
         if p.is_dir and not p.newpath:
-            if remove(p.path, git=args.git) is None:
+            if remove(p.path, p.is_git) is None:
                 # Have removed, so flag as finished for final dirs pass below
                 p.is_dir = False
                 if verbose:
@@ -351,7 +353,7 @@ def main():
         if p.is_dir and not p.newpath:
             note = ' recursively' if args.recurse and \
                     any(p.path.iterdir()) else ''
-            err = remove(p.path, git=args.git, recurse=args.recurse)
+            err = remove(p.path, p.is_git, recurse=args.recurse)
             if err:
                 print(f'{p.diagrepr} remove ERROR: {err}', file=sys.stderr)
             elif verbose:

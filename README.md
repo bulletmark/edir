@@ -8,7 +8,7 @@ will appear on its own numbered line. These numbers are how `edir` keeps
 track of what items are changed. Delete lines to remove
 files/directories, or edit lines to rename files/directories. You can
 also switch pairs of numbers to swap files or directories. Optionally,
-it can use [Git](https://git-scm.com/) to rename or delete
+it can use [Git](https://git-scm.com/) to rename or delete tracked
 files/directories if run from within a [Git](https://git-scm.com/)
 repository.
 
@@ -159,8 +159,11 @@ the following ways:
 ## Renames and Deletes in a GIT Repository
 
 When working within a [Git](https://git-scm.com/) repository, you likely
-want to `git mv` instead of `mv` and `git rm` instead of `rm` so `edir`
-adds a `-g/--git` option for this.
+want to `git mv` instead of `mv` and `git rm` instead of `rm` for files
+and directories so `edir` adds a `-g/--git` option for this. Note that
+only tracked files/dirs are moved or renamed using Git. Untracked
+files/dirs within the repository are removed or renamed in the normal
+way.
 
 You can also specify `--git-auto` option which does git moves and
 deletes automatically if invoked from within a Git repository, otherwise
