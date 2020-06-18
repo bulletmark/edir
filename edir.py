@@ -275,11 +275,16 @@ def main():
 
     # Check if we are in a git repo
     if args.git or args.git_auto:
-        res = subprocess.run('git ls-files'.split(),
-                stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
-                universal_newlines=True)
-        if res.stdout:
-            gitfiles.update(res.stdout.strip().splitlines())
+        try:
+            res = subprocess.run('git ls-files'.split(),
+                    stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
+                    universal_newlines=True)
+        except Exception as e:
+            if args.git:
+                print(f'Git invocation error: {str(e)}', file=sys.stderr)
+        else:
+            if res.stdout:
+                gitfiles.update(res.stdout.strip().splitlines())
 
         if args.git and not gitfiles:
             opt.error('must be within a git repo to use -g/--git option')

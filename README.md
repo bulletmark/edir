@@ -193,6 +193,8 @@ manually then all you need to do is rename `edir.py` as `edir` and make
 it executable somewhere in your path.
 
 Edir runs on pure Python. No 3rd party packages are required.
+[Git](https://git-scm.com/) must be installed if you want to use the git
+options.
 
 ### EDIR_EDITOR Environment Variable
 
