@@ -12,7 +12,7 @@ it can use [Git](https://git-scm.com/) to rename or delete tracked
 files/directories if run from within a [Git](https://git-scm.com/)
 repository.
 
-## Comparison to Vidir
+## Advantages Compared to Vidir
 
 [edir](http://github.com/bulletmark/edir) unashamedly mimics the
 functionality of the [vidir](https://linux.die.net/man/1/vidir) utility
