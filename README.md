@@ -92,8 +92,9 @@ the following ways:
 
 11. `edir` adds a `-g/--git` option to use `git mv` instead of `mv` and
     `git rm` instead of `rm` when working in a
-    [Git](https://git-scm.com/) repository. See the description in the
-    section below about this and other git options.
+    [Git](https://git-scm.com/) repository. There is also a `--git-auto`
+    option to do this automatically. See the description in the section
+    below about these and other git options.
 
 12. `edir` shows a message "No files or directories" if there is nothing
    to edit, rather than opening an empty file to edit.
