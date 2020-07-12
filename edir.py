@@ -235,13 +235,10 @@ def main():
             help='do not print rename/remove actions')
     opt.add_argument('-Q', '--no-quiet', action='store_true',
             help='negate the -q/--quiet/ option')
+    opt.add_argument('--no-git', action='store_true',
+            help='do not use git if invoked within a git repository')
     opt.add_argument('-g', '--git', action='store_true',
-            help='do "git mv" instead of "mv" and "git rm" instead of "rm"')
-    opt.add_argument('--git-auto', action='store_true',
-            help='apply --git option automatically if invoked from '
-            'within a git repository')
-    opt.add_argument('-G', '--no-git', action='store_true',
-            help='negate the -g/--git/--git-auto options')
+            help='negate the --no-git option and DO use automatic git')
     opt.add_argument('-d', '--dirnames', action='store_true',
             help='edit given directory names directly, not their contents')
     grp = opt.add_mutually_exclusive_group()
@@ -269,12 +266,11 @@ def main():
         args.recurse = False
     if args.no_quiet:
         args.quiet = False
-    if args.no_git:
-        args.git = False
-        args.git_auto = False
+    if args.git:
+        args.no_git = False
 
     # Check if we are in a git repo
-    if args.git or args.git_auto:
+    if not args.no_git:
         try:
             res = subprocess.run('git ls-files'.split(),
                     stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,

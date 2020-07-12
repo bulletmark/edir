@@ -7,10 +7,13 @@ of files and directories in that directory. Each item in the directory
 will appear on its own numbered line. These numbers are how `edir` keeps
 track of what items are changed. Delete lines to remove
 files/directories, or edit lines to rename files/directories. You can
-also switch pairs of numbers to swap files or directories. Optionally,
-it can use [Git](https://git-scm.com/) to rename or delete tracked
-files/directories if run from within a [Git](https://git-scm.com/)
-repository.
+also switch pairs of numbers to swap files or directories. If run from
+within a [Git](https://git-scm.com/) repository, `edir` will use
+[Git](https://git-scm.com/) to rename or delete tracked
+files/directories.
+
+The latest version and documentation is available at
+https://github.com/bulletmark/edir.
 
 ## Advantages Compared to Vidir
 
@@ -90,11 +93,11 @@ the following ways:
     names directly, not their contents. I.e. this is like `ls -d mydir`
     compared to `ls mydir`.
 
-11. `edir` adds a `-g/--git` option to use `git mv` instead of `mv` and
-    `git rm` instead of `rm` when working in a
-    [Git](https://git-scm.com/) repository. There is also a `--git-auto`
-    option to do this automatically. See the description in the section
-    below about these and other git options.
+11. `edir` automatically uses `git mv` instead of `mv` and `git rm`
+    instead of `rm` for tracked files when working in a
+    [Git](https://git-scm.com/) repository. There is also a `--no-git`
+    option to suppress this default action. See the description in the
+    section below about the git options.
 
 12. `edir` shows a message "No files or directories" if there is nothing
    to edit, rather than opening an empty file to edit.
@@ -159,20 +162,18 @@ the following ways:
 
 ## Renames and Deletes in a GIT Repository
 
-When working within a [Git](https://git-scm.com/) repository, you likely
-want to `git mv` instead of `mv` and `git rm` instead of `rm` for files
-and directories so `edir` adds a `-g/--git` option for this. Note that
-only tracked files/dirs are moved or renamed using Git. Untracked
-files/dirs within the repository are removed or renamed in the normal
-way.
+When working within a [Git](https://git-scm.com/) repository, you nearly
+always want to use `git mv` instead of `mv` and `git rm` instead of `rm`
+for files and directories so `edir` recognises this and does it
+automatically. Note that only tracked files/dirs are moved or renamed
+using Git. Untracked files/dirs within the repository are removed or
+renamed in the normal way.
 
-You can also specify `--git-auto` option which does git moves and
-deletes automatically if invoked from within a Git repository, otherwise
-if not in a repository then `edir` works normally. This option exists so
-users can choose to set this as a default option, see the section below
-on how to set default options. If you set `--git-auto` as the default,
-then you can use `-G/--no-git` on the command line to turn that default
-option off temporarily.
+If for some reason you don't want automatic git action then you can
+set the `--no-git` option as a default option, see the section below on
+how to set default options. If you set `--no-git` as the default, then
+you can use `-g/-git` on the command line to turn that default option
+off temporarily.
 
 ## Installation
 
@@ -215,9 +216,9 @@ line arguments.
 This allow you to set default preferred starting arguments to `edir`.
 Type `edir -h` to see the arguments supported.
 
-The options `--all`, `--recurse`, `--quiet`, `--git-auto` are sensible
+The options `--all`, `--recurse`, `--quiet`, `--no-git` are sensible
 candidates to consider setting as default. If you set these then
-"on-the-fly" negation options `-A`, `-R`, `-Q`, `-G` are also provided
+"on-the-fly" negation options `-A`, `-R`, `-Q`, `-g` are also provided
 to temporarily override and disable each of these default options on the
 command line.
 
@@ -251,8 +252,8 @@ repository files only, in the current directory only:
 ## Command Line Options
 
 ```
-usage: edir [-h] [-a] [-A] [-r] [-R] [-q] [-Q] [-g] [--git-auto] [-G] [-d]
-            [-F | -D] [-L]
+usage: edir [-h] [-a] [-A] [-r] [-R] [-q] [-Q] [--no-git] [-g] [-d] [-F | -D]
+            [-L]
             [args [args ...]]
 
 Program to rename and remove files and directories using your editor. Can also
@@ -270,10 +271,8 @@ optional arguments:
   -R, --no-recurse  negate the -r/--recurse/ option
   -q, --quiet       do not print rename/remove actions
   -Q, --no-quiet    negate the -q/--quiet/ option
-  -g, --git         do "git mv" instead of "mv" and "git rm" instead of "rm"
-  --git-auto        apply --git option automatically if invoked from within a
-                    git repository
-  -G, --no-git      negate the -g/--git/--git-auto options
+  --no-git          do not use git if invoked within a git repository
+  -g, --git         negate the --no-git option and DO use automatic git
   -d, --dirnames    edit given directory names directly, not their contents
   -F, --files       only show files
   -D, --dirs        only show directories
