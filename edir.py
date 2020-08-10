@@ -220,7 +220,7 @@ def main():
     # Process command line options
     opt = argparse.ArgumentParser(description=__doc__.strip(),
             epilog='Note you can set default starting arguments in '
-            '~/.config/edir-flags.conf. The negation options allow you to '
+            f'~/.config/{PROG}-flags.conf. The negation options allow you to '
             'temporarily override your defaults.')
     opt.add_argument('-a', '--all', action='store_true',
             help='include/show all (including hidden) files')
