@@ -95,7 +95,7 @@ the following ways:
 
 11. `edir` automatically uses `git mv` instead of `mv` and `git rm`
     instead of `rm` for tracked files when working in a
-    [Git](https://git-scm.com/) repository. There is also a `--no-git`
+    [Git](https://git-scm.com/) repository. There is also a `-G/--no-git`
     option to suppress this default action. See the description in the
     section below about the git options.
 
@@ -252,8 +252,7 @@ repository files only, in the current directory only:
 ## Command Line Options
 
 ```
-usage: edir [-h] [-a] [-A] [-r] [-R] [-q] [-Q] [--no-git] [-g] [-d] [-F | -D]
-            [-L]
+usage: edir [-h] [-a] [-A] [-r] [-R] [-q] [-Q] [-G] [-g] [-d] [-F | -D] [-L]
             [args [args ...]]
 
 Program to rename and remove files and directories using your editor. Can also
@@ -271,7 +270,7 @@ optional arguments:
   -R, --no-recurse  negate the -r/--recurse/ option
   -q, --quiet       do not print rename/remove actions
   -Q, --no-quiet    negate the -q/--quiet/ option
-  --no-git          do not use git if invoked within a git repository
+  -G, --no-git      do not use git if invoked within a git repository
   -g, --git         negate the --no-git option and DO use automatic git
   -d, --dirnames    edit given directory names directly, not their contents
   -F, --files       only show files

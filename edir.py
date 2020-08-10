@@ -235,7 +235,7 @@ def main():
             help='do not print rename/remove actions')
     opt.add_argument('-Q', '--no-quiet', action='store_true',
             help='negate the -q/--quiet/ option')
-    opt.add_argument('--no-git', action='store_true',
+    opt.add_argument('-G', '--no-git', action='store_true',
             help='do not use git if invoked within a git repository')
     opt.add_argument('-g', '--git', action='store_true',
             help='negate the --no-git option and DO use automatic git')
