@@ -19,7 +19,7 @@ setup(
     long_description_content_type='text/markdown',
     url='https://github.com/bulletmark/{}'.format(name),
     author='Mark Blakeney',
-    author_email='mark@irsaere.net',
+    author_email='mark.blakeney@bullet-systems.net',
     keywords='vidir',
     license='GPLv3',
     py_modules=[module],

@@ -223,7 +223,7 @@ def main():
             f'~/.config/{PROG}-flags.conf. The negation options allow you to '
             'temporarily override your defaults.')
     opt.add_argument('-a', '--all', action='store_true',
-            help='include/show all (including hidden) files')
+            help='include all (including hidden) files')
     opt.add_argument('-A', '--no-all', action='store_true',
             help='negate the -a/--all/ option')
     opt.add_argument('-r', '--recurse', action='store_true',
@@ -243,9 +243,9 @@ def main():
             help='edit given directory names directly, not their contents')
     grp = opt.add_mutually_exclusive_group()
     grp.add_argument('-F', '--files', action='store_true',
-            help='only show files')
+            help='only show/edit files')
     grp.add_argument('-D', '--dirs', action='store_true',
-            help='only show directories')
+            help='only show/edit directories')
     opt.add_argument('-L', '--nolinks', action='store_true',
             help='ignore all symlinks')
     opt.add_argument('args', nargs='*',

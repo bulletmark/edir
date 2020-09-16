@@ -263,7 +263,7 @@ positional arguments:
 
 optional arguments:
   -h, --help        show this help message and exit
-  -a, --all         include/show all (including hidden) files
+  -a, --all         include all (including hidden) files
   -A, --no-all      negate the -a/--all/ option
   -r, --recurse     recursively remove any files and directories in removed
                     directories
@@ -273,8 +273,8 @@ optional arguments:
   -G, --no-git      do not use git if invoked within a git repository
   -g, --git         negate the --no-git option and DO use automatic git
   -d, --dirnames    edit given directory names directly, not their contents
-  -F, --files       only show files
-  -D, --dirs        only show directories
+  -F, --files       only show/edit files
+  -D, --dirs        only show/edit directories
   -L, --nolinks     ignore all symlinks
 
 Note you can set default starting arguments in ~/.config/edir-flags.conf. The
