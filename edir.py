@@ -331,10 +331,10 @@ def main():
             elif verbose:
                 print(f'{p.diagrepr} removed')
 
-    # Pass 2: Delete all empty removed dirs.
+    # Pass 2: Delete all removed dirs, if empty or recursive delete.
     for p in paths:
         if p.is_dir and not p.newpath:
-            if remove(p.path, p.is_git) is None:
+            if remove(p.path, p.is_git, args.recurse) is None:
                 # Have removed, so flag as finished for final dirs pass below
                 p.is_dir = False
                 if verbose:
@@ -354,7 +354,7 @@ def main():
         if p.is_dir and not p.newpath:
             note = ' recursively' if args.recurse and \
                     any(p.path.iterdir()) else ''
-            err = remove(p.path, p.is_git, recurse=args.recurse)
+            err = remove(p.path, p.is_git, args.recurse)
             if err:
                 print(f'{p.diagrepr} remove ERROR: {err}', file=sys.stderr)
             elif verbose:
