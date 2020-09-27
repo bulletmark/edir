@@ -22,7 +22,13 @@ functionality of the [vidir](https://linux.die.net/man/1/vidir) utility
 from [moreutils](https://joeyh.name/code/moreutils/) but aims to improve it in
 the following ways:
 
-1. `vidir` presents file and directories equivalently but `edir` adds a
+1. `edir` automatically uses `git mv` instead of `mv` and `git rm`
+    instead of `rm` for tracked files when working in a
+    [Git](https://git-scm.com/) repository. There is also a `-G/--no-git`
+    option to suppress this default action. See the description in the
+    section below about the git options.
+
+2. `vidir` presents file and directories equivalently but `edir` adds a
    trailing slash `/` to visually discriminate directories. E.g. if `afile` and
    `bfile` are files, `adir` and `bdir` are directories, then `vidir`
    presents these in your editor as follows.
@@ -51,21 +57,21 @@ the following ways:
    Note also, that both `edir` and `vidir` show the leading `./` on each
    entry so that any leading spaces are clearly seen, and can be edited.
 
-2. `edir` allows you to remove a file/directory by deleting the line, as
+3. `edir` allows you to remove a file/directory by deleting the line, as
    `vidir` does, but you can also remove it by pre-pending a `#` to
    "comment it out" or by substituting an entirely blank line.
 
-3. By default, `edir` prints remove and rename messages whereas `vidir`
+4. By default, `edir` prints remove and rename messages whereas `vidir`
    prints those only when the `-v/--verbose` switch is added. You can add
    `-q/--quiet` to `edir` to suppress these messages.
 
-4. When `vidir` is run with the `-v/--verbose` switch then it reports
+5. When `vidir` is run with the `-v/--verbose` switch then it reports
    the renaming of original to intermediate temporary to final files if
    files are swapped etc. That is rather an implementation detail so
    `edir` only reports the original to final renames which is all the
    user really cares about.
 
-5. To remove a large recursive tree you must pipe the directory tree to
+6. To remove a large recursive tree you must pipe the directory tree to
    `vidir` and then explicitly remove all children files and directories
    before deleting a parent directory. You can do this also in `edir` of
    course (and arguably it is probably the safest approach) but there
@@ -73,31 +79,25 @@ the following ways:
    `edir` adds a `-r/--recurse` switch to allow this. BE CAREFUL USING
    THIS!
 
-6. `vidir` always shows all files and directories in a directory,
+7. `vidir` always shows all files and directories in a directory,
    including hidden files and directories (i.e. those starting with a
    `.`). Usually a user does not want to be bothered with these so
    `edir` by default does not show them. They can be included by adding
    the `-a/--all` switch.
 
-7. `edir` does not require the user to specify the `-` if something has
+8. `edir` does not require the user to specify the `-` if something has
     been piped to standard input. E.g. you need only type `find | edir`
     as opposed to `find | edir -`. Note that `vidir` requires the second
     form.
 
-8. `edir` adds a `-F/--files` option to only show files, or `-D/--dirs`
+9. `edir` adds a `-F/--files` option to only show files, or `-D/--dirs`
     to only show directories.
 
-9. `edir` adds a `-L/--nolinks` option to ignore symbolic links.
+10. `edir` adds a `-L/--nolinks` option to ignore symbolic links.
 
-10. `edir` adds a `-d/--dirnames` option to edit specified directory
+11. `edir` adds a `-d/--dirnames` option to edit specified directory
     names directly, not their contents. I.e. this is like `ls -d mydir`
     compared to `ls mydir`.
-
-11. `edir` automatically uses `git mv` instead of `mv` and `git rm`
-    instead of `rm` for tracked files when working in a
-    [Git](https://git-scm.com/) repository. There is also a `-G/--no-git`
-    option to suppress this default action. See the description in the
-    section below about the git options.
 
 12. `edir` shows a message "No files or directories" if there is nothing
    to edit, rather than opening an empty file to edit.
