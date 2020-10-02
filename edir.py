@@ -199,11 +199,10 @@ class Path:
 
 def editfile(filename):
     'Run the editor command'
-    # Use explicit editor (+ arguments) or choose default
-    editcmd = shlex.split(os.getenv(EDITOR, ''))
-    if not editcmd:
-        editcmd = [os.getenv('VISUAL') or os.getenv('EDITOR') or 'vi']
-
+    # Use explicit editor or choose default
+    editor = os.getenv(EDITOR) or os.getenv('VISUAL') or \
+            os.getenv('EDITOR') or 'vi'
+    editcmd = shlex.split(editor)
     editcmd.append(filename)
 
     # Run the editor ..
@@ -212,7 +211,7 @@ def editfile(filename):
 
     # Check if editor returned error
     if res.returncode != 0:
-        sys.exit(f'ERROR: {editcmd} returned {res.returncode}')
+        sys.exit(f'ERROR: {editor} returned {res.returncode}')
 
 def main():
     'Main code'
