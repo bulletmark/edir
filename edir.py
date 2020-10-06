@@ -247,6 +247,10 @@ def main():
             help='only show/edit directories')
     opt.add_argument('-L', '--nolinks', action='store_true',
             help='ignore all symlinks')
+    opt.add_argument('-e', '--extension', action='store', default='.sh',
+            help='extension for the temporary file')
+    opt.add_argument('-E', '--no-extension', action='store_true',
+            help='do not add an extension th the temporary file')
     opt.add_argument('args', nargs='*',
             help='file|dir, or "-" for stdin')
 
@@ -267,6 +271,8 @@ def main():
         args.quiet = False
     if args.git:
         args.no_git = False
+    if args.no_extension:
+        args.extension = None
 
     # Check if we are in a git repo
     if not args.no_git:
@@ -310,7 +316,7 @@ def main():
         return None
 
     # Create a temp file for the user to edit then read the lines back
-    with tempfile.NamedTemporaryFile('r+t', suffix='.sh') as fp:
+    with tempfile.NamedTemporaryFile('r+t', suffix=args.extension) as fp:
         Path.writefile(fp)
         editfile(fp.name)
         Path.readfile(fp)
