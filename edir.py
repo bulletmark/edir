@@ -21,6 +21,7 @@ from shutil import rmtree
 PROG = pathlib.Path(sys.argv[0]).stem
 CNFFILE = pathlib.Path(f'~/.config/{PROG}-flags.conf').expanduser()
 EDITOR = PROG.upper() + '_EDITOR'
+SUFFIX = '.sh'
 
 # The temp dir we will use in the dir of each target move
 TEMPDIR = '.tmp-' + PROG
@@ -202,8 +203,7 @@ def editfile(filename):
     # Use explicit editor or choose default
     editor = os.getenv(EDITOR) or os.getenv('VISUAL') or \
             os.getenv('EDITOR') or 'vi'
-    editcmd = shlex.split(editor)
-    editcmd.append(filename)
+    editcmd = shlex.split(editor) + [filename]
 
     # Run the editor ..
     with open('/dev/tty') as tty:
@@ -219,8 +219,9 @@ def main():
     # Process command line options
     opt = argparse.ArgumentParser(description=__doc__.strip(),
             epilog='Note you can set default starting arguments in '
-            f'~/.config/{PROG}-flags.conf. The negation options allow you to '
-            'temporarily override your defaults.')
+            f'~/.config/{PROG}-flags.conf. The negation options '
+            '(i.e. shortform --no-* options) allow you to temporarily '
+            'override your defaults.')
     opt.add_argument('-a', '--all', action='store_true',
             help='include all (including hidden) files')
     opt.add_argument('-A', '--no-all', action='store_true',
@@ -247,6 +248,8 @@ def main():
             help='only show/edit directories')
     opt.add_argument('-L', '--nolinks', action='store_true',
             help='ignore all symlinks')
+    opt.add_argument('--suffix',
+            help=f'specify suffix for editor file, default="{SUFFIX}"')
     opt.add_argument('args', nargs='*',
             help='file|dir, or "-" for stdin')
 
@@ -310,7 +313,8 @@ def main():
         return None
 
     # Create a temp file for the user to edit then read the lines back
-    with tempfile.NamedTemporaryFile('r+t', suffix='.sh') as fp:
+    suffix = SUFFIX if args.suffix is None else args.suffix
+    with tempfile.NamedTemporaryFile('r+t', suffix=suffix) as fp:
         Path.writefile(fp)
         editfile(fp.name)
         Path.readfile(fp)

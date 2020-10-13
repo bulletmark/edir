@@ -113,8 +113,9 @@ the following ways:
     be a bug in `vidir` that nobody has ever bothered to
     report/address?).
 
-15. `edir` creates the temporary editing file with a `.sh` extension so
-    your EDITOR may syntax highlight the entries.
+15. `edir` creates the temporary editing file with a `.sh` suffix so
+    your EDITOR may syntax highlight the entries. Optionally, you can
+    change this default suffix.
 
 16. `edir` provides an optional environment value to add custom options
     to the invocation of your editor. See section below.
@@ -216,10 +217,10 @@ line arguments.
 This allow you to set default preferred starting arguments to `edir`.
 Type `edir -h` to see the arguments supported.
 
-The options `--all`, `--recurse`, `--quiet`, `--no-git` are sensible
-candidates to consider setting as default. If you set these then
-"on-the-fly" negation options `-A`, `-R`, `-Q`, `-g` are also provided
-to temporarily override and disable each of these default options on the
+The options `--all`, `--recurse`, `--quiet`, `--no-git`, `--suffix`, are
+sensible candidates to consider setting as default. If you set these
+then "on-the-fly" negation options `-A`, `-R`, `-Q`, `-g` are also
+provided to temporarily override and disable default options on the
 command line.
 
 ## Examples
@@ -253,6 +254,7 @@ repository files only, in the current directory only:
 
 ```
 usage: edir [-h] [-a] [-A] [-r] [-R] [-q] [-Q] [-G] [-g] [-d] [-F | -D] [-L]
+            [--suffix SUFFIX]
             [args [args ...]]
 
 Program to rename and remove files and directories using your editor. Can also
@@ -276,9 +278,11 @@ optional arguments:
   -F, --files       only show/edit files
   -D, --dirs        only show/edit directories
   -L, --nolinks     ignore all symlinks
+  --suffix SUFFIX   specify suffix for editor file, default=".sh"
 
 Note you can set default starting arguments in ~/.config/edir-flags.conf. The
-negation options allow you to temporarily override your defaults.
+negation options (i.e. shortform --no-* options) allow you to temporarily
+override your defaults.
 ```
 
 ## Embed in Ranger File Manager
