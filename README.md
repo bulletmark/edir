@@ -181,8 +181,13 @@ off temporarily.
 Arch users can install [edir from the AUR](https://aur.archlinux.org/packages/edir/).
 
 Python 3.6 or later is required. Note [edir is on
-PyPI](https://pypi.org/project/edir/) so you can `sudo pip3 install edir`
-or:
+PyPI](https://pypi.org/project/edir/) so you can just do:
+
+```
+$ sudo pip3 install edir
+```
+
+or, to install from this source repository:
 
 ```
 $ git clone http://github.com/bulletmark/edir
@@ -228,26 +233,26 @@ command line.
 Rename and/or delete any files and directories in the current directory:
 
 ```
-    edir
+$ edir
 ```
 
 Rename and/or delete any jpeg files in current dir:
 
 ```
-   edir *.jpg
+$ edir *.jpg
 ```
 
 Rename and/or delete any files under current directory and subdirectories:
 
 ```
-    find | edir -F
+$ find | edir -F
 ```
 
 Use [`fd`](https://github.com/sharkdp/fd) to view and `git mv/rm`
 repository files only, in the current directory only:
 
 ```
-    fd -d1 -tf | edir -g
+$ fd -d1 -tf | edir -g
 ```
 
 ## Command Line Options
