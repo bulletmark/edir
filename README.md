@@ -99,13 +99,17 @@ the following ways:
     names directly, not their contents. I.e. this is like `ls -d mydir`
     compared to `ls mydir`.
 
-12. `edir` shows a message "No files or directories" if there is nothing
+12. `edir` adds a `-t/--trash` option to use `trash-put` from
+    [trash-cli](https://github.com/andreafrancia/trash-cli) to do
+    deletions.
+
+13. `edir` shows a message "No files or directories" if there is nothing
    to edit, rather than opening an empty file to edit.
 
-13. `edir` filters out any duplicate paths you may inadvertently specify
+14. `edir` filters out any duplicate paths you may inadvertently specify
     on it's command line.
 
-14. `edir` always invokes a consistent duplicate renaming scheme. E.g. if
+15. `edir` always invokes a consistent duplicate renaming scheme. E.g. if
     you rename `b`, `c`, `d` all to the same pre-existing name `a` then
     `edir` will rename `b` to `a~`, `c` to `a~1`, `d` to `a~2`.
     Depending on order of operations, `vidir` is not always consistent
@@ -113,21 +117,21 @@ the following ways:
     be a bug in `vidir` that nobody has ever bothered to
     report/address?).
 
-15. `edir` creates the temporary editing file with a `.sh` suffix so
+16. `edir` creates the temporary editing file with a `.sh` suffix so
     your EDITOR may syntax highlight the entries. Optionally, you can
     change this default suffix.
 
-16. `edir` provides an optional environment value to add custom options
+17. `edir` provides an optional environment value to add custom options
     to the invocation of your editor. See section below.
 
-17. `edir` provides an optional configuration file to set default `edir`
+18. `edir` provides an optional configuration file to set default `edir`
     command line arguments. See section below.
 
-18. Contrary to what it's name implies, `vidir` actually respects your
+19. Contrary to what it's name implies, `vidir` actually respects your
     `$EDITOR` variable and runs your preferred editor like `edir` does
     but `edir` has been given a generic name to make this more apparent.
 
-19. `edir` is very strict about the format of the lines you edit and
+20. `edir` is very strict about the format of the lines you edit and
     immediately exits with an error message (before changing anything)
     if you format one of the lines incorrectly. All lines in the edited
     list:
@@ -144,7 +148,7 @@ the following ways:
     line so an easy way to swap two file names is just to swap their
     numbers.
 
-20. `edir` always removes and renames files consistently. The sequence of
+21. `edir` always removes and renames files consistently. The sequence of
      operations applied is:
 
     1. Deleted files are removed and all renamed files and directories
@@ -176,6 +180,21 @@ how to set default options. If you set `--no-git` as the default, then
 you can use `-g/-git` on the command line to turn that default option
 off temporarily.
 
+## Using Trash
+
+Given how easy `edir` facilitates deleting files, some users may prefer
+to delete them to system
+[Trash](https://specifications.freedesktop.org/trash-spec/trashspec-1.0.html)
+from where they can be later listed and/or recovered. Specifying
+`-t/--trash` does this by executing the
+[`trash-put`](https://www.mankier.com/1/trash-put) command, from the
+[`trash-cli`](https://github.com/andreafrancia/trash-cli) package, to
+remove files rather than removing them natively.
+
+You may want to set `-t/--trash` as a default option. If you do so then
+you can use `-T` on the command line to turn that default option off
+temporarily.
+
 ## Installation
 
 Arch users can install [edir from the AUR](https://aur.archlinux.org/packages/edir/).
@@ -201,7 +220,8 @@ it executable somewhere in your path.
 
 Edir runs on pure Python. No 3rd party packages are required.
 [Git](https://git-scm.com/) must be installed if you want to use the git
-options.
+options. The [trash-cli](https://github.com/andreafrancia/trash-cli)
+package is required if you want `-t/--trash` functionality.
 
 ### EDIR_EDITOR Environment Variable
 
@@ -222,11 +242,11 @@ line arguments.
 This allow you to set default preferred starting arguments to `edir`.
 Type `edir -h` to see the arguments supported.
 
-The options `--all`, `--recurse`, `--quiet`, `--no-git`, `--suffix`, are
-sensible candidates to consider setting as default. If you set these
-then "on-the-fly" negation options `-A`, `-R`, `-Q`, `-g` are also
-provided to temporarily override and disable default options on the
-command line.
+The options `--all`, `--recurse`, `--quiet`, `--no-git`, `--trash`,
+`--suffix`, are sensible candidates to consider setting as default. If
+you set these then "on-the-fly" negation options `-A`, `-R`, `-Q`, `-g`,
+`-T`, are also provided to temporarily override and disable default
+options on the command line.
 
 ## Examples
 
@@ -258,12 +278,12 @@ $ fd -d1 -tf | edir -g
 ## Command Line Options
 
 ```
-usage: edir [-h] [-a] [-A] [-r] [-R] [-q] [-Q] [-G] [-g] [-d] [-F | -D] [-L]
-            [--suffix SUFFIX]
+usage: edir [-h] [-a] [-A] [-r] [-R] [-q] [-Q] [-G] [-g] [-d] [-t] [-T]
+            [-F | -D] [-L] [--suffix SUFFIX]
             [args [args ...]]
 
-Program to rename and remove files and directories using your editor. Can also
-use git to action the rename and remove if run within a git repository.
+Program to rename and remove files and directories using your editor. Will use
+git to action the rename and remove if run within a git repository.
 
 positional arguments:
   args              file|dir, or "-" for stdin
@@ -280,14 +300,16 @@ optional arguments:
   -G, --no-git      do not use git if invoked within a git repository
   -g, --git         negate the --no-git option and DO use automatic git
   -d, --dirnames    edit given directory names directly, not their contents
+  -t, --trash       use trash-put (from trash-cli) to do deletions
+  -T, --no-trash    negate the -t/--trash/ option
   -F, --files       only show/edit files
   -D, --dirs        only show/edit directories
   -L, --nolinks     ignore all symlinks
   --suffix SUFFIX   specify suffix for editor file, default=".sh"
 
 Note you can set default starting arguments in ~/.config/edir-flags.conf. The
-negation options (i.e. shortform --no-* options) allow you to temporarily
-override your defaults.
+negation options (i.e. the --no-* options and their shortforms) allow you to
+temporarily override your defaults.
 ```
 
 ## Embed in Ranger File Manager

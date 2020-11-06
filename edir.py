@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 '''
 Program to rename and remove files and directories using your editor.
-Can also use git to action the rename and remove if run within a git
-repository.
+Will use git to action the rename and remove if run within a git repository.
 '''
 # Author: Mark Blakeney, May 2019.
 
@@ -29,17 +28,37 @@ TEMPDIR = '.tmp-' + PROG
 args = None
 gitfiles = set()
 
-def remove(path, git=False, recurse=False):
+def run(cmd):
+    'Run given command and return stdout, stderr'
+    stdout = ''
+    stderr = ''
+    try:
+        res = subprocess.run(cmd.split(), stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE, universal_newlines=True)
+    except Exception as e:
+        stderr = str(e)
+    else:
+        if res.stdout:
+            stdout = res.stdout.strip()
+        if res.stderr:
+            stderr = res.stderr.strip()
+
+    return stdout, stderr
+
+def remove(path, git=False, trash=False, recurse=False):
     'Delete given file/directory'
-    if not recurse and path.is_dir() and any(path.iterdir()):
+    if not recurse and not path.is_symlink() and path.is_dir() and \
+            any(path.iterdir()):
         return 'Directory not empty'
 
     if git:
         ropt = '-r' if recurse else ''
-        res = subprocess.run(f'git rm -f {ropt} {path}'.split(),
-                stdout=subprocess.DEVNULL, stderr=subprocess.PIPE,
-                universal_newlines=True)
-        return f'git error: {res.stderr.strip()}' if res.stderr else None
+        out, err = run(f'git rm -f {ropt} {path}')
+        return f'git error: {err}' if err else None
+
+    if trash:
+        out, err = run(f'trash-put {path}')
+        return f'trash-put error: {err}' if err else None
 
     if recurse:
         try:
@@ -121,7 +140,7 @@ class Path:
     def remove_temps(cls):
         'Remove all the temp dirs we created in rename_temp() above'
         for p in cls.tempdirs:
-            remove(p, git=None, recurse=True)
+            remove(p, git=None, trash=None, recurse=True)
 
         cls.tempdirs.clear()
 
@@ -220,8 +239,8 @@ def main():
     opt = argparse.ArgumentParser(description=__doc__.strip(),
             epilog='Note you can set default starting arguments in '
             f'~/.config/{PROG}-flags.conf. The negation options '
-            '(i.e. shortform --no-* options) allow you to temporarily '
-            'override your defaults.')
+            '(i.e. the --no-* options and their shortforms) allow you to '
+            'temporarily override your defaults.')
     opt.add_argument('-a', '--all', action='store_true',
             help='include all (including hidden) files')
     opt.add_argument('-A', '--no-all', action='store_true',
@@ -241,6 +260,10 @@ def main():
             help='negate the --no-git option and DO use automatic git')
     opt.add_argument('-d', '--dirnames', action='store_true',
             help='edit given directory names directly, not their contents')
+    opt.add_argument('-t', '--trash', action='store_true',
+            help='use trash-put (from trash-cli) to do deletions')
+    opt.add_argument('-T', '--no-trash', action='store_true',
+            help='negate the -t/--trash/ option')
     grp = opt.add_mutually_exclusive_group()
     grp.add_argument('-F', '--files', action='store_true',
             help='only show/edit files')
@@ -270,19 +293,16 @@ def main():
         args.quiet = False
     if args.git:
         args.no_git = False
+    if args.no_trash:
+        args.trash = False
 
     # Check if we are in a git repo
     if not args.no_git:
-        try:
-            res = subprocess.run('git ls-files'.split(),
-                    stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
-                    universal_newlines=True)
-        except Exception as e:
-            if args.git:
-                print(f'Git invocation error: {str(e)}', file=sys.stderr)
-        else:
-            if res.stdout:
-                gitfiles.update(res.stdout.strip().splitlines())
+        out, err = run('git ls-files')
+        if err and args.git:
+            print(f'Git invocation error: {err}', file=sys.stderr)
+        if out:
+            gitfiles.update(out.splitlines())
 
         if args.git and not gitfiles:
             opt.error('must be within a git repo to use -g/--git option')
@@ -328,7 +348,7 @@ def main():
         if p.newpath:
             p.rename_temp()
         elif not p.is_dir:
-            err = remove(p.path, p.is_git)
+            err = remove(p.path, p.is_git, args.trash)
             if err:
                 print(f'{p.diagrepr} remove ERROR: {err}', file=sys.stderr)
             elif verbose:
@@ -337,7 +357,7 @@ def main():
     # Pass 2: Delete all removed dirs, if empty or recursive delete.
     for p in paths:
         if p.is_dir and not p.newpath:
-            if remove(p.path, p.is_git, args.recurse) is None:
+            if remove(p.path, p.is_git, args.trash, args.recurse) is None:
                 # Have removed, so flag as finished for final dirs pass below
                 p.is_dir = False
                 if verbose:
@@ -357,7 +377,7 @@ def main():
         if p.is_dir and not p.newpath:
             note = ' recursively' if args.recurse and \
                     any(p.path.iterdir()) else ''
-            err = remove(p.path, p.is_git, args.recurse)
+            err = remove(p.path, p.is_git, args.trash, args.recurse)
             if err:
                 print(f'{p.diagrepr} remove ERROR: {err}', file=sys.stderr)
             elif verbose:
