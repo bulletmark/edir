@@ -99,9 +99,12 @@ the following ways:
     names directly, not their contents. I.e. this is like `ls -d mydir`
     compared to `ls mydir`.
 
-12. `edir` adds a `-t/--trash` option to use `trash-put` from
-    [trash-cli](https://github.com/andreafrancia/trash-cli) to do
-    deletions.
+12. `edir` adds a `-t/--trash` option to delete to your
+     [Trash](https://specifications.freedesktop.org/trash-spec/trashspec-1.0.html).
+     This option invokes
+     [`trash-put`](https://www.mankier.com/1/trash-put) from the
+     [trash-cli](https://github.com/andreafrancia/trash-cli) package to do
+     deletions.
 
 13. `edir` shows a message "No files or directories" if there is nothing
    to edit, rather than opening an empty file to edit.
