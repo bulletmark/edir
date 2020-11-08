@@ -317,7 +317,7 @@ temporarily override your defaults.
 
 ## Embed in Ranger File Manager
 
-In many ways `edir` (and `vidir`) are better than the
+In many ways `edir` (and `vidir`) is better than the
 [ranger](https://ranger.github.io/)
 [bulkrename](https://github.com/ranger/ranger/wiki/Official-user-guide#bulk-renaming)
 command which does not handle name swaps and clashes etc. To add `edir`
