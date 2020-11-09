@@ -13,8 +13,9 @@ executable = stat.S_IEXEC | stat.S_IXGRP | stat.S_IXOTH
 
 setup(
     name=name,
-    version='2.5',
-    description='Utility to rename and remove files/dirs using your editor',
+    version='2.6',
+    description='Utility to rename, remove, and copy files/dirs using '
+    'your editor',
     long_description=here.joinpath('README.md').read_text(),
     long_description_content_type='text/markdown',
     url='https://github.com/bulletmark/{}'.format(name),

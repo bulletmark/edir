@@ -1,14 +1,15 @@
-## EDIR - Rename and Delete Files and Directories Using Your Editor
+## EDIR - Rename, Delete, and Copy Files and Directories Using Your Editor
 
 [edir](http://github.com/bulletmark/edir) is a command line utility to
-rename and remove filenames and directories using your text editor. Run
-it in the current directory and `edir` will open your editor on a list
-of files and directories in that directory. Each item in the directory
-will appear on its own numbered line. These numbers are how `edir` keeps
-track of what items are changed. Delete lines to remove
-files/directories, or edit lines to rename files/directories. You can
-also switch pairs of numbers to swap files or directories. If run from
-within a [Git](https://git-scm.com/) repository, `edir` will use
+rename, remove, and copy filenames and directories using your text
+editor. Run it in the current directory and `edir` will open your editor
+on a list of files and directories in that directory. Each item in the
+directory will appear on its own numbered line. These numbers are how
+`edir` keeps track of what items are changed. Delete lines to remove
+files/directories, edit lines to rename files/directories, or duplicate
+line numbers to copy files/directories. You can also switch pairs of
+numbers to swap files or directories. If run from within a
+[Git](https://git-scm.com/) repository, `edir` will use
 [Git](https://git-scm.com/) to rename or delete tracked
 files/directories.
 
@@ -57,21 +58,25 @@ the following ways:
    Note also, that both `edir` and `vidir` show the leading `./` on each
    entry so that any leading spaces are clearly seen, and can be edited.
 
-3. `edir` allows you to remove a file/directory by deleting the line, as
+3. `edir` adds the ability to copy files or directories one or more
+   times when you duplicate a numbered line. `vidir` does not have copy
+   functionality.
+
+4. `edir` allows you to remove a file/directory by deleting the line, as
    `vidir` does, but you can also remove it by pre-pending a `#` to
    "comment it out" or by substituting an entirely blank line.
 
-4. By default, `edir` prints remove and rename messages whereas `vidir`
-   prints those only when the `-v/--verbose` switch is added. You can add
-   `-q/--quiet` to `edir` to suppress these messages.
+5. By default, `edir` prints remove, rename, and copy messages whereas
+   `vidir` prints messages only when the `-v/--verbose` switch is added.
+   You can add `-q/--quiet` to `edir` to suppress these messages.
 
-5. When `vidir` is run with the `-v/--verbose` switch then it reports
+6. When `vidir` is run with the `-v/--verbose` switch then it reports
    the renaming of original to intermediate temporary to final files if
    files are swapped etc. That is rather an implementation detail so
    `edir` only reports the original to final renames which is all the
    user really cares about.
 
-6. To remove a large recursive tree you must pipe the directory tree to
+7. To remove a large recursive tree you must pipe the directory tree to
    `vidir` and then explicitly remove all children files and directories
    before deleting a parent directory. You can do this also in `edir` of
    course (and arguably it is probably the safest approach) but there
@@ -79,40 +84,40 @@ the following ways:
    `edir` adds a `-r/--recurse` switch to allow this. BE CAREFUL USING
    THIS!
 
-7. `vidir` always shows all files and directories in a directory,
+8. `vidir` always shows all files and directories in a directory,
    including hidden files and directories (i.e. those starting with a
    `.`). Usually a user does not want to be bothered with these so
    `edir` by default does not show them. They can be included by adding
    the `-a/--all` switch.
 
-8. `edir` does not require the user to specify the `-` if something has
-    been piped to standard input. E.g. you need only type `find | edir`
-    as opposed to `find | edir -`. Note that `vidir` requires the second
-    form.
+9. `edir` does not require the user to specify the `-` if something has
+   been piped to standard input. E.g. you need only type `find | edir`
+   as opposed to `find | edir -`. Note that `vidir` requires the second
+   form.
 
-9. `edir` adds a `-F/--files` option to only show files, or `-D/--dirs`
+10. `edir` adds a `-F/--files` option to only show files, or `-D/--dirs`
     to only show directories.
 
-10. `edir` adds a `-L/--nolinks` option to ignore symbolic links.
+11. `edir` adds a `-L/--nolinks` option to ignore symbolic links.
 
-11. `edir` adds a `-d/--dirnames` option to edit specified directory
+12. `edir` adds a `-d/--dirnames` option to edit specified directory
     names directly, not their contents. I.e. this is like `ls -d mydir`
     compared to `ls mydir`.
 
-12. `edir` adds a `-t/--trash` option to delete to your
-     [Trash](https://specifications.freedesktop.org/trash-spec/trashspec-1.0.html).
-     This option invokes
-     [`trash-put`](https://www.mankier.com/1/trash-put) from the
-     [trash-cli](https://github.com/andreafrancia/trash-cli) package to do
-     deletions.
+13. `edir` adds a `-t/--trash` option to delete to your
+    [Trash](https://specifications.freedesktop.org/trash-spec/trashspec-1.0.html).
+    This option invokes
+    [`trash-put`](https://www.mankier.com/1/trash-put) from the
+    [trash-cli](https://github.com/andreafrancia/trash-cli) package to do
+    deletions.
 
-13. `edir` shows a message "No files or directories" if there is nothing
-   to edit, rather than opening an empty file to edit.
+14. `edir` shows a message "No files or directories" if there is nothing
+    to edit, rather than opening an empty file to edit.
 
-14. `edir` filters out any duplicate paths you may inadvertently specify
+15. `edir` filters out any duplicate paths you may inadvertently specify
     on it's command line.
 
-15. `edir` always invokes a consistent duplicate renaming scheme. E.g. if
+16. `edir` always invokes a consistent duplicate renaming scheme. E.g. if
     you rename `b`, `c`, `d` all to the same pre-existing name `a` then
     `edir` will rename `b` to `a~`, `c` to `a~1`, `d` to `a~2`.
     Depending on order of operations, `vidir` is not always consistent
@@ -120,27 +125,26 @@ the following ways:
     be a bug in `vidir` that nobody has ever bothered to
     report/address?).
 
-16. `edir` creates the temporary editing file with a `.sh` suffix so
+17. `edir` creates the temporary editing file with a `.sh` suffix so
     your EDITOR may syntax highlight the entries. Optionally, you can
     change this default suffix.
 
-17. `edir` provides an optional environment value to add custom options
+18. `edir` provides an optional environment value to add custom options
     to the invocation of your editor. See section below.
 
-18. `edir` provides an optional configuration file to set default `edir`
+19. `edir` provides an optional configuration file to set default `edir`
     command line arguments. See section below.
 
-19. Contrary to what it's name implies, `vidir` actually respects your
+20. Contrary to what it's name implies, `vidir` actually respects your
     `$EDITOR` variable and runs your preferred editor like `edir` does
     but `edir` has been given a generic name to make this more apparent.
 
-20. `edir` is very strict about the format of the lines you edit and
+21. `edir` is very strict about the format of the lines you edit and
     immediately exits with an error message (before changing anything)
     if you format one of the lines incorrectly. All lines in the edited
     list:
 
-    1. Must start with a number, that number must be in range, and that
-       number must be unique,
+    1. Must start with a number and that number must be in range.
     2. Must have at least one white space/tab after the number,
     3. Must have a remaining valid path name.
     4. Can start with a `#` or be completely blank to be considered the
@@ -151,7 +155,7 @@ the following ways:
     line so an easy way to swap two file names is just to swap their
     numbers.
 
-21. `edir` always removes and renames files consistently. The sequence of
+22. `edir` always actions files consistently. The sequence of
      operations applied is:
 
     1. Deleted files are removed and all renamed files and directories
@@ -160,7 +164,8 @@ the following ways:
  
     2. Empty deleted directories are removed.
  
-    3. Renamed temporary files and directories are renamed to their target name.
+    3. Renamed temporary files and directories are renamed to their
+       target name. Any required copies are created.
  
     4. Remaining deleted directories are removed.
  
@@ -285,8 +290,8 @@ usage: edir [-h] [-a] [-A] [-r] [-R] [-q] [-Q] [-G] [-g] [-d] [-t] [-T]
             [-F | -D] [-L] [--suffix SUFFIX]
             [args [args ...]]
 
-Program to rename and remove files and directories using your editor. Will use
-git to action the rename and remove if run within a git repository.
+Program to rename, remove, or copy files and directories using your editor.
+Will use git to action the rename and remove if run within a git repository.
 
 positional arguments:
   args              file|dir, or "-" for stdin
@@ -295,10 +300,10 @@ optional arguments:
   -h, --help        show this help message and exit
   -a, --all         include all (including hidden) files
   -A, --no-all      negate the -a/--all/ option
-  -r, --recurse     recursively remove any files and directories in removed
-                    directories
+  -r, --recurse     recursively remove/copy any files and directories in
+                    removed/copied directories
   -R, --no-recurse  negate the -r/--recurse/ option
-  -q, --quiet       do not print rename/remove actions
+  -q, --quiet       do not print rename/remove/copy actions
   -Q, --no-quiet    negate the -q/--quiet/ option
   -G, --no-git      do not use git if invoked within a git repository
   -g, --git         negate the --no-git option and DO use automatic git

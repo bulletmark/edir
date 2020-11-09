@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 '''
-Program to rename and remove files and directories using your editor.
-Will use git to action the rename and remove if run within a git repository.
+Program to rename, remove, or copy files and directories using your
+editor. Will use git to action the rename and remove if run within a git
+repository.
 '''
 # Author: Mark Blakeney, May 2019.
 
@@ -14,7 +15,7 @@ import itertools
 import shlex
 import pathlib
 from collections import OrderedDict
-from shutil import rmtree
+from shutil import rmtree, copy2, copytree
 
 # Some constants
 PROG = pathlib.Path(sys.argv[0]).stem
@@ -94,6 +95,7 @@ class Path:
         self.path = path
         self.newpath = None
         self.temppath = None
+        self.copies = []
         self.is_dir = path.is_dir()
         self.diagrepr = str(self.path)
         self.is_git = self.diagrepr in gitfiles
@@ -114,6 +116,18 @@ class Path:
             if not path.is_symlink() and not path.exists():
                 return path
             path = path.with_name(name + ('~' if c <= 0 else f'~{c}'))
+
+    def copy(self, pathdest, recurse):
+        'Copy given pathsrc to pathdest'
+        if not recurse and self.has_files:
+            return 'Directory not empty'
+
+        func = copytree if self.is_dir else copy2
+        try:
+            func(self.newpath, pathdest)
+        except Exception as e:
+            return str(e)
+        return None
 
     def rename_temp(self):
         'Move this path to a temp place in advance of final move'
@@ -208,14 +222,16 @@ class Path:
 
             path = cls.paths[num - 1]
 
-            if path.newpath:
-                sys.exit(f'ERROR: line {count} number {num} edited twice:'
-                        f'\n{rawline}')
-
             if len(pathstr) > 1:
                 pathstr = pathstr.rstrip('/')
 
-            path.newpath = pathlib.Path(pathstr)
+            newpath = pathlib.Path(pathstr)
+
+            if path.newpath:
+                if newpath != path.path:
+                    path.copies.append(newpath)
+            else:
+                path.newpath = newpath
 
 def editfile(filename):
     'Run the editor command'
@@ -246,12 +262,12 @@ def main():
     opt.add_argument('-A', '--no-all', action='store_true',
             help='negate the -a/--all/ option')
     opt.add_argument('-r', '--recurse', action='store_true',
-            help='recursively remove any files and directories in '
-            'removed directories')
+            help='recursively remove/copy any files and directories in '
+            'removed/copied directories')
     opt.add_argument('-R', '--no-recurse', action='store_true',
             help='negate the -r/--recurse/ option')
     opt.add_argument('-q', '--quiet', action='store_true',
-            help='do not print rename/remove actions')
+            help='do not print rename/remove/copy actions')
     opt.add_argument('-Q', '--no-quiet', action='store_true',
             help='negate the -q/--quiet/ option')
     opt.add_argument('-G', '--no-git', action='store_true',
@@ -340,13 +356,17 @@ def main():
         Path.readfile(fp)
 
     # Reduce paths to only those that were removed or changed by the user
-    paths = [p for p in Path.paths if p.path != p.newpath]
+    paths = [p for p in Path.paths if p.path != p.newpath or p.copies]
 
-    # Pass 1: Rename all moved files & dirs to temps and delete all
-    # removed files.
+    # Pass 1: Rename all moved files & dirs to temps, delete all removed
+    # files.
     for p in paths:
+        # Lazy eval the next two path values
+        p.has_files = p.is_dir and any(p.path.iterdir())
+        p.note = ' recursively' if args.recurse and p.has_files else ''
         if p.newpath:
-            p.rename_temp()
+            if p.newpath != p.path:
+                p.rename_temp()
         elif not p.is_dir:
             err = remove(p.path, p.is_git, args.trash)
             if err:
@@ -363,11 +383,19 @@ def main():
                 if verbose:
                     print(f'{p.diagrepr} removed')
 
-    # Pass 3. Rename all temp files and dirs to final target
+    # Pass 3. Rename all temp files and dirs to final target, and make
+    # copies.
     for p in paths:
+        appdash = '/' if p.is_dir else ''
         if p.restore_temp() and verbose:
-            appdash = '/' if p.is_dir else ''
             print(f'{p.diagrepr} -> {p.newpath}{appdash}')
+
+        for c in p.copies:
+            err = p.copy(c, args.recurse)
+            if err:
+                print(f'{p.diagrepr} copy ERROR to {c}{appdash}{p.note}: {err}')
+            elif verbose:
+                print(f'{p.diagrepr} copied to {c}{appdash}{p.note}')
 
     # Remove all the temporary dirs we created
     Path.remove_temps()
@@ -375,13 +403,11 @@ def main():
     # Pass 4. Delete all remaining dirs
     for p in paths:
         if p.is_dir and not p.newpath:
-            note = ' recursively' if args.recurse and \
-                    any(p.path.iterdir()) else ''
             err = remove(p.path, p.is_git, args.trash, args.recurse)
             if err:
                 print(f'{p.diagrepr} remove ERROR: {err}', file=sys.stderr)
             elif verbose:
-                print(f'{p.diagrepr} removed{note}')
+                print(f'{p.diagrepr} removed{p.note}')
 
 if __name__ == '__main__':
     sys.exit(main())
