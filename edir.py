@@ -378,7 +378,7 @@ def main():
                 # Have removed, so flag as finished for final dirs pass below
                 p.is_dir = False
                 if verbose:
-                    print(f'{p.diagrepr} removed')
+                    print(f'{p.diagrepr} removed{p.note}')
 
     # Pass 3. Rename all temp files and dirs to final target, and make
     # copies.
