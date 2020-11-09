@@ -300,8 +300,8 @@ optional arguments:
   -h, --help        show this help message and exit
   -a, --all         include all (including hidden) files
   -A, --no-all      negate the -a/--all/ option
-  -r, --recurse     recursively remove/copy any files and directories in
-                    removed/copied directories
+  -r, --recurse     recursively remove any files and directories in removed
+                    directories
   -R, --no-recurse  negate the -r/--recurse/ option
   -q, --quiet       do not print rename/remove/copy actions
   -Q, --no-quiet    negate the -q/--quiet/ option

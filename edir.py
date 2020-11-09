@@ -117,11 +117,8 @@ class Path:
                 return path
             path = path.with_name(name + ('~' if c <= 0 else f'~{c}'))
 
-    def copy(self, pathdest, recurse):
+    def copy(self, pathdest):
         'Copy given pathsrc to pathdest'
-        if not recurse and self.has_files:
-            return 'Directory not empty'
-
         func = copytree if self.is_dir else copy2
         try:
             func(self.newpath, pathdest)
@@ -262,8 +259,8 @@ def main():
     opt.add_argument('-A', '--no-all', action='store_true',
             help='negate the -a/--all/ option')
     opt.add_argument('-r', '--recurse', action='store_true',
-            help='recursively remove/copy any files and directories in '
-            'removed/copied directories')
+            help='recursively remove any files and directories in '
+            'removed directories')
     opt.add_argument('-R', '--no-recurse', action='store_true',
             help='negate the -r/--recurse/ option')
     opt.add_argument('-q', '--quiet', action='store_true',
@@ -361,9 +358,9 @@ def main():
     # Pass 1: Rename all moved files & dirs to temps, delete all removed
     # files.
     for p in paths:
-        # Lazy eval the next two path values
-        p.has_files = p.is_dir and any(p.path.iterdir())
-        p.note = ' recursively' if args.recurse and p.has_files else ''
+        # Lazy eval the next path value
+        p.note = ' recursively' if p.is_dir and any(p.path.iterdir()) else ''
+
         if p.newpath:
             if p.newpath != p.path:
                 p.rename_temp()
@@ -391,7 +388,7 @@ def main():
             print(f'{p.diagrepr} -> {p.newpath}{appdash}')
 
         for c in p.copies:
-            err = p.copy(c, args.recurse)
+            err = p.copy(c)
             if err:
                 print(f'{p.diagrepr} copy ERROR to {c}{appdash}{p.note}: {err}')
             elif verbose:
