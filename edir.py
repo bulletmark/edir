@@ -191,12 +191,10 @@ class Path:
         'Write the file for user to edit'
         fp.writelines(f'{i}\t{p.linerepr}\n' for i, p in
                 enumerate(cls.paths, 1))
-        fp.flush()
 
     @classmethod
     def readfile(cls, fp):
         'Read the list of files/dirs as edited by user'
-        fp.seek(0)
         for count, line in enumerate(fp, 1):
             # Skip blank or commented lines
             rawline = line.rstrip('\n\r')
@@ -347,10 +345,13 @@ def main():
 
     # Create a temp file for the user to edit then read the lines back
     suffix = SUFFIX if args.suffix is None else args.suffix
-    with tempfile.NamedTemporaryFile('r+t', suffix=suffix) as fp:
-        Path.writefile(fp)
-        editfile(fp.name)
-        Path.readfile(fp)
+    with tempfile.TemporaryDirectory() as fdir:
+        fpath = pathlib.Path(f'{fdir}/{PROG}-{os.getpid()}{suffix}')
+        with fpath.open('w') as fp:
+            Path.writefile(fp)
+        editfile(fpath)
+        with fpath.open() as fp:
+            Path.readfile(fp)
 
     # Reduce paths to only those that were removed or changed by the user
     paths = [p for p in Path.paths if p.path != p.newpath or p.copies]

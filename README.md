@@ -211,7 +211,7 @@ Python 3.6 or later is required. Note [edir is on
 PyPI](https://pypi.org/project/edir/) so you can just do:
 
 ```
-$ sudo pip3 install edir
+$ sudo pip3 install -U edir
 ```
 
 or, to install from this source repository:
@@ -219,7 +219,7 @@ or, to install from this source repository:
 ```
 $ git clone http://github.com/bulletmark/edir
 $ cd edir
-$ sudo pip3 install .
+$ sudo pip3 install -U .
 ```
 
 Optionally, if you are using an odd system and/or want to install this
