@@ -349,7 +349,7 @@ def main():
         fpath = pathlib.Path(f'{fdir}/{PROG}-{os.getpid()}{suffix}')
         with fpath.open('w') as fp:
             Path.writefile(fp)
-        editfile(fpath)
+        editfile(str(fpath))
         with fpath.open() as fp:
             Path.readfile(fp)
 
