@@ -237,7 +237,7 @@ package is required if you want `-t/--trash` functionality.
 `$EDIR_EDITOR`, `$VISUAL`, `$EDITOR`, then falls back to "vi" if
 none of these are set.
 
-You can also `EDIR_EDITOR` explicitly to an editor + arguments
+You can also set `EDIR_EDITOR` explicitly to an editor + arguments
 string if you want `edir` to call your editor with specific arguments.
 
 ## EDIR Command Default Arguments
