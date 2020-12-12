@@ -132,7 +132,7 @@ class Path:
         try:
             tempdir.mkdir(parents=True, exist_ok=True)
         except Exception:
-            print(f'{self.diagrepr} mkdir ERROR: '
+            print(f'Create dir for {self.diagrepr} ERROR: '
                     f'Can not write in {tempdir.parent}', file=sys.stderr)
         else:
             self.temppath = self.inc_path(tempdir / self.newpath.name)
@@ -368,9 +368,9 @@ def main():
         elif not p.is_dir:
             err = remove(p.path, p.is_git, args.trash)
             if err:
-                print(f'{p.diagrepr} remove ERROR: {err}', file=sys.stderr)
+                print(f'Remove {p.diagrepr} ERROR: {err}', file=sys.stderr)
             elif verbose:
-                print(f'{p.diagrepr} removed')
+                print(f'Removed {p.diagrepr}')
 
     # Pass 2: Delete all removed dirs, if empty or recursive delete.
     for p in paths:
@@ -379,21 +379,21 @@ def main():
                 # Have removed, so flag as finished for final dirs pass below
                 p.is_dir = False
                 if verbose:
-                    print(f'{p.diagrepr} removed{p.note}')
+                    print(f'Removed {p.diagrepr}{p.note}')
 
     # Pass 3. Rename all temp files and dirs to final target, and make
     # copies.
     for p in paths:
         appdash = '/' if p.is_dir else ''
         if p.restore_temp() and verbose:
-            print(f'{p.diagrepr} -> {p.newpath}{appdash}')
+            print(f'Renamed {p.diagrepr} to {p.newpath}{appdash}')
 
         for c in p.copies:
             err = p.copy(c)
             if err:
-                print(f'{p.diagrepr} copy ERROR to {c}{appdash}{p.note}: {err}')
+                print(f'Copy {p.diagrepr} to {c}{appdash}{p.note} ERROR: {err}')
             elif verbose:
-                print(f'{p.diagrepr} copied to {c}{appdash}{p.note}')
+                print(f'Copied {p.diagrepr} to {c}{appdash}{p.note}')
 
     # Remove all the temporary dirs we created
     Path.remove_temps()
@@ -403,9 +403,9 @@ def main():
         if p.is_dir and not p.newpath:
             err = remove(p.path, p.is_git, args.trash, args.recurse)
             if err:
-                print(f'{p.diagrepr} remove ERROR: {err}', file=sys.stderr)
+                print(f'Remove {p.diagrepr} ERROR: {err}', file=sys.stderr)
             elif verbose:
-                print(f'{p.diagrepr} removed{p.note}')
+                print(f'Removed {p.diagrepr}{p.note}')
 
 if __name__ == '__main__':
     sys.exit(main())

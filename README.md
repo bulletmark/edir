@@ -24,7 +24,7 @@ from [moreutils](https://joeyh.name/code/moreutils/) but aims to improve it in
 the following ways:
 
 1. `edir` automatically uses `git mv` instead of `mv` and `git rm`
-    instead of `rm` for tracked files when working in a
+    instead of `rm` for tracked files when invoked within a
     [Git](https://git-scm.com/) repository. There is also a `-G/--no-git`
     option to suppress this default action. See the description in the
     section below about the git options.
@@ -203,22 +203,30 @@ You may want to set `-t/--trash` as a default option. If you do so then
 you can use `-T` on the command line to turn that default option off
 temporarily.
 
-## Installation
+## Installation or Upgrade
 
 Arch users can install [edir from the AUR](https://aur.archlinux.org/packages/edir/).
 
 Python 3.6 or later is required. Note [edir is on
-PyPI](https://pypi.org/project/edir/) so you can just do:
+PyPI](https://pypi.org/project/edir/) so to install or upgrade just do:
 
 ```
 $ sudo pip3 install -U edir
 ```
 
-or, to install from this source repository:
+Or, to install from this source repository:
 
 ```
 $ git clone http://github.com/bulletmark/edir
 $ cd edir
+$ sudo pip3 install -U .
+```
+
+To upgrade from the source repository:
+
+```
+$ cd edir # i.e. to git source dir above
+$ git pull
 $ sudo pip3 install -U .
 ```
 
