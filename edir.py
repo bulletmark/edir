@@ -19,7 +19,7 @@ from shutil import rmtree, copy2, copytree
 
 # Some constants
 PROG = pathlib.Path(sys.argv[0]).stem
-CNFFILE = pathlib.Path(f'~/.config/{PROG}-flags.conf').expanduser()
+CNFFILE = f'~/.config/{PROG}-flags.conf'
 EDITOR = PROG.upper() + '_EDITOR'
 SUFFIX = '.sh'
 
@@ -249,9 +249,9 @@ def main():
     # Process command line options
     opt = argparse.ArgumentParser(description=__doc__.strip(),
             epilog='Note you can set default starting arguments in '
-            f'~/.config/{PROG}-flags.conf. The negation options '
-            '(i.e. the --no-* options and their shortforms) allow you to '
-            'temporarily override your defaults.')
+            f'{CNFFILE}. The negation options (i.e. the --no-* options '
+            'and their shortforms) allow you to temporarily override your '
+            'defaults.')
     opt.add_argument('-a', '--all', action='store_true',
             help='include all (including hidden) files')
     opt.add_argument('-A', '--no-all', action='store_true',
@@ -289,8 +289,9 @@ def main():
 
     # Merge in default args from user config file. Then parse the
     # command line.
-    cnfargs = shlex.split(CNFFILE.read_text().strip()) \
-            if CNFFILE.exists() else []
+    cnffile = pathlib.Path(CNFFILE).expanduser()
+    cnfargs = shlex.split(cnffile.read_text().strip()) \
+            if cnffile.exists() else []
     args = opt.parse_args(cnfargs + sys.argv[1:])
 
     verbose = not args.quiet

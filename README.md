@@ -296,7 +296,7 @@ $ fd -d1 -tf | edir -g
 ```
 usage: edir [-h] [-a] [-A] [-r] [-R] [-q] [-Q] [-G] [-g] [-d] [-t] [-T]
             [-F | -D] [-L] [--suffix SUFFIX]
-            [args [args ...]]
+            [args ...]
 
 Program to rename, remove, or copy files and directories using your editor.
 Will use git to action the rename and remove if run within a git repository.
