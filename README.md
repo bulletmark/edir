@@ -207,7 +207,8 @@ temporarily.
 
 Arch users can install [edir from the AUR](https://aur.archlinux.org/packages/edir/).
 
-Python 3.6 or later is required. Note [edir is on
+Python 3.6 or later is required. Ensure that `python3-pip` and
+`python3-wheel` packages are installed. Note [edir is on
 PyPI](https://pypi.org/project/edir/) so to install or upgrade just do:
 
 ```
