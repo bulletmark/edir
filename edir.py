@@ -26,8 +26,27 @@ SUFFIX = '.sh'
 # The temp dir we will use in the dir of each target move
 TEMPDIR = '.tmp-' + PROG
 
+COLORS = {
+    'remove': 'red',
+    'rename': 'yellow',
+    'copy': 'green',
+}
+
 args = None
 gitfiles = set()
+console = None
+console_error = None
+
+def log(func, msg, *, error=False):
+    'Output given message with appropriate color'
+    if console:
+        color = COLORS[func]
+        if error:
+            console_error.print(msg, style=color, highlight=False)
+        else:
+            console.print(msg, style=color, highlight=False)
+    else:
+        print(msg, file=(sys.stderr if error else sys.stdout))
 
 def run(cmd):
     'Run given command and return stdout, stderr'
@@ -246,6 +265,8 @@ def editfile(filename):
 def main():
     'Main code'
     global args
+    global console
+    global console_error
     # Process command line options
     opt = argparse.ArgumentParser(description=__doc__.strip(),
             epilog='Note you can set default starting arguments in '
@@ -263,6 +284,8 @@ def main():
             help='negate the -r/--recurse/ option')
     opt.add_argument('-q', '--quiet', action='store_true',
             help='do not print rename/remove/copy actions')
+    opt.add_argument('-c', '--no-color', action='store_true',
+            help='do not color rename/remove/copy messages')
     opt.add_argument('-Q', '--no-quiet', action='store_true',
             help='negate the -q/--quiet/ option')
     opt.add_argument('-G', '--no-git', action='store_true',
@@ -295,6 +318,11 @@ def main():
     args = opt.parse_args(cnfargs + sys.argv[1:])
 
     verbose = not args.quiet
+
+    if not args.no_color:
+        from rich.console import Console
+        console = Console()
+        console_error = Console(stderr=True)
 
     # Override with negation options
     if args.no_all:
@@ -369,9 +397,9 @@ def main():
         elif not p.is_dir:
             err = remove(p.path, p.is_git, args.trash)
             if err:
-                print(f'Remove {p.diagrepr} ERROR: {err}', file=sys.stderr)
+                log('remove', f'Remove {p.diagrepr} ERROR: {err}', error=True)
             elif verbose:
-                print(f'Removed {p.diagrepr}')
+                log('remove', f'Removed {p.diagrepr}')
 
     # Pass 2: Delete all removed dirs, if empty or recursive delete.
     for p in paths:
@@ -380,21 +408,22 @@ def main():
                 # Have removed, so flag as finished for final dirs pass below
                 p.is_dir = False
                 if verbose:
-                    print(f'Removed {p.diagrepr}{p.note}')
+                    log('remove', f'Removed {p.diagrepr}{p.note}')
 
     # Pass 3. Rename all temp files and dirs to final target, and make
     # copies.
     for p in paths:
         appdash = '/' if p.is_dir else ''
         if p.restore_temp() and verbose:
-            print(f'Renamed {p.diagrepr} to {p.newpath}{appdash}')
+            log('rename', f'Renamed {p.diagrepr} to {p.newpath}{appdash}')
 
         for c in p.copies:
             err = p.copy(c)
             if err:
-                print(f'Copy {p.diagrepr} to {c}{appdash}{p.note} ERROR: {err}')
+                log('copy', f'Copy {p.diagrepr} to {c}{appdash}{p.note} '
+                        f'ERROR: {err}', error=True)
             elif verbose:
-                print(f'Copied {p.diagrepr} to {c}{appdash}{p.note}')
+                log('copy', f'Copied {p.diagrepr} to {c}{appdash}{p.note}')
 
     # Remove all the temporary dirs we created
     Path.remove_temps()
@@ -404,9 +433,9 @@ def main():
         if p.is_dir and not p.newpath:
             err = remove(p.path, p.is_git, args.trash, args.recurse)
             if err:
-                print(f'Remove {p.diagrepr} ERROR: {err}', file=sys.stderr)
+                log('remove', f'Remove {p.diagrepr} ERROR: {err}', error=True)
             elif verbose:
-                print(f'Removed {p.diagrepr}{p.note}')
+                log('remove', f'Removed {p.diagrepr}{p.note}')
 
 if __name__ == '__main__':
     sys.exit(main())

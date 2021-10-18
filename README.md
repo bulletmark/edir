@@ -70,13 +70,17 @@ the following ways:
    `vidir` prints messages only when the `-v/--verbose` switch is added.
    You can add `-q/--quiet` to `edir` to suppress these messages.
 
-6. When `vidir` is run with the `-v/--verbose` switch then it reports
+6. `edir` outputs messages in color. Remove messages are red, rename
+   messages are yellow, and copy messages are green. You can choose to
+   disable colored output.
+
+7. When `vidir` is run with the `-v/--verbose` switch then it reports
    the renaming of original to intermediate temporary to final files if
    files are swapped etc. That is rather an implementation detail so
    `edir` only reports the original to final renames which is all the
    user really cares about.
 
-7. To remove a large recursive tree you must pipe the directory tree to
+8. To remove a large recursive tree you must pipe the directory tree to
    `vidir` and then explicitly remove all children files and directories
    before deleting a parent directory. You can do this also in `edir` of
    course (and arguably it is probably the safest approach) but there
@@ -84,40 +88,40 @@ the following ways:
    `edir` adds a `-r/--recurse` switch to allow this. BE CAREFUL USING
    THIS!
 
-8. `vidir` always shows all files and directories in a directory,
+9. `vidir` always shows all files and directories in a directory,
    including hidden files and directories (i.e. those starting with a
    `.`). Usually a user does not want to be bothered with these so
    `edir` by default does not show them. They can be included by adding
    the `-a/--all` switch.
 
-9. `edir` does not require the user to specify the `-` if something has
-   been piped to standard input. E.g. you need only type `find | edir`
-   as opposed to `find | edir -`. Note that `vidir` requires the second
-   form.
+10. `edir` does not require the user to specify the `-` if something has
+    been piped to standard input. E.g. you need only type `find | edir`
+    as opposed to `find | edir -`. Note that `vidir` requires the second
+    form.
 
-10. `edir` adds a `-F/--files` option to only show files, or `-D/--dirs`
+11. `edir` adds a `-F/--files` option to only show files, or `-D/--dirs`
     to only show directories.
 
-11. `edir` adds a `-L/--nolinks` option to ignore symbolic links.
+12. `edir` adds a `-L/--nolinks` option to ignore symbolic links.
 
-12. `edir` adds a `-d/--dirnames` option to edit specified directory
+13. `edir` adds a `-d/--dirnames` option to edit specified directory
     names directly, not their contents. I.e. this is like `ls -d mydir`
     compared to `ls mydir`.
 
-13. `edir` adds a `-t/--trash` option to delete to your
+14. `edir` adds a `-t/--trash` option to delete to your
     [Trash](https://specifications.freedesktop.org/trash-spec/trashspec-1.0.html).
     This option invokes
     [`trash-put`](https://www.mankier.com/1/trash-put) from the
     [trash-cli](https://github.com/andreafrancia/trash-cli) package to do
     deletions.
 
-14. `edir` shows a message "No files or directories" if there is nothing
+15. `edir` shows a message "No files or directories" if there is nothing
     to edit, rather than opening an empty file to edit.
 
-15. `edir` filters out any duplicate paths you may inadvertently specify
+16. `edir` filters out any duplicate paths you may inadvertently specify
     on it's command line.
 
-16. `edir` always invokes a consistent duplicate renaming scheme. E.g. if
+17. `edir` always invokes a consistent duplicate renaming scheme. E.g. if
     you rename `b`, `c`, `d` all to the same pre-existing name `a` then
     `edir` will rename `b` to `a~`, `c` to `a~1`, `d` to `a~2`.
     Depending on order of operations, `vidir` is not always consistent
@@ -125,21 +129,21 @@ the following ways:
     be a bug in `vidir` that nobody has ever bothered to
     report/address?).
 
-17. `edir` creates the temporary editing file with a `.sh` suffix so
+18. `edir` creates the temporary editing file with a `.sh` suffix so
     your EDITOR may syntax highlight the entries. Optionally, you can
     change this default suffix.
 
-18. `edir` provides an optional environment value to add custom options
+19. `edir` provides an optional environment value to add custom options
     to the invocation of your editor. See section below.
 
-19. `edir` provides an optional configuration file to set default `edir`
+20. `edir` provides an optional configuration file to set default `edir`
     command line arguments. See section below.
 
-20. Contrary to what it's name implies, `vidir` actually respects your
+21. Contrary to what it's name implies, `vidir` actually respects your
     `$EDITOR` variable and runs your preferred editor like `edir` does
     but `edir` has been given a generic name to make this more apparent.
 
-21. `edir` is very strict about the format of the lines you edit and
+22. `edir` is very strict about the format of the lines you edit and
     immediately exits with an error message (before changing anything)
     if you format one of the lines incorrectly. All lines in the edited
     list:
@@ -155,7 +159,7 @@ the following ways:
     line so an easy way to swap two file names is just to swap their
     numbers.
 
-22. `edir` always actions files consistently. The sequence of
+23. `edir` always actions files consistently. The sequence of
      operations applied is:
 
     1. Deleted files are removed and all renamed files and directories
@@ -263,10 +267,10 @@ This allow you to set default preferred starting arguments to `edir`.
 Type `edir -h` to see the arguments supported.
 
 The options `--all`, `--recurse`, `--quiet`, `--no-git`, `--trash`,
-`--suffix`, are sensible candidates to consider setting as default. If
-you set these then "on-the-fly" negation options `-A`, `-R`, `-Q`, `-g`,
-`-T`, are also provided to temporarily override and disable default
-options on the command line.
+`--suffix`, `--no-color` are sensible candidates to consider setting as
+default. If you set these then "on-the-fly" negation options `-A`, `-R`,
+`-Q`, `-g`, `-T`, are also provided to temporarily override and disable
+default options on the command line.
 
 ## Examples
 
@@ -298,7 +302,7 @@ $ fd -d1 -tf | edir -g
 ## Command Line Options
 
 ```
-usage: edir [-h] [-a] [-A] [-r] [-R] [-q] [-Q] [-G] [-g] [-d] [-t] [-T]
+usage: edir [-h] [-a] [-A] [-r] [-R] [-q] [-c] [-Q] [-G] [-g] [-d] [-t] [-T]
             [-F | -D] [-L] [--suffix SUFFIX]
             [args ...]
 
@@ -316,6 +320,7 @@ optional arguments:
                     directories
   -R, --no-recurse  negate the -r/--recurse/ option
   -q, --quiet       do not print rename/remove/copy actions
+  -c, --no-color    do not color rename/remove/copy messages
   -Q, --no-quiet    negate the -q/--quiet/ option
   -G, --no-git      do not use git if invoked within a git repository
   -g, --git         negate the --no-git option and DO use automatic git
