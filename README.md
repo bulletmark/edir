@@ -27,7 +27,7 @@ the following ways:
     instead of `rm` for tracked files when invoked within a
     [Git](https://git-scm.com/) repository. There is also a `-G/--no-git`
     option to suppress this default action. See the description in the
-    section below about the git options.
+    section below about [git options](#renames-and-deletes-in-a-git-repository).
 
 2. `vidir` presents file and directories equivalently but `edir` adds a
    trailing slash `/` to visually discriminate directories. E.g. if `afile` and
@@ -108,7 +108,7 @@ the following ways:
     names directly, not their contents. I.e. this is like `ls -d mydir`
     compared to `ls mydir`.
 
-14. `edir` adds a `-t/--trash` option to delete to your
+14. `edir` adds a [`-t/--trash` option](#using-trash) to delete to your
     [Trash](https://specifications.freedesktop.org/trash-spec/trashspec-1.0.html).
     This option invokes
     [`trash-put`](https://www.mankier.com/1/trash-put) from the
@@ -134,10 +134,12 @@ the following ways:
     change this default suffix.
 
 19. `edir` provides an optional environment value to add custom options
-    to the invocation of your editor. See section below.
+    to the invocation of your editor. See [section
+    below](#edir_editor-environment-variable).
 
 20. `edir` provides an optional configuration file to set default `edir`
-    command line arguments. See section below.
+    command line arguments. See [section
+    below](#edir-command-default-arguments).
 
 21. Contrary to what it's name implies, `vidir` actually respects your
     `$EDITOR` variable and runs your preferred editor like `edir` does
