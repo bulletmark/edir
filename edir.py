@@ -166,6 +166,18 @@ class Path:
         rename(self.temppath, self.newpath, self.is_git)
         return True
 
+    def sort_name(self):
+        'Return name for sort'
+        return str(self.path)
+
+    def sort_time(self):
+        'Return time for sort'
+        return self.path.stat().st_mtime
+
+    def sort_size(self):
+        'Return size for sort'
+        return self.path.stat().st_size
+
     @classmethod
     def remove_temps(cls):
         'Remove all the temp dirs we created in rename_temp() above'
@@ -252,7 +264,7 @@ def editfile(filename):
     # Use explicit editor or choose default
     editor = os.getenv(EDITOR) or os.getenv('VISUAL') or \
             os.getenv('EDITOR') or 'vi'
-    editcmd = shlex.split(editor) + [filename]
+    editcmd = shlex.split(editor) + [str(filename)]
 
     # Run the editor ..
     with open('/dev/tty') as tty:
@@ -305,6 +317,14 @@ def main():
             help='only show/edit directories')
     opt.add_argument('-L', '--nolinks', action='store_true',
             help='ignore all symlinks')
+    opt.add_argument('-N', '--sort-name', action='store_true',
+            help='sort paths in file by name, alphabetically')
+    opt.add_argument('-I', '--sort-time', action='store_true',
+            help='sort paths in file by time, oldest first')
+    opt.add_argument('-S', '--sort-size', action='store_true',
+            help='sort paths in file by size, smallest first')
+    opt.add_argument('-E', '--sort-reverse', action='store_true',
+            help='sort paths (by name/time/size) in reverse')
     opt.add_argument('--suffix',
             help=f'specify suffix for editor file, default="{SUFFIX}"')
     opt.add_argument('args', nargs='*',
@@ -372,13 +392,20 @@ def main():
         print(f'No {desc}.')
         return None
 
+    if args.sort_name:
+        Path.paths.sort(key=Path.sort_name, reverse=args.sort_reverse)
+    elif args.sort_time:
+        Path.paths.sort(key=Path.sort_time, reverse=args.sort_reverse)
+    elif args.sort_size:
+        Path.paths.sort(key=Path.sort_size, reverse=args.sort_reverse)
+
     # Create a temp file for the user to edit then read the lines back
     suffix = SUFFIX if args.suffix is None else args.suffix
     with tempfile.TemporaryDirectory() as fdir:
         fpath = pathlib.Path(f'{fdir}/{PROG}-{os.getpid()}{suffix}')
         with fpath.open('w') as fp:
             Path.writefile(fp)
-        editfile(str(fpath))
+        editfile(fpath)
         with fpath.open() as fp:
             Path.readfile(fp)
 
