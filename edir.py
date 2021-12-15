@@ -53,7 +53,7 @@ def run(cmd):
     stdout = ''
     stderr = ''
     try:
-        res = subprocess.run(cmd.split(), stdout=subprocess.PIPE,
+        res = subprocess.run(cmd, stdout=subprocess.PIPE, shell=True,
                 stderr=subprocess.PIPE, universal_newlines=True)
     except Exception as e:
         stderr = str(e)
@@ -73,11 +73,11 @@ def remove(path, git=False, trash=False, recurse=False):
 
     if git:
         ropt = '-r' if recurse else ''
-        out, err = run(f'git rm -f {ropt} {path}')
+        out, err = run(f'git rm -f {ropt} "{path}"')
         return f'git error: {err}' if err else None
 
     if trash:
-        out, err = run(f'trash-put {path}')
+        out, err = run(f'trash-put "{path}"')
         return f'trash-put error: {err}' if err else None
 
     if recurse:
@@ -99,8 +99,9 @@ def remove(path, git=False, trash=False, recurse=False):
 def rename(pathsrc, pathdest, is_git=False):
     'Rename given pathsrc to pathdest'
     if is_git:
-        subprocess.run(f'git mv -f {pathsrc} {pathdest}'.split(),
-                stdout=subprocess.DEVNULL)
+        out, err = run(f'git mv -f "{pathsrc}" "{pathdest}"')
+        if err:
+            log('git mv ERROR: {err}', error=True)
     else:
         pathsrc.replace(pathdest)
 
