@@ -115,13 +115,17 @@ the following ways:
     [trash-cli](https://github.com/andreafrancia/trash-cli) package to do
     deletions.
 
-15. `edir` shows a message "No files or directories" if there is nothing
+15. `edir` adds `-N/--sort-name, -I/--sort-time, -S/--sort-size` options
+    to sort the paths when listed in your editor. There is also a
+    `-E/--sort-reverse` option to reverse the order.
+
+16. `edir` shows a message "No files or directories" if there is nothing
     to edit, rather than opening an empty file to edit.
 
-16. `edir` filters out any duplicate paths you may inadvertently specify
+17. `edir` filters out any duplicate paths you may inadvertently specify
     on it's command line.
 
-17. `edir` always invokes a consistent duplicate renaming scheme. E.g. if
+18. `edir` always invokes a consistent duplicate renaming scheme. E.g. if
     you rename `b`, `c`, `d` all to the same pre-existing name `a` then
     `edir` will rename `b` to `a~`, `c` to `a~1`, `d` to `a~2`.
     Depending on order of operations, `vidir` is not always consistent
@@ -129,23 +133,23 @@ the following ways:
     be a bug in `vidir` that nobody has ever bothered to
     report/address?).
 
-18. `edir` creates the temporary editing file with a `.sh` suffix so
+19. `edir` creates the temporary editing file with a `.sh` suffix so
     your EDITOR may syntax highlight the entries. Optionally, you can
     change this default suffix.
 
-19. `edir` provides an optional environment value to add custom options
+20. `edir` provides an optional environment value to add custom options
     to the invocation of your editor. See [section
     below](#edir_editor-environment-variable).
 
-20. `edir` provides an optional configuration file to set default `edir`
+21. `edir` provides an optional configuration file to set default `edir`
     command line arguments. See [section
     below](#edir-command-default-arguments).
 
-21. Contrary to what it's name implies, `vidir` actually respects your
+22. Contrary to what it's name implies, `vidir` actually respects your
     `$EDITOR` variable and runs your preferred editor like `edir` does
     but `edir` has been given a generic name to make this more apparent.
 
-22. `edir` is very strict about the format of the lines you edit and
+23. `edir` is very strict about the format of the lines you edit and
     immediately exits with an error message (before changing anything)
     if you format one of the lines incorrectly. All lines in the edited
     list:
@@ -161,7 +165,7 @@ the following ways:
     line so an easy way to swap two file names is just to swap their
     numbers.
 
-23. `edir` always actions files consistently. The sequence of
+24. `edir` always actions files consistently. The sequence of
      operations applied is:
 
     1. Deleted files are removed and all renamed files and directories
