@@ -309,34 +309,38 @@ $ fd -d1 -tf | edir -g
 
 ```
 usage: edir [-h] [-a] [-A] [-r] [-R] [-q] [-c] [-Q] [-G] [-g] [-d] [-t] [-T]
-            [-F | -D] [-L] [--suffix SUFFIX]
+            [-F | -D] [-L] [-N] [-I] [-S] [-E] [--suffix SUFFIX]
             [args ...]
 
 Program to rename, remove, or copy files and directories using your editor.
 Will use git to action the rename and remove if run within a git repository.
 
 positional arguments:
-  args              file|dir, or "-" for stdin
+  args                file|dir, or "-" for stdin
 
-optional arguments:
-  -h, --help        show this help message and exit
-  -a, --all         include all (including hidden) files
-  -A, --no-all      negate the -a/--all/ option
-  -r, --recurse     recursively remove any files and directories in removed
-                    directories
-  -R, --no-recurse  negate the -r/--recurse/ option
-  -q, --quiet       do not print rename/remove/copy actions
-  -c, --no-color    do not color rename/remove/copy messages
-  -Q, --no-quiet    negate the -q/--quiet/ option
-  -G, --no-git      do not use git if invoked within a git repository
-  -g, --git         negate the --no-git option and DO use automatic git
-  -d, --dirnames    edit given directory names directly, not their contents
-  -t, --trash       use trash-put (from trash-cli) to do deletions
-  -T, --no-trash    negate the -t/--trash/ option
-  -F, --files       only show/edit files
-  -D, --dirs        only show/edit directories
-  -L, --nolinks     ignore all symlinks
-  --suffix SUFFIX   specify suffix for editor file, default=".sh"
+options:
+  -h, --help          show this help message and exit
+  -a, --all           include all (including hidden) files
+  -A, --no-all        negate the -a/--all/ option
+  -r, --recurse       recursively remove any files and directories in removed
+                      directories
+  -R, --no-recurse    negate the -r/--recurse/ option
+  -q, --quiet         do not print rename/remove/copy actions
+  -c, --no-color      do not color rename/remove/copy messages
+  -Q, --no-quiet      negate the -q/--quiet/ option
+  -G, --no-git        do not use git if invoked within a git repository
+  -g, --git           negate the --no-git option and DO use automatic git
+  -d, --dirnames      edit given directory names directly, not their contents
+  -t, --trash         use trash-put (from trash-cli) to do deletions
+  -T, --no-trash      negate the -t/--trash/ option
+  -F, --files         only show/edit files
+  -D, --dirs          only show/edit directories
+  -L, --nolinks       ignore all symlinks
+  -N, --sort-name     sort paths in file by name, alphabetically
+  -I, --sort-time     sort paths in file by time, oldest first
+  -S, --sort-size     sort paths in file by size, smallest first
+  -E, --sort-reverse  sort paths (by name/time/size) in reverse
+  --suffix SUFFIX     specify suffix for editor file, default=".sh"
 
 Note you can set default starting arguments in ~/.config/edir-flags.conf. The
 negation options (i.e. the --no-* options and their shortforms) allow you to
