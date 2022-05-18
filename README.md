@@ -217,8 +217,6 @@ temporarily.
 
 Arch users can install [edir from the AUR](https://aur.archlinux.org/packages/edir/).
 
-Nix users can install [edir from the nixpkgs collection](https://search.nixos.org/packages?query=edir).
-
 Python 3.6 or later is required. Note [edir is on
 PyPI](https://pypi.org/project/edir/) so just ensure that
 `python3-pip` and `python3-wheel` are installed then type the following
