@@ -119,13 +119,17 @@ the following ways:
     to sort the paths when listed in your editor. There is also a
     `-E/--sort-reverse` option to reverse the order.
 
-16. `edir` shows a message "No files or directories" if there is nothing
+16. `edir` adds `-X/--group-dirs-first` and `-Y/--group-dirs-last`
+    options to display directories grouped together, either first or
+    last. These can be combined with the above sorting options.
+
+17. `edir` shows a message "No files or directories" if there is nothing
     to edit, rather than opening an empty file to edit.
 
-17. `edir` filters out any duplicate paths you may inadvertently specify
+18. `edir` filters out any duplicate paths you may inadvertently specify
     on it's command line.
 
-18. `edir` always invokes a consistent duplicate renaming scheme. E.g. if
+19. `edir` always invokes a consistent duplicate renaming scheme. E.g. if
     you rename `b`, `c`, `d` all to the same pre-existing name `a` then
     `edir` will rename `b` to `a~`, `c` to `a~1`, `d` to `a~2`.
     Depending on order of operations, `vidir` is not always consistent
@@ -133,23 +137,23 @@ the following ways:
     be a bug in `vidir` that nobody has ever bothered to
     report/address?).
 
-19. `edir` creates the temporary editing file with a `.sh` suffix so
+20. `edir` creates the temporary editing file with a `.sh` suffix so
     your EDITOR may syntax highlight the entries. Optionally, you can
     change this default suffix.
 
-20. `edir` provides an optional environment value to add custom options
+21. `edir` provides an optional environment value to add custom options
     to the invocation of your editor. See [section
     below](#edir_editor-environment-variable).
 
-21. `edir` provides an optional configuration file to set default `edir`
+22. `edir` provides an optional configuration file to set default `edir`
     command line arguments. See [section
     below](#edir-command-default-arguments).
 
-22. Contrary to what it's name implies, `vidir` actually respects your
+23. Contrary to what it's name implies, `vidir` actually respects your
     `$EDITOR` variable and runs your preferred editor like `edir` does
     but `edir` has been given a generic name to make this more apparent.
 
-23. `edir` is very strict about the format of the lines you edit and
+24. `edir` is very strict about the format of the lines you edit and
     immediately exits with an error message (before changing anything)
     if you format one of the lines incorrectly. All lines in the edited
     list:
@@ -165,7 +169,7 @@ the following ways:
     line so an easy way to swap two file names is just to swap their
     numbers.
 
-24. `edir` always actions files consistently. The sequence of
+25. `edir` always actions files consistently. The sequence of
      operations applied is:
 
     1. Deleted files are removed and all renamed files and directories
@@ -268,10 +272,11 @@ will be concatenated and automatically prepended to your `edir` command
 line arguments. Type `edir -h` to see the arguments supported.
 
 The options `--all`, `--recurse`, `--quiet`, `--no-git`, `--trash`,
-`--suffix`, `--no-color` are sensible candidates to consider setting as
-default. If you set these then "on-the-fly" negation options `-A`, `-R`,
-`-Q`, `-g`, `-T`, are also provided to temporarily override and disable
-default options on the command line.
+`--suffix`, `--no-color`, `--group-dirs-first/last` are sensible
+candidates to consider setting as default. If you set these then
+"on-the-fly" negation options `-A`, `-R`, `-Q`, `-g`, `-T`, `-Z` are
+also provided to temporarily override and disable default options on the
+command line.
 
 ## Examples
 
@@ -303,39 +308,46 @@ $ fd -d1 -tf | edir -g
 ## Command Line Options
 
 ```
-usage: edir [-h] [-a] [-A] [-r] [-R] [-q] [-c] [-Q] [-G] [-g] [-d] [-t] [-T]
-            [-F | -D] [-L] [-N] [-I] [-S] [-E] [--suffix SUFFIX]
+usage: edir [-h] [-a] [-A] [-r] [-R] [-q] [-Q] [-G] [-g] [-t] [-T] [-c] [-d]
+            [-F | -D] [-L] [-N] [-I] [-S] [-E] [-X] [-Y] [-Z]
+            [--suffix SUFFIX]
             [args ...]
 
 Program to rename, remove, or copy files and directories using your editor.
 Will use git to action the rename and remove if run within a git repository.
 
 positional arguments:
-  args                file|dir, or "-" for stdin
+  args                  file|dir, or "-" for stdin
 
 options:
-  -h, --help          show this help message and exit
-  -a, --all           include all (including hidden) files
-  -A, --no-all        negate the -a/--all/ option
-  -r, --recurse       recursively remove any files and directories in removed
-                      directories
-  -R, --no-recurse    negate the -r/--recurse/ option
-  -q, --quiet         do not print rename/remove/copy actions
-  -c, --no-color      do not color rename/remove/copy messages
-  -Q, --no-quiet      negate the -q/--quiet/ option
-  -G, --no-git        do not use git if invoked within a git repository
-  -g, --git           negate the --no-git option and DO use automatic git
-  -d, --dirnames      edit given directory names directly, not their contents
-  -t, --trash         use trash-put (from trash-cli) to do deletions
-  -T, --no-trash      negate the -t/--trash/ option
-  -F, --files         only show/edit files
-  -D, --dirs          only show/edit directories
-  -L, --nolinks       ignore all symlinks
-  -N, --sort-name     sort paths in file by name, alphabetically
-  -I, --sort-time     sort paths in file by time, oldest first
-  -S, --sort-size     sort paths in file by size, smallest first
-  -E, --sort-reverse  sort paths (by name/time/size) in reverse
-  --suffix SUFFIX     specify suffix for editor file, default=".sh"
+  -h, --help            show this help message and exit
+  -a, --all             include all (including hidden) files
+  -A, --no-all          negate the -a/--all/ option
+  -r, --recurse         recursively remove any files and directories in
+                        removed directories
+  -R, --no-recurse      negate the -r/--recurse/ option
+  -q, --quiet           do not print rename/remove/copy actions
+  -Q, --no-quiet        negate the -q/--quiet/ option
+  -G, --no-git          do not use git if invoked within a git repository
+  -g, --git             negate the --no-git option and DO use automatic git
+  -t, --trash           use trash-put (from trash-cli) to do deletions
+  -T, --no-trash        negate the -t/--trash/ option
+  -c, --no-color        do not color rename/remove/copy messages
+  -d, --dirnames        edit given directory names directly, not their
+                        contents
+  -F, --files           only show/edit files
+  -D, --dirs            only show/edit directories
+  -L, --nolinks         ignore all symlinks
+  -N, --sort-name       sort paths in file by name, alphabetically
+  -I, --sort-time       sort paths in file by time, oldest first
+  -S, --sort-size       sort paths in file by size, smallest first
+  -E, --sort-reverse    sort paths (by name/time/size) in reverse
+  -X, --group-dirs-first
+                        group directories first (including when sorted)
+  -Y, --group-dirs-last
+                        group directories last (including when sorted)
+  -Z, --no-group-dirs   negate the options to group directories
+  --suffix SUFFIX       specify suffix for editor file, default=".sh"
 
 Note you can set default starting arguments in ~/.config/edir-flags.conf. The
 negation options (i.e. the --no-* options and their shortforms) allow you to

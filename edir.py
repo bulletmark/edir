@@ -280,6 +280,7 @@ def main():
     global args
     global console
     global console_error
+
     # Process command line options
     opt = argparse.ArgumentParser(description=__doc__.strip(),
             epilog='Note you can set default starting arguments in '
@@ -288,29 +289,29 @@ def main():
             'defaults.')
     opt.add_argument('-a', '--all', action='store_true',
             help='include all (including hidden) files')
-    opt.add_argument('-A', '--no-all', action='store_true',
+    opt.add_argument('-A', '--no-all', dest='all', action='store_false',
             help='negate the -a/--all/ option')
     opt.add_argument('-r', '--recurse', action='store_true',
             help='recursively remove any files and directories in '
             'removed directories')
-    opt.add_argument('-R', '--no-recurse', action='store_true',
+    opt.add_argument('-R', '--no-recurse', dest='recurse', action='store_false',
             help='negate the -r/--recurse/ option')
     opt.add_argument('-q', '--quiet', action='store_true',
             help='do not print rename/remove/copy actions')
-    opt.add_argument('-c', '--no-color', action='store_true',
-            help='do not color rename/remove/copy messages')
-    opt.add_argument('-Q', '--no-quiet', action='store_true',
+    opt.add_argument('-Q', '--no-quiet', dest='quiet', action='store_false',
             help='negate the -q/--quiet/ option')
-    opt.add_argument('-G', '--no-git', action='store_true',
+    opt.add_argument('-G', '--no-git', dest='git', action='store_false',
             help='do not use git if invoked within a git repository')
-    opt.add_argument('-g', '--git', action='store_true',
+    opt.add_argument('-g', '--git', default=True, action='store_true',
             help='negate the --no-git option and DO use automatic git')
-    opt.add_argument('-d', '--dirnames', action='store_true',
-            help='edit given directory names directly, not their contents')
     opt.add_argument('-t', '--trash', action='store_true',
             help='use trash-put (from trash-cli) to do deletions')
-    opt.add_argument('-T', '--no-trash', action='store_true',
+    opt.add_argument('-T', '--no-trash', dest='trash', action='store_false',
             help='negate the -t/--trash/ option')
+    opt.add_argument('-c', '--no-color', action='store_true',
+            help='do not color rename/remove/copy messages')
+    opt.add_argument('-d', '--dirnames', action='store_true',
+            help='edit given directory names directly, not their contents')
     grp = opt.add_mutually_exclusive_group()
     grp.add_argument('-F', '--files', action='store_true',
             help='only show/edit files')
@@ -318,14 +319,26 @@ def main():
             help='only show/edit directories')
     opt.add_argument('-L', '--nolinks', action='store_true',
             help='ignore all symlinks')
-    opt.add_argument('-N', '--sort-name', action='store_true',
+    opt.add_argument('-N', '--sort-name', dest='sort',
+            action='store_const', const=1,
             help='sort paths in file by name, alphabetically')
-    opt.add_argument('-I', '--sort-time', action='store_true',
+    opt.add_argument('-I', '--sort-time', dest='sort',
+            action='store_const', const=2,
             help='sort paths in file by time, oldest first')
-    opt.add_argument('-S', '--sort-size', action='store_true',
+    opt.add_argument('-S', '--sort-size', dest='sort',
+            action='store_const', const=3,
             help='sort paths in file by size, smallest first')
     opt.add_argument('-E', '--sort-reverse', action='store_true',
             help='sort paths (by name/time/size) in reverse')
+    opt.add_argument('-X', '--group-dirs-first', dest='group_dirs',
+            action='store_const', const=1,
+            help='group directories first (including when sorted)')
+    opt.add_argument('-Y', '--group-dirs-last', dest='group_dirs',
+            action='store_const', const=0,
+            help='group directories last (including when sorted)')
+    opt.add_argument('-Z', '--no-group-dirs', dest='group_dirs',
+            action='store_const', const=-1,
+            help='negate the options to group directories')
     opt.add_argument('--suffix',
             help=f'specify suffix for editor file, default="{SUFFIX}"')
     opt.add_argument('args', nargs='*',
@@ -337,6 +350,7 @@ def main():
     cnfargs = shlex.split(cnffile.read_text().strip()) \
             if cnffile.exists() else []
     args = opt.parse_args(cnfargs + sys.argv[1:])
+    print(args.git)
 
     verbose = not args.quiet
 
@@ -345,20 +359,8 @@ def main():
         console = Console()
         console_error = Console(stderr=True)
 
-    # Override with negation options
-    if args.no_all:
-        args.all = False
-    if args.no_recurse:
-        args.recurse = False
-    if args.no_quiet:
-        args.quiet = False
-    if args.git:
-        args.no_git = False
-    if args.no_trash:
-        args.trash = False
-
     # Check if we are in a git repo
-    if not args.no_git:
+    if args.git:
         out, err = run('git ls-files')
         if err and args.git:
             print(f'Git invocation error: {err}', file=sys.stderr)
@@ -393,12 +395,18 @@ def main():
         print(f'No {desc}.')
         return None
 
-    if args.sort_name:
+    if args.sort == 1:
         Path.paths.sort(key=Path.sort_name, reverse=args.sort_reverse)
-    elif args.sort_time:
+    elif args.sort == 2:
         Path.paths.sort(key=Path.sort_time, reverse=args.sort_reverse)
-    elif args.sort_size:
+    elif args.sort == 3:
         Path.paths.sort(key=Path.sort_size, reverse=args.sort_reverse)
+
+    if args.group_dirs is not None and args.group_dirs >= 0:
+        ldirs, lfiles = [], []
+        for path in Path.paths:
+            (ldirs if path.is_dir else lfiles).append(path)
+        Path.paths = ldirs + lfiles if args.group_dirs else lfiles + ldirs
 
     # Create a temp file for the user to edit then read the lines back
     suffix = SUFFIX if args.suffix is None else args.suffix
