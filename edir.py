@@ -350,7 +350,6 @@ def main():
     cnfargs = shlex.split(cnffile.read_text().strip()) \
             if cnffile.exists() else []
     args = opt.parse_args(cnfargs + sys.argv[1:])
-    print(args.git)
 
     verbose = not args.quiet
 
