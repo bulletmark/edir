@@ -300,9 +300,11 @@ def main():
             help='do not print rename/remove/copy actions')
     opt.add_argument('-Q', '--no-quiet', dest='quiet', action='store_false',
             help='negate the -q/--quiet/ option')
-    opt.add_argument('-G', '--no-git', dest='git', action='store_false',
+    opt.add_argument('-G', '--no-git', dest='git',
+            action='store_const', const=0,
             help='do not use git if invoked within a git repository')
-    opt.add_argument('-g', '--git', default=True, action='store_true',
+    opt.add_argument('-g', '--git', dest='git',
+            action='store_const', const=1,
             help='negate the --no-git option and DO use automatic git')
     opt.add_argument('-t', '--trash', action='store_true',
             help='use trash-put (from trash-cli) to do deletions')
@@ -359,7 +361,7 @@ def main():
         console_error = Console(stderr=True)
 
     # Check if we are in a git repo
-    if args.git:
+    if args.git != 0:
         out, err = run('git ls-files')
         if err and args.git:
             print(f'Git invocation error: {err}', file=sys.stderr)
