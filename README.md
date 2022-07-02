@@ -183,9 +183,11 @@ the following ways:
  
     4. Remaining deleted directories are removed.
  
-    In simple terms, remember that files are processed before directories
-    so you can rename files into a different directory and then delete
-    the original directory, all in one edit.
+    In simple terms, remember that files are processed before
+    directories so you can rename files into a different directory and
+    then delete the original directory, all in one edit. However in
+    practice it is far **less confusing and less risky** if you perform
+    complicated renames and moves in distinct steps.
 
 ## Renames and Deletes in a GIT Repository
 
@@ -196,11 +198,11 @@ automatically. Note that only tracked files/dirs are moved or renamed
 using Git. Untracked files/dirs within the repository are removed or
 renamed in the normal way.
 
-If for some reason you don't want automatic git action then you can
-set the `--no-git` option as a default option, see the section below on
-how to set default options. If you set `--no-git` as the default, then
-you can use `-g/-git` on the command line to turn that default option
-off temporarily.
+If for some reason you don't want automatic git action then you can use
+the `-G/--no-git` option temporarily, or set it a default option. See
+the section below on how to set default options. If you set `--no-git`
+as the default, then you can use `-g/-git` on the command line to turn
+that default option off temporarily and re-enable git functionality.
 
 ## Using Trash
 
