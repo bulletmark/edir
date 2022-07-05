@@ -11,7 +11,7 @@ here = Path(__file__).resolve().parent
 
 setup(
     name=name,
-    version='2.10.1',
+    version='2.11',
     description='Utility to rename, remove, and copy files/dirs using '
     'your editor',
     long_description=here.joinpath('README.md').read_text(),
@@ -19,7 +19,7 @@ setup(
     url=f'https://github.com/bulletmark/{name}',
     author='Mark Blakeney',
     author_email='mark.blakeney@bullet-systems.net',
-    keywords='vidir',
+    keywords='vidir git trash trash-put trash-d',
     license='GPLv3',
     py_modules=[module],
     python_requires='>=3.6',

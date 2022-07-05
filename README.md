@@ -9,9 +9,10 @@ directory will appear on its own numbered line. These numbers are how
 files/directories, edit lines to rename files/directories, or duplicate
 line numbers to copy files/directories. You can also switch pairs of
 numbers to swap files or directories. If run from within a
-[Git](https://git-scm.com/) repository, `edir` will use
-[Git](https://git-scm.com/) to rename or delete tracked
-files/directories.
+[Git](https://git-scm.com/) repository, `edir` will [use
+Git](#renames-and-deletes-in-a-git-repository) to rename or delete
+tracked files/directories. You can use a [trash program](#using-trash)
+to delete files.
 
 The latest version and documentation is available at
 https://github.com/bulletmark/edir.
@@ -110,10 +111,11 @@ the following ways:
 
 14. `edir` adds a [`-t/--trash` option](#using-trash) to delete to your
     [Trash](https://specifications.freedesktop.org/trash-spec/trashspec-1.0.html).
-    This option invokes
+    By default this option invokes
     [`trash-put`](https://www.mankier.com/1/trash-put) from the
-    [trash-cli](https://github.com/andreafrancia/trash-cli) package to do
-    deletions.
+    [trash-cli](https://github.com/andreafrancia/trash-cli) package to
+    do deletions but you can specify any alternative trash program, see
+    [section below](#using-trash).
 
 15. `edir` adds `-N/--sort-name, -I/--sort-time, -S/--sort-size` options
     to sort the paths when listed in your editor. There is also a
@@ -147,7 +149,7 @@ the following ways:
 
 22. `edir` provides an optional configuration file to set default `edir`
     command line arguments. See [section
-    below](#edir-command-default-arguments).
+    below](#command-default-arguments).
 
 23. Contrary to what it's name implies, `vidir` actually respects your
     `$EDITOR` variable and runs your preferred editor like `edir` does
@@ -219,6 +221,11 @@ You may want to set `-t/--trash` as a default option. If you do so then
 you can use `-T` on the command line to turn that default option off
 temporarily.
 
+You can specify an alternative trash program, e.g.
+[`trash-d`](https://github.com/rushsteve1/trash-d), by setting the
+`--trash-program` option. Most likely you want to set this as a [default
+option](#command-default-arguments).
+
 ## Installation or Upgrade
 
 Arch users can install [edir from the AUR](https://aur.archlinux.org/packages/edir/).
@@ -254,8 +261,9 @@ it executable somewhere in your path.
 
 Edir runs on pure Python. No 3rd party packages are required.
 [Git](https://git-scm.com/) must be installed if you want to use the git
-options. The [trash-cli](https://github.com/andreafrancia/trash-cli)
-package is required if you want `-t/--trash` functionality.
+options. A trash program such as
+[trash-cli](https://github.com/andreafrancia/trash-cli) package is
+required if you want `-t/--trash` functionality.
 
 ### EDIR_EDITOR Environment Variable
 
@@ -266,7 +274,7 @@ none of these are set.
 You can also set `EDIR_EDITOR` explicitly to an editor + arguments
 string if you want `edir` to call your editor with specific arguments.
 
-## EDIR Command Default Arguments
+## Command Default Arguments
 
 You can add default arguments to a personal configuration file
 `~/.config/edir-flags.conf`. If that file exists then each line of arguments
@@ -274,11 +282,11 @@ will be concatenated and automatically prepended to your `edir` command
 line arguments. Type `edir -h` to see the arguments supported.
 
 The options `--all`, `--recurse`, `--quiet`, `--no-git`, `--trash`,
-`--suffix`, `--no-color`, `--group-dirs-first/last` are sensible
-candidates to consider setting as default. If you set these then
-"on-the-fly" negation options `-A`, `-R`, `-Q`, `-g`, `-T`, `-Z` are
-also provided to temporarily override and disable default options on the
-command line.
+`--suffix`, `--no-color`, `--group-dirs-first/last`, `--trash-program`
+are sensible candidates to consider setting as default. If you set these
+then "on-the-fly" negation options `-A`, `-R`, `-Q`, `-g`, `-T`, `-Z`
+are also provided to temporarily override and disable default options on
+the command line.
 
 ## Examples
 
@@ -310,9 +318,9 @@ $ fd -d1 -tf | edir -g
 ## Command Line Options
 
 ```
-usage: edir [-h] [-a] [-A] [-r] [-R] [-q] [-Q] [-G] [-g] [-t] [-T] [-c] [-d]
-            [-F | -D] [-L] [-N] [-I] [-S] [-E] [-X] [-Y] [-Z]
-            [--suffix SUFFIX]
+usage: edir [-h] [-a] [-A] [-r] [-R] [-q] [-Q] [-G] [-g] [-t] [-T]
+            [--trash-program TRASH_PROGRAM] [-c] [-d] [-F | -D] [-L] [-N] [-I]
+            [-S] [-E] [-X] [-Y] [-Z] [--suffix SUFFIX]
             [args ...]
 
 Program to rename, remove, or copy files and directories using your editor.
@@ -332,8 +340,10 @@ options:
   -Q, --no-quiet        negate the -q/--quiet/ option
   -G, --no-git          do not use git if invoked within a git repository
   -g, --git             negate the --no-git option and DO use automatic git
-  -t, --trash           use trash-put (from trash-cli) to do deletions
+  -t, --trash           use trash program to do deletions
   -T, --no-trash        negate the -t/--trash/ option
+  --trash-program TRASH_PROGRAM
+                        trash program to use, default="trash-put"
   -c, --no-color        do not color rename/remove/copy messages
   -d, --dirnames        edit given directory names directly, not their
                         contents

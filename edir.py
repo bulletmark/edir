@@ -77,8 +77,8 @@ def remove(path, git=False, trash=False, recurse=False):
         return f'git error: {err}' if err else None
 
     if trash:
-        out, err = run(f'trash-put "{path}"')
-        return f'trash-put error: {err}' if err else None
+        out, err = run(f'{args.trash_program} "{path}"')
+        return f'{args.trash_program} error: {err}' if err else None
 
     if recurse:
         try:
@@ -307,9 +307,11 @@ def main():
             action='store_const', const=1,
             help='negate the --no-git option and DO use automatic git')
     opt.add_argument('-t', '--trash', action='store_true',
-            help='use trash-put (from trash-cli) to do deletions')
+            help='use trash program to do deletions')
     opt.add_argument('-T', '--no-trash', dest='trash', action='store_false',
             help='negate the -t/--trash/ option')
+    opt.add_argument('--trash-program', default='trash-put',
+            help='trash program to use, default="%(default)s"')
     opt.add_argument('-c', '--no-color', action='store_true',
             help='do not color rename/remove/copy messages')
     opt.add_argument('-d', '--dirnames', action='store_true',
