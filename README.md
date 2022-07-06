@@ -280,7 +280,7 @@ You can add default arguments to a personal configuration file
 `~/.config/edir-flags.conf`. If that file exists then each line of
 arguments will be concatenated and automatically prepended to your
 `edir` command line arguments. Comments in the file (i.e. starting with
-a "#") are ignored. Type `edir -h` to see the arguments supported.
+a `#`) are ignored. Type `edir -h` to see all supported arguments.
 
 The options `--all`, `--recurse`, `--quiet`, `--no-git`, `--trash`,
 `--suffix`, `--no-color`, `--group-dirs-first/last`, `--trash-program`
