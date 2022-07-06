@@ -8,6 +8,7 @@ repository.
 
 import sys
 import os
+import re
 import argparse
 import subprocess
 import tempfile
@@ -19,7 +20,7 @@ from shutil import rmtree, copy2, copytree
 
 # Some constants
 PROG = pathlib.Path(sys.argv[0]).stem
-CNFFILE = f'~/.config/{PROG}-flags.conf'
+CNFFILE = pathlib.Path(f'~/.config/{PROG}-flags.conf')
 EDITOR = PROG.upper() + '_EDITOR'
 SUFFIX = '.sh'
 
@@ -350,10 +351,14 @@ def main():
 
     # Merge in default args from user config file. Then parse the
     # command line.
-    cnffile = pathlib.Path(CNFFILE).expanduser()
-    cnfargs = shlex.split(cnffile.read_text().strip()) \
-            if cnffile.exists() else []
-    args = opt.parse_args(cnfargs + sys.argv[1:])
+    cnflines = ''
+    cnffile = CNFFILE.expanduser()
+    if cnffile.exists():
+        with cnffile.open() as fp:
+            cnflines = [re.sub(r'#.*$', '', line).strip() for line in fp]
+        cnflines = ' '.join(cnflines).strip()
+
+    args = opt.parse_args(shlex.split(cnflines) + sys.argv[1:])
 
     verbose = not args.quiet
 

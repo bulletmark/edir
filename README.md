@@ -277,9 +277,10 @@ string if you want `edir` to call your editor with specific arguments.
 ## Command Default Arguments
 
 You can add default arguments to a personal configuration file
-`~/.config/edir-flags.conf`. If that file exists then each line of arguments
-will be concatenated and automatically prepended to your `edir` command
-line arguments. Type `edir -h` to see the arguments supported.
+`~/.config/edir-flags.conf`. If that file exists then each line of
+arguments will be concatenated and automatically prepended to your
+`edir` command line arguments. Comments in the file (i.e. starting with
+a "#") are ignored. Type `edir -h` to see the arguments supported.
 
 The options `--all`, `--recurse`, `--quiet`, `--no-git`, `--trash`,
 `--suffix`, `--no-color`, `--group-dirs-first/last`, `--trash-program`
