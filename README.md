@@ -1,4 +1,6 @@
 ## EDIR - Rename, Delete, and Copy Files and Directories Using Your Editor
+[![PyPi](https://img.shields.io/pypi/v/edir)](https://pypi.org/project/edir/)
+[![AUR](https://img.shields.io/aur/version/edir)](https://aur.archlinux.org/packages/edir/)
 
 [edir](http://github.com/bulletmark/edir) is a command line utility to
 rename, remove, and copy filenames and directories using your text
