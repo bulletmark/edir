@@ -20,7 +20,8 @@ from shutil import rmtree, copy2, copytree
 
 # Some constants
 PROG = pathlib.Path(sys.argv[0]).stem
-CNFFILE = pathlib.Path(f'~/.config/{PROG}-flags.conf')
+CNFFILE = pathlib.Path(os.getenv('XDG_CONFIG_HOME', '~/.config'),
+        f'{PROG}-flags.conf')
 EDITOR = PROG.upper() + '_EDITOR'
 SUFFIX = '.sh'
 
