@@ -364,9 +364,13 @@ def main():
     verbose = not args.quiet
 
     if not args.no_color:
-        from rich.console import Console
-        console = Console()
-        console_error = Console(stderr=True)
+        try:
+            from rich.console import Console
+        except Exception:
+            args.no_color = True
+        else:
+            console = Console()
+            console_error = Console(stderr=True)
 
     # Check if we are in a git repo
     if args.git != 0:
