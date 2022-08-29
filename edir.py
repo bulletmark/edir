@@ -103,7 +103,7 @@ def rename(pathsrc, pathdest, is_git=False):
     if is_git:
         out, err = run(f'git mv -f "{pathsrc}" "{pathdest}"')
         if err:
-            log('git mv ERROR: {err}', error=True)
+            log('rename', f'Rename {pathsrc} git mv ERROR: {err}', error=True)
     else:
         pathsrc.replace(pathdest)
 
