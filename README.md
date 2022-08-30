@@ -320,11 +320,13 @@ $ fd -d1 -tf | edir -g
 
 ## Command Line Options
 
+Type `edir -h` to view the following usage summary:
+
 ```
 usage: edir [-h] [-a] [-A] [-r] [-R] [-q] [-Q] [-G] [-g] [-t] [-T]
-            [--trash-program TRASH_PROGRAM] [-c] [-d] [-F | -D] [-L] [-N] [-I]
-            [-S] [-E] [-X] [-Y] [-Z] [--suffix SUFFIX]
-            [args ...]
+               [--trash-program TRASH_PROGRAM] [-c] [-d] [-F | -D] [-L] [-N]
+               [-I] [-S] [-E] [-X] [-Y] [-Z] [--suffix SUFFIX]
+               [args ...]
 
 Program to rename, remove, or copy files and directories using your editor.
 Will use git to action the rename and remove if run within a git repository.

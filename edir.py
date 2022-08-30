@@ -36,19 +36,19 @@ COLORS = {
 
 args = None
 gitfiles = set()
-console = None
-console_error = None
+counts = [0, 0]
+consoles = [None, None]
 
 def log(func, msg, *, error=False):
     'Output given message with appropriate color'
-    if console:
-        color = COLORS[func]
-        if error:
-            console_error.print(msg, style=color, highlight=False)
+
+    counts[error] += 1
+
+    if error or not args.quiet:
+        if consoles[0]:
+            consoles[error].print(msg, style=COLORS[func], highlight=False)
         else:
-            console.print(msg, style=color, highlight=False)
-    else:
-        print(msg, file=(sys.stderr if error else sys.stdout))
+            print(msg, file=(sys.stderr if error else sys.stdout))
 
 def run(cmd):
     'Run given command and return stdout, stderr'
@@ -103,7 +103,7 @@ def rename(pathsrc, pathdest, is_git=False):
     if is_git:
         out, err = run(f'git mv -f "{pathsrc}" "{pathdest}"')
         if err:
-            log('rename', f'Rename {pathsrc} git mv ERROR: {err}', error=True)
+            log('rename', f'Rename "{pathsrc}" git mv ERROR: {err}', error=True)
     else:
         pathsrc.replace(pathdest)
 
@@ -280,8 +280,6 @@ def editfile(filename):
 def main():
     'Main code'
     global args
-    global console
-    global console_error
 
     # Process command line options
     opt = argparse.ArgumentParser(description=__doc__.strip(),
@@ -361,16 +359,14 @@ def main():
 
     args = opt.parse_args(shlex.split(cnflines) + sys.argv[1:])
 
-    verbose = not args.quiet
-
     if not args.no_color:
         try:
             from rich.console import Console
         except Exception:
             args.no_color = True
         else:
-            console = Console()
-            console_error = Console(stderr=True)
+            consoles[0] = Console()
+            consoles[1] = Console(stderr=True)
 
     # Check if we are in a git repo
     if args.git != 0:
@@ -406,7 +402,7 @@ def main():
         desc = 'files' if args.files else \
                 'directories' if args.dirs else 'files or directories'
         print(f'No {desc}.')
-        return None
+        return
 
     if args.sort == 1:
         Path.paths.sort(key=Path.sort_name, reverse=args.sort_reverse)
@@ -446,9 +442,9 @@ def main():
         elif not p.is_dir:
             err = remove(p.path, p.is_git, args.trash)
             if err:
-                log('remove', f'Remove {p.diagrepr} ERROR: {err}', error=True)
-            elif verbose:
-                log('remove', f'Removed {p.diagrepr}')
+                log('remove', f'Remove "{p.diagrepr}" ERROR: {err}', error=True)
+            else:
+                log('remove', f'Removed "{p.diagrepr}"')
 
     # Pass 2: Delete all removed dirs, if empty or recursive delete.
     for p in paths:
@@ -456,23 +452,22 @@ def main():
             if remove(p.path, p.is_git, args.trash, args.recurse) is None:
                 # Have removed, so flag as finished for final dirs pass below
                 p.is_dir = False
-                if verbose:
-                    log('remove', f'Removed {p.diagrepr}{p.note}')
+                log('remove', f'Removed "{p.diagrepr}"{p.note}')
 
     # Pass 3. Rename all temp files and dirs to final target, and make
     # copies.
     for p in paths:
         appdash = '/' if p.is_dir else ''
-        if p.restore_temp() and verbose:
-            log('rename', f'Renamed {p.diagrepr} to {p.newpath}{appdash}')
+        if p.restore_temp():
+            log('rename', f'Renamed "{p.diagrepr}" to "{p.newpath}{appdash}"')
 
         for c in p.copies:
             err = p.copy(c)
             if err:
-                log('copy', f'Copy {p.diagrepr} to {c}{appdash}{p.note} '
+                log('copy', f'Copy "{p.diagrepr}" to "{c}{appdash}"{p.note} '
                         f'ERROR: {err}', error=True)
-            elif verbose:
-                log('copy', f'Copied {p.diagrepr} to {c}{appdash}{p.note}')
+            else:
+                log('copy', f'Copied "{p.diagrepr}" to "{c}{appdash}"{p.note}')
 
     # Remove all the temporary dirs we created
     Path.remove_temps()
@@ -482,9 +477,12 @@ def main():
         if p.is_dir and not p.newpath:
             err = remove(p.path, p.is_git, args.trash, args.recurse)
             if err:
-                log('remove', f'Remove {p.diagrepr} ERROR: {err}', error=True)
-            elif verbose:
-                log('remove', f'Removed {p.diagrepr}{p.note}')
+                log('remove', f'Remove "{p.diagrepr}" ERROR: {err}', error=True)
+            else:
+                log('remove', f'Removed "{p.diagrepr}"{p.note}')
+
+    # Return status code 0 = all good, 1 = some bad, 2 = all bad.
+    return (1 if counts[0] > 0 else 2) if counts[1] > 0 else 0
 
 if __name__ == '__main__':
     sys.exit(main())
