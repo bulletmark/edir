@@ -157,7 +157,11 @@ the following ways:
     `$EDITOR` variable and runs your preferred editor like `edir` does
     but `edir` has been given a generic name to make this more apparent.
 
-24. `edir` is very strict about the format of the lines you edit and
+24. `vidir` returns status code 0 if all files successful, or 1 if any
+     error. `edir` returns 0 if all files successful, 1 if some had
+     error, or 2 if all had error.
+
+25. `edir` is very strict about the format of the lines you edit and
     immediately exits with an error message (before changing anything)
     if you format one of the lines incorrectly. All lines in the edited
     list:
@@ -173,7 +177,7 @@ the following ways:
     line so an easy way to swap two file names is just to swap their
     numbers.
 
-25. `edir` always actions files consistently. The sequence of
+26. `edir` always actions files consistently. The sequence of
      operations applied is:
 
     1. Deleted files are removed and all renamed files and directories
