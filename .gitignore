@@ -1,5 +1,7 @@
-README.html
 build/
 dist/
+.idea/
+.vscode/
 *.egg-info/
 __pycache__/
+README.html

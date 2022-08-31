@@ -41,7 +41,6 @@ consoles = [None, None]
 
 def log(func, msg, *, error=False):
     'Output given message with appropriate color'
-
     counts[error] += 1
 
     if error or not args.quiet:
@@ -343,8 +342,8 @@ def main():
     opt.add_argument('-Z', '--no-group-dirs', dest='group_dirs',
             action='store_const', const=-1,
             help='negate the options to group directories')
-    opt.add_argument('--suffix',
-            help=f'specify suffix for editor file, default="{SUFFIX}"')
+    opt.add_argument('--suffix', default=SUFFIX,
+            help='specify suffix for editor file, default="%(default)s"')
     opt.add_argument('args', nargs='*',
             help='file|dir, or "-" for stdin')
 
@@ -418,9 +417,8 @@ def main():
         Path.paths = ldirs + lfiles if args.group_dirs else lfiles + ldirs
 
     # Create a temp file for the user to edit then read the lines back
-    suffix = SUFFIX if args.suffix is None else args.suffix
     with tempfile.TemporaryDirectory() as fdir:
-        fpath = pathlib.Path(f'{fdir}/{PROG}-{os.getpid()}{suffix}')
+        fpath = pathlib.Path(fdir, f'{PROG}{args.suffix}')
         with fpath.open('w') as fp:
             Path.writefile(fp)
         editfile(fpath)
