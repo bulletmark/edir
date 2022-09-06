@@ -282,7 +282,7 @@ def main():
 
     # Process command line options
     opt = argparse.ArgumentParser(description=__doc__.strip(),
-            epilog='Note you can set default starting arguments in '
+            epilog='Note you can set default starting options in '
             f'{CNFFILE}. The negation options (i.e. the --no-* options '
             'and their shortforms) allow you to temporarily override your '
             'defaults.')

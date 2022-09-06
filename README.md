@@ -150,8 +150,8 @@ the following ways:
     below](#edir_editor-environment-variable).
 
 22. `edir` provides an optional configuration file to set default `edir`
-    command line arguments. See [section
-    below](#command-default-arguments).
+    command line options. See [section
+    below](#command-default-options).
 
 23. Contrary to what it's name implies, `vidir` actually respects your
     `$EDITOR` variable and runs your preferred editor like `edir` does
@@ -230,7 +230,7 @@ temporarily.
 You can specify an alternative trash program, e.g.
 [`trash-d`](https://github.com/rushsteve1/trash-d), by setting the
 `--trash-program` option. Most likely you want to set this as a [default
-option](#command-default-arguments).
+option](#command-default-options).
 
 ## Installation or Upgrade
 
@@ -280,13 +280,13 @@ none of these are set.
 You can also set `EDIR_EDITOR` explicitly to an editor + arguments
 string if you want `edir` to call your editor with specific arguments.
 
-## Command Default Arguments
+## Command Default Options
 
-You can add default arguments to a personal configuration file
+You can add default options to a personal configuration file
 `~/.config/edir-flags.conf`. If that file exists then each line of
-arguments will be concatenated and automatically prepended to your
+options will be concatenated and automatically prepended to your
 `edir` command line arguments. Comments in the file (i.e. starting with
-a `#`) are ignored. Type `edir -h` to see all supported arguments.
+a `#`) are ignored. Type `edir -h` to see all supported options.
 
 The options `--all`, `--recurse`, `--quiet`, `--no-git`, `--trash`,
 `--suffix`, `--no-color`, `--group-dirs-first/last`, `--trash-program`
@@ -370,7 +370,7 @@ options:
   -Z, --no-group-dirs   negate the options to group directories
   --suffix SUFFIX       specify suffix for editor file, default=".sh"
 
-Note you can set default starting arguments in ~/.config/edir-flags.conf. The
+Note you can set default starting options in ~/.config/edir-flags.conf. The
 negation options (i.e. the --no-* options and their shortforms) allow you to
 temporarily override your defaults.
 ```
