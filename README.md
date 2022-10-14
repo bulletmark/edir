@@ -128,7 +128,7 @@ the following ways:
     last. These can be combined with the above sorting options.
 
 17. `edir` shows a message "No files or directories" if there is nothing
-    to edit, rather than opening an empty file to edit.
+    to edit, rather than opening an empty file as `vidir` does.
 
 18. `edir` filters out any duplicate paths you may inadvertently specify
     on it's command line.
@@ -263,7 +263,9 @@ $ sudo pip3 install -U .
 
 Optionally, if you are using an odd system and/or want to install this
 manually then all you need to do is rename `edir.py` as `edir` and make
-it executable somewhere in your path.
+it executable somewhere in your path, although note this approach means
+that `edir` will start slightly less quickly (because Python will have
+to recompile to bytecode every time you run it).
 
 Edir runs on pure Python. No 3rd party packages are required.
 [Git](https://git-scm.com/) must be installed if you want to use the git
