@@ -11,7 +11,7 @@ here = Path(__file__).resolve().parent
 
 setup(
     name=name,
-    version='2.14',
+    version='2.15',
     description='Utility to rename, remove, and copy files/dirs using '
     'your editor',
     long_description=here.joinpath('README.md').read_text(),
@@ -23,7 +23,6 @@ setup(
     license='GPLv3',
     py_modules=[module],
     python_requires='>=3.6',
-    install_requires=['rich'],
     classifiers=[
         'Programming Language :: Python :: 3',
     ],

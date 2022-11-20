@@ -28,26 +28,32 @@ SUFFIX = '.sh'
 # The temp dir we will use in the dir of each target move
 TEMPDIR = '.tmp-' + PROG
 
+# Define ANSI escape sequences for colors ..
+COLOR_red = '\033[31m'
+COLOR_green = '\033[32m'
+COLOR_yellow = '\033[33m'
+
 COLORS = {
-    'remove': 'red',
-    'rename': 'yellow',
-    'copy': 'green',
+    'remove': COLOR_red,
+    'rename': COLOR_yellow,
+    'copy': COLOR_green,
 }
 
 args = None
 gitfiles = set()
 counts = [0, 0]
-consoles = [None, None]
 
 def log(func, msg, *, error=False):
     'Output given message with appropriate color'
     counts[error] += 1
 
     if error or not args.quiet:
-        if consoles[0]:
-            consoles[error].print(msg, style=COLORS[func], highlight=False)
+        out = sys.stderr if error else sys.stdout
+
+        if args.no_color:
+            print(msg, file=out)
         else:
-            print(msg, file=(sys.stderr if error else sys.stdout))
+            print(COLORS[func] + msg, file=out)
 
 def run(cmd):
     'Run given command and return stdout, stderr'
@@ -357,15 +363,6 @@ def main():
         cnflines = ' '.join(cnflines).strip()
 
     args = opt.parse_args(shlex.split(cnflines) + sys.argv[1:])
-
-    if not args.no_color:
-        try:
-            from rich.console import Console
-        except Exception:
-            args.no_color = True
-        else:
-            consoles[0] = Console()
-            consoles[1] = Console(stderr=True)
 
     # Check if we are in a git repo
     if args.git != 0:

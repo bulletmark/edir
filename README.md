@@ -326,7 +326,7 @@ $ fd -d1 -tf | edir -g
 
 ## Command Line Options
 
-Type `edir -h` to view the following usage summary:
+Type `edir -h` to view the usage summary:
 
 ```
 usage: edir [-h] [-a] [-A] [-r] [-R] [-q] [-Q] [-G] [-g] [-t] [-T]
