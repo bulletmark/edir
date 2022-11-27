@@ -32,6 +32,7 @@ TEMPDIR = '.tmp-' + PROG
 COLOR_red = '\033[31m'
 COLOR_green = '\033[32m'
 COLOR_yellow = '\033[33m'
+COLOR_reset = '\033[39m'
 
 COLORS = {
     'remove': COLOR_red,
@@ -53,7 +54,7 @@ def log(func, msg, *, error=False):
         if args.no_color:
             print(msg, file=out)
         else:
-            print(COLORS[func] + msg, file=out)
+            print(COLORS[func] + msg + COLOR_reset, file=out)
 
 def run(cmd):
     'Run given command and return stdout, stderr'
