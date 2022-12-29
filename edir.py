@@ -53,7 +53,7 @@ def log(func, msg, *, error=False):
         if args.no_color:
             print(msg, file=out)
         else:
-            print(COLORS[func] + msg, file=out)
+            print(COLORS[func] + msg + '\033[0m', file=out)
 
 def run(cmd):
     'Run given command and return stdout, stderr'
