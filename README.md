@@ -1,4 +1,4 @@
-## EDIR - Rename, Delete, and Copy Files and Directories Using Your Editor
+## EDIR - Rename, Remove, and Copy Files and Directories Using Your Editor
 [![PyPi](https://img.shields.io/pypi/v/edir)](https://pypi.org/project/edir/)
 [![AUR](https://img.shields.io/aur/version/edir)](https://aur.archlinux.org/packages/edir/)
 
@@ -12,9 +12,9 @@ files/directories, edit lines to rename files/directories, or duplicate
 line numbers to copy files/directories. You can also switch pairs of
 numbers to swap files or directories. If run from within a
 [Git](https://git-scm.com/) repository, `edir` will [use
-Git](#renames-and-deletes-in-a-git-repository) to rename or delete
+Git](#renames-and-deletes-in-a-git-repository) to rename or remove
 tracked files/directories. You can use a [trash program](#using-trash)
-to delete files.
+to remove files.
 
 The latest version and documentation is available at
 https://github.com/bulletmark/edir.
@@ -111,7 +111,7 @@ the following ways:
     names directly, not their contents. I.e. this is like `ls -d mydir`
     compared to `ls mydir`.
 
-14. `edir` adds a [`-t/--trash` option](#using-trash) to delete to your
+14. `edir` adds a [`-t/--trash` option](#using-trash) to remove to your
     [Trash](https://specifications.freedesktop.org/trash-spec/trashspec-1.0.html).
     By default this option invokes
     [`trash-put`](https://www.mankier.com/1/trash-put) from the
@@ -215,7 +215,7 @@ that default option off temporarily and re-enable git functionality.
 ## Using Trash
 
 Given how easy `edir` facilitates deleting files, some users may prefer
-to delete them to system
+to remove them to system
 [Trash](https://specifications.freedesktop.org/trash-spec/trashspec-1.0.html)
 from where they can be later listed and/or recovered. Specifying
 `-t/--trash` does this by executing the
@@ -299,19 +299,19 @@ the command line.
 
 ## Examples
 
-Rename and/or delete any files and directories in the current directory:
+Rename and/or remove any files and directories in the current directory:
 
 ```
 $ edir
 ```
 
-Rename and/or delete any jpeg files in current dir:
+Rename and/or remove any jpeg files in current dir:
 
 ```
 $ edir *.jpg
 ```
 
-Rename and/or delete any files under current directory and subdirectories:
+Rename and/or remove any files under current directory and subdirectories:
 
 ```
 $ find | edir -F
