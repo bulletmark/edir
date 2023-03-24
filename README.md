@@ -150,8 +150,7 @@ the following ways:
     below](#edir_editor-environment-variable).
 
 22. `edir` provides an optional configuration file to set default `edir`
-    command line options. See [section
-    below](#command-default-options).
+    command line options. See [section below](#command-default-options).
 
 23. Contrary to what it's name implies, `vidir` actually respects your
     `$EDITOR` variable and runs your preferred editor like `edir` does
@@ -208,9 +207,10 @@ renamed in the normal way.
 
 If for some reason you don't want automatic git action then you can use
 the `-G/--no-git` option temporarily, or set it a default option. See
-the section below on how to set default options. If you set `--no-git`
-as the default, then you can use `-g/-git` on the command line to turn
-that default option off temporarily and re-enable git functionality.
+the section below on how to set [default
+options](#command-default-options). If you set `--no-git` as the
+default, then you can use `-g/-git` on the command line to turn that
+default option off temporarily and re-enable git functionality.
 
 ## Using Trash
 
@@ -286,9 +286,10 @@ string if you want `edir` to call your editor with specific arguments.
 
 You can add default options to a personal configuration file
 `~/.config/edir-flags.conf`. If that file exists then each line of
-options will be concatenated and automatically prepended to your
-`edir` command line arguments. Comments in the file (i.e. starting with
-a `#`) are ignored. Type `edir -h` to see all supported options.
+options will be concatenated and automatically prepended to your `edir`
+command line arguments. Comments in the file (i.e. starting with a `#`)
+are ignored. Type `edir -h` to see all [supported
+options](#command-line-options).
 
 The options `--all`, `--recurse`, `--quiet`, `--no-git`, `--trash`,
 `--suffix`, `--no-color`, `--group-dirs-first/last`, `--trash-program`
