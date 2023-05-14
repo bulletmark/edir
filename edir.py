@@ -356,12 +356,13 @@ def main():
 
     # Merge in default args from user config file. Then parse the
     # command line.
-    cnflines = ''
     cnffile = CNFFILE.expanduser()
     if cnffile.exists():
         with cnffile.open() as fp:
             cnflines = [re.sub(r'#.*$', '', line).strip() for line in fp]
         cnflines = ' '.join(cnflines).strip()
+    else:
+        cnflines = ''
 
     args = opt.parse_args(shlex.split(cnflines) + sys.argv[1:])
 

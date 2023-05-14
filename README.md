@@ -242,7 +242,7 @@ PyPI](https://pypi.org/project/edir/) so just ensure that
 to install (or upgrade):
 
 ```
-$ sudo pip3 install -U edir
+$ pip3 install -U edir
 ```
 
 Or, to install from this source repository:
@@ -250,7 +250,7 @@ Or, to install from this source repository:
 ```
 $ git clone http://github.com/bulletmark/edir
 $ cd edir
-$ sudo pip3 install -U .
+$ pip3 install -U .
 ```
 
 To upgrade from the source repository:
@@ -258,7 +258,7 @@ To upgrade from the source repository:
 ```
 $ cd edir # i.e. to git source dir above
 $ git pull
-$ sudo pip3 install -U .
+$ pip3 install -U .
 ```
 
 Optionally, if you are using an odd system and/or want to install this
