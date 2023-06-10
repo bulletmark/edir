@@ -348,7 +348,7 @@ options:
   -r, --recurse         recursively remove any files and directories in
                         removed directories
   -R, --no-recurse      negate the -r/--recurse/ option
-  -q, --quiet           do not print rename/remove/copy actions
+  -q, --quiet           do not print successful rename/remove/copy actions
   -Q, --no-quiet        negate the -q/--quiet/ option
   -G, --no-git          do not use git if invoked within a git repository
   -g, --git             negate the --no-git option and DO use automatic git

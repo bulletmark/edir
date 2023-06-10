@@ -6,21 +6,22 @@ repository.
 '''
 # Author: Mark Blakeney, May 2019.
 
-import sys
+import argparse
+import itertools
 import os
 import re
-import argparse
-import subprocess
-import tempfile
-import itertools
 import shlex
-import pathlib
+import subprocess
+import sys
+import tempfile
 from collections import OrderedDict
-from shutil import rmtree, copy2, copytree
+from pathlib import Path
+from shutil import copy2, copytree, rmtree
+from typing import List, Optional, TextIO, Tuple
 
 # Some constants
-PROG = pathlib.Path(sys.argv[0]).stem
-CNFFILE = pathlib.Path(os.getenv('XDG_CONFIG_HOME', '~/.config'),
+PROG = Path(sys.argv[0]).stem
+CNFFILE = Path(os.getenv('XDG_CONFIG_HOME', '~/.config'),
         f'{PROG}-flags.conf')
 EDITOR = PROG.upper() + '_EDITOR'
 SUFFIX = '.sh'
@@ -40,11 +41,11 @@ COLORS = {
     'Copying': COLOR_green,
 }
 
-args = None
+args = argparse.Namespace()
 gitfiles = set()
 counts = [0, 0]
 
-def log(msg, error=None):
+def log(msg: str, error=None) -> None:
     'Output given message with appropriate color'
     counts[bool(error)] += 1
 
@@ -64,13 +65,13 @@ def log(msg, error=None):
         assert func in COLORS
         print(COLORS[func] + msg + COLOR_reset, file=out)
 
-def run(cmd):
-    'Run given command and return stdout, stderr'
+def run(cmd: str) -> Tuple[str, str]:
+    'Run given command and return (stdout, stderr) strings'
     stdout = ''
     stderr = ''
     try:
         res = subprocess.run(cmd, stdout=subprocess.PIPE, shell=True,
-                stderr=subprocess.PIPE, universal_newlines=True)
+                             stderr=subprocess.PIPE, universal_newlines=True)
     except Exception as e:
         stderr = str(e)
     else:
@@ -81,7 +82,8 @@ def run(cmd):
 
     return stdout, stderr
 
-def remove(path, git=False, trash=False, recurse=False):
+def remove(path: Path, git: bool = False, trash: bool = False,
+           recurse: bool = False) -> Optional[str]:
     'Delete given file/directory'
     if not recurse and not path.is_symlink() and path.is_dir() and \
             any(path.iterdir()):
@@ -110,9 +112,8 @@ def remove(path, git=False, trash=False, recurse=False):
         except Exception as e:
             return str(e)
 
-    return None
-
-def rename(pathsrc, pathdest, is_git=False):
+def rename(pathsrc: Path, pathdest: Path,
+           is_git: bool = False) -> None:
     'Rename given pathsrc to pathdest'
     if is_git:
         out, err = run(f'git mv -f "{pathsrc}" "{pathdest}"')
@@ -121,17 +122,18 @@ def rename(pathsrc, pathdest, is_git=False):
     else:
         pathsrc.replace(pathdest)
 
-class Path:
+class Fpath:
     'Class to manage each instance of a file/dir'
     paths = []
     tempdirs = set()
 
-    def __init__(self, path):
+    def __init__(self, path: Path):
         'Class constructor'
         self.path = path
         self.newpath = None
         self.temppath = None
-        self.copies = []
+        self.note = ''
+        self.copies: List[Path] = []
         self.is_dir = path.is_dir()
         self.diagrepr = str(self.path)
         self.is_git = self.diagrepr in gitfiles
@@ -143,7 +145,7 @@ class Path:
             self.diagrepr += '/'
 
     @staticmethod
-    def inc_path(path):
+    def inc_path(path: Path) -> Optional[Path]:
         'Find next unique file name'
         # Iterate forever, there can only be a finite number of existing
         # paths
@@ -153,17 +155,18 @@ class Path:
                 return path
             path = path.with_name(name + ('~' if c <= 0 else f'~{c}'))
 
-    def copy(self, pathdest):
+    def copy(self, pathdest: Path) -> Optional[str]:
         'Copy given pathsrc to pathdest'
         func = copytree if self.is_dir else copy2
         try:
-            func(self.newpath, pathdest)
+            func(str(self.newpath), str(pathdest))  # type:ignore
         except Exception as e:
             return str(e)
-        return None
 
-    def rename_temp(self):
+    def rename_temp(self) -> None:
         'Move this path to a temp place in advance of final move'
+        if not self.newpath:
+            return
         tempdir = self.newpath.parent / TEMPDIR
         try:
             tempdir.mkdir(parents=True, exist_ok=True)
@@ -172,39 +175,42 @@ class Path:
                     f'Can not write in {tempdir.parent}', file=sys.stderr)
         else:
             self.temppath = self.inc_path(tempdir / self.newpath.name)
-            self.tempdirs.add(tempdir)
-            rename(self.path, self.temppath, self.is_git)
+            if self.temppath:
+                self.tempdirs.add(tempdir)
+                rename(self.path, self.temppath, self.is_git)
 
-    def restore_temp(self):
+    def restore_temp(self) -> bool:
         'Restore temp path to final destination'
-        if not self.temppath:
+        if not self.temppath or not self.newpath:
             return False
         self.newpath = self.inc_path(self.newpath)
-        rename(self.temppath, self.newpath, self.is_git)
-        return True
+        if self.newpath:
+            rename(self.temppath, self.newpath, self.is_git)
+            return True
+        return False
 
-    def sort_name(self):
+    def sort_name(self) -> str:
         'Return name for sort'
         return str(self.path)
 
-    def sort_time(self):
+    def sort_time(self) -> float:
         'Return time for sort'
         return self.path.stat().st_mtime
 
-    def sort_size(self):
-        'Return size for sort'
+    def sort_size(self) -> int:
+        ' Return size for sort'
         return self.path.stat().st_size
 
     @classmethod
-    def remove_temps(cls):
+    def remove_temps(cls) -> None:
         'Remove all the temp dirs we created in rename_temp() above'
         for p in cls.tempdirs:
-            remove(p, git=None, trash=None, recurse=True)
+            remove(p, git=False, trash=False, recurse=True)
 
         cls.tempdirs.clear()
 
     @classmethod
-    def append(cls, path):
+    def append(cls, path: Path) -> None:
         'Add a single file/dir to the list of paths'
         # Filter out files/dirs if asked
         if args.files:
@@ -221,9 +227,9 @@ class Path:
         cls.paths.append(cls(path))
 
     @classmethod
-    def add(cls, name, expand):
+    def add(cls, name: str, expand: bool) -> None:
         'Add file[s]/dir[s] to the list of paths'
-        path = pathlib.Path(name)
+        path = Path(name)
         if not path.exists():
             sys.exit(f'ERROR: {name} does not exist')
 
@@ -235,13 +241,13 @@ class Path:
             cls.append(path)
 
     @classmethod
-    def writefile(cls, fp):
+    def writefile(cls, fp: TextIO) -> None:
         'Write the file for user to edit'
         fp.writelines(f'{i}\t{p.linerepr}\n' for i, p in
                 enumerate(cls.paths, 1))
 
     @classmethod
-    def readfile(cls, fp):
+    def readfile(cls, fp: TextIO) -> None:
         'Read the list of files/dirs as edited by user'
         for count, line in enumerate(fp, 1):
             # Skip blank or commented lines
@@ -268,7 +274,7 @@ class Path:
             if len(pathstr) > 1:
                 pathstr = pathstr.rstrip('/')
 
-            newpath = pathlib.Path(pathstr)
+            newpath = Path(pathstr)
 
             if path.newpath:
                 if newpath != path.path:
@@ -276,7 +282,7 @@ class Path:
             else:
                 path.newpath = newpath
 
-def editfile(filename):
+def editfile(filename: Path) -> None:
     'Run the editor command'
     # Use explicit editor or choose default
     editor = os.getenv(EDITOR) or os.getenv('VISUAL') or \
@@ -289,9 +295,9 @@ def editfile(filename):
 
     # Check if editor returned error
     if res.returncode != 0:
-        sys.exit(f'ERROR: {editor} returned {res.returncode}')
+        sys.exit(f'ERROR: {editor} returned error {res.returncode}')
 
-def main():
+def main() -> Optional[int]:
     'Main code'
     global args
 
@@ -311,7 +317,7 @@ def main():
     opt.add_argument('-R', '--no-recurse', dest='recurse', action='store_false',
             help='negate the -r/--recurse/ option')
     opt.add_argument('-q', '--quiet', action='store_true',
-            help='do not print rename/remove/copy actions')
+            help='do not print successful rename/remove/copy actions')
     opt.add_argument('-Q', '--no-quiet', dest='quiet', action='store_false',
             help='negate the -q/--quiet/ option')
     opt.add_argument('-G', '--no-git', dest='git',
@@ -367,8 +373,8 @@ def main():
     cnffile = CNFFILE.expanduser()
     if cnffile.exists():
         with cnffile.open() as fp:
-            cnflines = [re.sub(r'#.*$', '', line).strip() for line in fp]
-        cnflines = ' '.join(cnflines).strip()
+            cnflinesl = [re.sub(r'#.*$', '', line).strip() for line in fp]
+        cnflines = ' '.join(cnflinesl).strip()
     else:
         cnflines = ''
 
@@ -376,9 +382,9 @@ def main():
 
     # Check if we are in a git repo
     if args.git != 0:
-        out, err = run('git ls-files')
-        if err and args.git:
-            print(f'Git invocation error: {err}', file=sys.stderr)
+        out, giterr = run('git ls-files')
+        if giterr and args.git:
+            print(f'Git invocation error: {giterr}', file=sys.stderr)
         if out:
             gitfiles.update(out.splitlines())
 
@@ -399,41 +405,44 @@ def main():
             for line in sys.stdin:
                 name = line.rstrip('\n\r')
                 if name != '.':
-                    Path.add(line.rstrip('\n\r'), False)
+                    Fpath.add(line.rstrip('\n\r'), False)
         else:
-            Path.add(name, not args.dirnames)
+            Fpath.add(name, not args.dirnames)
 
     # Sanity check that we have something to edit
-    if not Path.paths:
+    if not Fpath.paths:
         desc = 'files' if args.files else \
                 'directories' if args.dirs else 'files or directories'
         print(f'No {desc}.')
-        return
+        return None
 
     if args.sort == 1:
-        Path.paths.sort(key=Path.sort_name, reverse=args.sort_reverse)
+        Fpath.paths.sort(key=Fpath.sort_name, reverse=args.sort_reverse)
     elif args.sort == 2:
-        Path.paths.sort(key=Path.sort_time, reverse=args.sort_reverse)
+        Fpath.paths.sort(key=Fpath.sort_time, reverse=args.sort_reverse)
     elif args.sort == 3:
-        Path.paths.sort(key=Path.sort_size, reverse=args.sort_reverse)
+        Fpath.paths.sort(key=Fpath.sort_size, reverse=args.sort_reverse)
 
     if args.group_dirs is not None and args.group_dirs >= 0:
-        ldirs, lfiles = [], []
-        for path in Path.paths:
+        ldirs: List[Fpath] = []
+        lfiles: List[Fpath] = []
+        for path in Fpath.paths:
             (ldirs if path.is_dir else lfiles).append(path)
-        Path.paths = ldirs + lfiles if args.group_dirs else lfiles + ldirs
+        Fpath.paths = ldirs + lfiles if args.group_dirs else lfiles + ldirs
 
     # Create a temp file for the user to edit then read the lines back
     with tempfile.TemporaryDirectory() as fdir:
-        fpath = pathlib.Path(fdir, f'{PROG}{args.suffix}')
+        fpath = Path(fdir, f'{PROG}{args.suffix}')
         with fpath.open('w') as fp:
-            Path.writefile(fp)
+            Fpath.writefile(fp)
         editfile(fpath)
         with fpath.open() as fp:
-            Path.readfile(fp)
+            Fpath.readfile(fp)
 
     # Reduce paths to only those that were removed or changed by the user
-    paths = [p for p in Path.paths if p.path != p.newpath or p.copies]
+    paths = [p for p in Fpath.paths if p.path != p.newpath or p.copies]
+
+    err: Optional[str]
 
     # Pass 1: Rename all moved files & dirs to temps, delete all removed
     # files.
@@ -468,7 +477,7 @@ def main():
             log(f'Copying "{p.diagrepr}" to "{c}{appdash}"{p.note}', err)
 
     # Remove all the temporary dirs we created
-    Path.remove_temps()
+    Fpath.remove_temps()
 
     # Pass 4. Delete all remaining dirs
     for p in paths:
