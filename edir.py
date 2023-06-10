@@ -35,26 +35,34 @@ COLOR_yellow = '\033[33m'
 COLOR_reset = '\033[39m'
 
 COLORS = {
-    'remove': COLOR_red,
-    'rename': COLOR_yellow,
-    'copy': COLOR_green,
+    'Removing': COLOR_red,
+    'Renaming': COLOR_yellow,
+    'Copying': COLOR_green,
 }
 
 args = None
 gitfiles = set()
 counts = [0, 0]
 
-def log(func, msg, *, error=False):
+def log(msg, error=None):
     'Output given message with appropriate color'
-    counts[error] += 1
+    counts[bool(error)] += 1
 
-    if error or not args.quiet:
-        out = sys.stderr if error else sys.stdout
+    if error:
+        out = sys.stderr
+        msg += f' ERROR: {error}'
+    elif args.quiet:
+        return
+    else:
+        out = sys.stdout
 
-        if args.no_color:
-            print(msg, file=out)
-        else:
-            print(COLORS[func] + msg + COLOR_reset, file=out)
+    if args.no_color:
+        print(msg, file=out)
+    else:
+        # First word of msg is action to do
+        func = msg.split(maxsplit=1)[0]
+        assert func in COLORS
+        print(COLORS[func] + msg + COLOR_reset, file=out)
 
 def run(cmd):
     'Run given command and return stdout, stderr'
@@ -109,7 +117,7 @@ def rename(pathsrc, pathdest, is_git=False):
     if is_git:
         out, err = run(f'git mv -f "{pathsrc}" "{pathdest}"')
         if err:
-            log('rename', f'Rename "{pathsrc}" git mv ERROR: {err}', error=True)
+            log(f'Renaming "{pathsrc}"', f'git mv error: {err}')
     else:
         pathsrc.replace(pathdest)
 
@@ -438,10 +446,7 @@ def main():
                 p.rename_temp()
         elif not p.is_dir:
             err = remove(p.path, p.is_git, args.trash)
-            if err:
-                log('remove', f'Remove "{p.diagrepr}" ERROR: {err}', error=True)
-            else:
-                log('remove', f'Removed "{p.diagrepr}"')
+            log(f'Removing "{p.diagrepr}"', err)
 
     # Pass 2: Delete all removed dirs, if empty or recursive delete.
     for p in paths:
@@ -449,22 +454,18 @@ def main():
             if remove(p.path, p.is_git, args.trash, args.recurse) is None:
                 # Have removed, so flag as finished for final dirs pass below
                 p.is_dir = False
-                log('remove', f'Removed "{p.diagrepr}"{p.note}')
+                log(f'Removing "{p.diagrepr}"{p.note}')
 
     # Pass 3. Rename all temp files and dirs to final target, and make
     # copies.
     for p in paths:
         appdash = '/' if p.is_dir else ''
         if p.restore_temp():
-            log('rename', f'Renamed "{p.diagrepr}" to "{p.newpath}{appdash}"')
+            log(f'Renaming "{p.diagrepr}" to "{p.newpath}{appdash}"')
 
         for c in p.copies:
             err = p.copy(c)
-            if err:
-                log('copy', f'Copy "{p.diagrepr}" to "{c}{appdash}"{p.note} '
-                        f'ERROR: {err}', error=True)
-            else:
-                log('copy', f'Copied "{p.diagrepr}" to "{c}{appdash}"{p.note}')
+            log(f'Copying "{p.diagrepr}" to "{c}{appdash}"{p.note}', err)
 
     # Remove all the temporary dirs we created
     Path.remove_temps()
@@ -473,10 +474,7 @@ def main():
     for p in paths:
         if p.is_dir and not p.newpath:
             err = remove(p.path, p.is_git, args.trash, args.recurse)
-            if err:
-                log('remove', f'Remove "{p.diagrepr}" ERROR: {err}', error=True)
-            else:
-                log('remove', f'Removed "{p.diagrepr}"{p.note}')
+            log(f'Removing "{p.diagrepr}"{p.note}', err)
 
     # Return status code 0 = all good, 1 = some bad, 2 = all bad.
     return (1 if counts[0] > 0 else 2) if counts[1] > 0 else 0
