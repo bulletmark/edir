@@ -6,7 +6,7 @@ check:
 	flake8 $(PYNAME).py
 	mypy $(PYNAME).py
 	pyright $(PYNAME).py
-	vermin --no-tips -i $(PYNAME).py setup.py
+	vermin -vv --exclude importlib.metadata --no-tips -i $(PYNAME).py
 
 build:
 	rm -rf dist
