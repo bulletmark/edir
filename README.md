@@ -332,7 +332,7 @@ Type `edir -h` to view the usage summary:
 ```
 usage: edir [-h] [-a] [-A] [-r] [-R] [-q] [-Q] [-G] [-g] [-t] [-T]
                [--trash-program TRASH_PROGRAM] [-c] [-d] [-F | -D] [-L] [-N]
-               [-I] [-S] [-E] [-X] [-Y] [-Z] [--suffix SUFFIX]
+               [-I] [-S] [-E] [-X] [-Y] [-Z] [--suffix SUFFIX] [-V]
                [args ...]
 
 Program to rename, remove, or copy files and directories using your editor.
@@ -372,6 +372,7 @@ options:
                         group directories last (including when sorted)
   -Z, --no-group-dirs   negate the options to group directories
   --suffix SUFFIX       specify suffix for editor file, default=".sh"
+  -V, --version         show edir version
 
 Note you can set default starting options in ~/.config/edir-flags.conf. The
 negation options (i.e. the --no-* options and their shortforms) allow you to

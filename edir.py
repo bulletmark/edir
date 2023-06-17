@@ -198,8 +198,17 @@ class Fpath:
         return self.path.stat().st_mtime
 
     def sort_size(self) -> int:
-        ' Return size for sort'
+        'Return size for sort'
         return self.path.stat().st_size
+
+    def is_recursive(self) -> bool:
+        'Return True if directory and we can view it and contains children'
+        if not self.is_dir:
+            return False
+        try:
+            return any(self.path.iterdir())
+        except Exception:
+            return False
 
     @classmethod
     def remove_temps(cls) -> None:
@@ -297,7 +306,7 @@ def editfile(filename: Path) -> None:
     if res.returncode != 0:
         sys.exit(f'ERROR: {editor} returned error {res.returncode}')
 
-def main() -> Optional[int]:
+def main() -> int:
     'Main code'
     global args
 
@@ -365,6 +374,8 @@ def main() -> Optional[int]:
             help='negate the options to group directories')
     opt.add_argument('--suffix', default=SUFFIX,
             help='specify suffix for editor file, default="%(default)s"')
+    opt.add_argument('-V', '--version', action='store_true',
+            help=f'show {PROG} version')
     opt.add_argument('args', nargs='*',
             help='file|dir, or "-" for stdin')
 
@@ -373,12 +384,26 @@ def main() -> Optional[int]:
     cnffile = CNFFILE.expanduser()
     if cnffile.exists():
         with cnffile.open() as fp:
-            cnflinesl = [re.sub(r'#.*$', '', line).strip() for line in fp]
-        cnflines = ' '.join(cnflinesl).strip()
+            lines = [re.sub(r'#.*$', '', line).strip() for line in fp]
+        cnflines = ' '.join(lines).strip()
     else:
         cnflines = ''
 
     args = opt.parse_args(shlex.split(cnflines) + sys.argv[1:])
+
+    if args.version:
+        try:
+            from importlib.metadata import version
+        except ImportError:
+            from importlib_metadata import version
+
+        try:
+            ver = version(PROG)
+        except Exception:
+            ver = 'unknown'
+
+        print(ver)
+        return 0
 
     # Check if we are in a git repo
     if args.git != 0:
@@ -414,7 +439,7 @@ def main() -> Optional[int]:
         desc = 'files' if args.files else \
                 'directories' if args.dirs else 'files or directories'
         print(f'No {desc}.')
-        return None
+        return 0
 
     if args.sort == 1:
         Fpath.paths.sort(key=Fpath.sort_name, reverse=args.sort_reverse)
@@ -448,7 +473,8 @@ def main() -> Optional[int]:
     # files.
     for p in paths:
         # Lazy eval the next path value
-        p.note = ' recursively' if p.is_dir and any(p.path.iterdir()) else ''
+
+        p.note = ' recursively' if p.is_recursive() else ''
 
         if p.newpath:
             if p.newpath != p.path:

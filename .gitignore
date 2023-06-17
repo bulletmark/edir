@@ -4,4 +4,3 @@ dist/
 .vscode/
 *.egg-info/
 __pycache__/
-README.html
