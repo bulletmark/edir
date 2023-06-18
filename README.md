@@ -238,34 +238,18 @@ Arch users can install [edir from the AUR](https://aur.archlinux.org/packages/ed
 
 Python 3.6 or later is required. Note [edir is on
 PyPI](https://pypi.org/project/edir/) so just ensure that
-`python3-pip` and `python3-wheel` are installed then type the following
-to install (or upgrade):
+[`pipx`](https://pypa.github.io/pipx/) is installed then type the
+following:
 
 ```
-$ pip3 install -U edir
+$ pipx install edir
 ```
 
-Or, to install from this source repository:
+To upgrade:
 
 ```
-$ git clone http://github.com/bulletmark/edir
-$ cd edir
-$ pip3 install -U .
+$ pipx upgrade edir
 ```
-
-To upgrade from the source repository:
-
-```
-$ cd edir # i.e. to git source dir above
-$ git pull
-$ pip3 install -U .
-```
-
-Optionally, if you are using an odd system and/or want to install this
-manually then all you need to do is rename `edir.py` as `edir` and make
-it executable somewhere in your path, although note this approach means
-that `edir` will start slightly less quickly (because Python will have
-to recompile to bytecode every time you run it).
 
 Edir runs on pure Python. No 3rd party packages are required.
 [Git](https://git-scm.com/) must be installed if you want to use the git

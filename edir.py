@@ -392,9 +392,9 @@ def main() -> int:
     args = opt.parse_args(shlex.split(cnflines) + sys.argv[1:])
 
     if args.version:
-        try:
+        if sys.version_info >= (3, 8):
             from importlib.metadata import version
-        except ImportError:
+        else:
             from importlib_metadata import version
 
         try:
