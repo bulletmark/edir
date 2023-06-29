@@ -11,12 +11,12 @@ import itertools
 import os
 import re
 import shlex
+import shutil
 import subprocess
 import sys
 import tempfile
 from collections import OrderedDict
 from pathlib import Path
-from shutil import copy2, copytree, rmtree
 from typing import List, Optional, TextIO, Tuple
 
 # Some constants
@@ -100,7 +100,7 @@ def remove(path: Path, git: bool = False, trash: bool = False,
 
     if recurse:
         try:
-            rmtree(str(path))
+            shutil.rmtree(str(path))
         except Exception as e:
             return str(e)
     else:
@@ -112,15 +112,14 @@ def remove(path: Path, git: bool = False, trash: bool = False,
         except Exception as e:
             return str(e)
 
-def rename(pathsrc: Path, pathdest: Path,
-           is_git: bool = False) -> None:
+def rename(pathsrc: Path, pathdest: Path, is_git: bool = False) -> None:
     'Rename given pathsrc to pathdest'
     if is_git:
         out, err = run(f'git mv -f "{pathsrc}" "{pathdest}"')
         if err:
             log(f'Renaming "{pathsrc}"', f'git mv error: {err}')
     else:
-        pathsrc.replace(pathdest)
+        shutil.move(str(pathsrc), str(pathdest))
 
 class Fpath:
     'Class to manage each instance of a file/dir'
@@ -157,7 +156,7 @@ class Fpath:
 
     def copy(self, pathdest: Path) -> Optional[str]:
         'Copy given pathsrc to pathdest'
-        func = copytree if self.is_dir else copy2
+        func = shutil.copytree if self.is_dir else shutil.copy2
         try:
             func(str(self.newpath), str(pathdest))  # type:ignore
         except Exception as e:
