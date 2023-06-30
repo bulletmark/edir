@@ -160,7 +160,18 @@ the following ways:
      error. `edir` returns 0 if all files successful, 1 if some had
      error, or 2 if all had error.
 
-25. `edir` is very strict about the format of the lines you edit and
+25. `vidir` returns an error when attempting to rename across different
+    file systems, which `edir` allows.
+
+26. `edir` always ensures editor line numbers have the same width (e.g.
+    `1` to `6` for 6 files, or `01` to `12` for 12 files, etc) so that
+    file names always line up justified. This facilitates block editing
+    of file names, e.g. using vim's [visual block
+    mode](https://linuxhint.com/vim-visual-block-mode/). `vidir` doesn't
+    do this so file names can be jagged wrt each other which makes block
+    editing awkward.
+
+27. `edir` is very strict about the format of the lines you edit and
     immediately exits with an error message (before changing anything)
     if you format one of the lines incorrectly. All lines in the edited
     list:
@@ -176,7 +187,7 @@ the following ways:
     line so an easy way to swap two file names is just to swap their
     numbers.
 
-26. `edir` always actions files consistently. The sequence of
+28. `edir` always actions files consistently. The sequence of
      operations applied is:
 
     1. Deleted files are removed and all renamed files and directories

@@ -6,9 +6,6 @@ build-backend = "setuptools.build_meta"
 name = "edir"
 description = "Utility to rename, remove, and copy files/dirs using your editor"
 readme = "README.md"
-authors = [
-  {name = "Mark Blakeney", email = "mark.blakeney@bullet-systems.net"},
-]
 requires-python = ">=3.6"
 keywords = ["vidir", "git", "trash", "trash-put", "thrash-d"]
 classifiers = [
@@ -18,6 +15,10 @@ dynamic = ["version"]
 dependencies = [
   "importlib-metadata; python_version < '3.8'",
 ]
+
+[[project.authors]]
+name = "Mark Blakeney"
+email = "mark.blakeney@bullet-systems.net"
 
 [project.urls]
 Homepage = "https://github.com/bulletmark/edir"
