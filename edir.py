@@ -8,7 +8,6 @@ repository.
 
 import argparse
 import itertools
-import math
 import os
 import re
 import shlex
@@ -253,7 +252,7 @@ class Fpath:
     def writefile(cls, fp: TextIO) -> None:
         'Write the file for user to edit'
         # Ensure consistent width for line numbers
-        num_width = int(math.log10(len(cls.paths)) + 1)
+        num_width = len(str(len(cls.paths)))
         fp.writelines(f'{i:0{num_width}}  {p.linerepr}\n'
                       for i, p in enumerate(cls.paths, 1))
 
