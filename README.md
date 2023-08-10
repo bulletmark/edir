@@ -239,7 +239,8 @@ you can use `-T` on the command line to turn that default option off
 temporarily.
 
 You can specify an alternative trash program, e.g.
-[`trash-d`](https://github.com/rushsteve1/trash-d), by setting the
+[`trash-d`](https://github.com/rushsteve1/trash-d) or [`gio
+trash`](https://man.archlinux.org/man/gio.1#COMMANDS), by setting the
 `--trash-program` option. Most likely you want to set this as a [default
 option](#command-default-options).
 
