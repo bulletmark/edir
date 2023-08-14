@@ -45,7 +45,7 @@ args = argparse.Namespace()
 gitfiles = set()
 counts = [0, 0]
 
-def log(msg: str, error=None) -> None:
+def log(msg: str, error: Optional[str] = None) -> None:
     'Output given message with appropriate color'
     counts[bool(error)] += 1
 
