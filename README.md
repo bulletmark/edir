@@ -155,6 +155,8 @@ the following ways:
 23. Contrary to what it's name implies, `vidir` actually respects your
     `$EDITOR` variable and runs your preferred editor like `edir` does
     but `edir` has been given a generic name to make this more apparent.
+    If `$EDITOR` is not set then `edir` uses a default editor
+    appropriate to your system.
 
 24. `vidir` returns status code 0 if all files successful, or 1 if any
      error. `edir` returns 0 if all files successful, 1 if some had
@@ -263,7 +265,6 @@ To upgrade:
 $ pipx upgrade edir
 ```
 
-Edir runs on pure Python. No 3rd party packages are required.
 [Git](https://git-scm.com/) must be installed if you want to use the git
 options. A trash program such as
 [trash-cli](https://github.com/andreafrancia/trash-cli) package is
@@ -272,8 +273,8 @@ required if you want `-t/--trash` functionality.
 ### EDIR_EDITOR Environment Variable
 
 `edir` selects your editor from the first environment value found of:
-`$EDIR_EDITOR`, `$VISUAL`, `$EDITOR`, then falls back to "vi" if
-none of these are set.
+`$EDIR_EDITOR` or `$EDITOR`, then guesses a fallback default editor
+appropriate to your system if neither of these are set.
 
 You can also set `EDIR_EDITOR` explicitly to an editor + arguments
 string if you want `edir` to call your editor with specific arguments.
@@ -370,9 +371,9 @@ options:
   --suffix SUFFIX       specify suffix for editor file, default=".sh"
   -V, --version         show edir version
 
-Note you can set default starting options in ~/.config/edir-flags.conf. The
-negation options (i.e. the --no-* options and their shortforms) allow you to
-temporarily override your defaults.
+Note you can set default starting options in $HOME/.config/edir-
+flags.conf. The negation options (i.e. the --no-* options and their
+shortforms) allow you to temporarily override your defaults.
 ```
 
 ## Embed in Ranger File Manager

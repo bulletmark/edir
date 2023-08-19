@@ -19,10 +19,11 @@ from collections import OrderedDict
 from pathlib import Path
 from typing import List, Optional, TextIO, Tuple
 
+from platformdirs import user_config_path
+
 # Some constants
 PROG = Path(sys.argv[0]).stem
-CNFFILE = Path(os.getenv('XDG_CONFIG_HOME', '~/.config'),
-        f'{PROG}-flags.conf')
+CNFFILE = user_config_path() / f'{PROG}-flags.conf'
 EDITOR = PROG.upper() + '_EDITOR'
 SUFFIX = '.sh'
 
@@ -44,6 +45,13 @@ COLORS = {
 args = argparse.Namespace()
 gitfiles = set()
 counts = [0, 0]
+
+EDITORS = {'Windows': 'notepad', 'Darwin': 'open -e', 'default': 'vim'}
+
+def get_default_editor() -> str:
+    'Return default editor for this system'
+    from platform import system
+    return EDITORS.get(system(), EDITORS['default'])
 
 def log(msg: str, error: Optional[str] = None) -> None:
     'Output given message with appropriate color'
@@ -294,9 +302,8 @@ class Fpath:
 
 def editfile(filename: Path) -> None:
     'Run the editor command'
-    # Use explicit editor or choose default
-    editor = os.getenv(EDITOR) or os.getenv('VISUAL') or \
-            os.getenv('EDITOR') or 'vi'
+    # Use explicit user defined editor or choose system default
+    editor = os.getenv(EDITOR) or os.getenv('EDITOR') or get_default_editor()
     editcmd = shlex.split(editor) + [str(filename)]
 
     # Run the editor ..
@@ -382,9 +389,8 @@ def main() -> int:
 
     # Merge in default args from user config file. Then parse the
     # command line.
-    cnffile = CNFFILE.expanduser()
-    if cnffile.exists():
-        with cnffile.open() as fp:
+    if CNFFILE.exists():
+        with CNFFILE.open() as fp:
             lines = [re.sub(r'#.*$', '', line).strip() for line in fp]
         cnflines = ' '.join(lines).strip()
     else:
