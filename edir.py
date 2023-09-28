@@ -36,10 +36,10 @@ COLOR_green = '\033[32m'
 COLOR_yellow = '\033[33m'
 COLOR_reset = '\033[39m'
 
-COLORS = {
-    'Removing': COLOR_red,
-    'Renaming': COLOR_yellow,
-    'Copying': COLOR_green,
+ACTIONS = {
+    'remove': (COLOR_red, ('Removing', 'Remove', 'Removed')),
+    'rename': (COLOR_yellow, ('Renaming', 'Rename', 'Renamed')),
+    'copy': (COLOR_green, ('Copying', 'Copy', 'Copied')),
 }
 
 args = argparse.Namespace()
@@ -53,25 +53,26 @@ def get_default_editor() -> str:
     from platform import system
     return EDITORS.get(system(), EDITORS['default'])
 
-def log(msg: str, error: Optional[str] = None) -> None:
-    'Output given message with appropriate color'
+def log(action: str, msg: str, error: Optional[str] = None, *,
+        prompt: bool = False) -> None:
+    'Output message with appropriate color'
     counts[bool(error)] += 1
+
+    color, tense = ACTIONS[action]
 
     if error:
         out = sys.stderr
-        msg += f' ERROR: {error}'
-    elif args.quiet:
+        msg = f'{tense[1]} {msg} ERROR: {error}'
+    elif args.quiet and not prompt:
         return
     else:
         out = sys.stdout
+        msg = f'{tense[0] if prompt else tense[2]} {msg}'
 
     if args.no_color:
         print(msg, file=out)
     else:
-        # First word of msg is action to do
-        func = msg.split(maxsplit=1)[0]
-        assert func in COLORS
-        print(COLORS[func] + msg + COLOR_reset, file=out)
+        print(color + msg + COLOR_reset, file=out)
 
 def run(cmd: str) -> Tuple[str, str]:
     'Run given command and return (stdout, stderr) strings'
@@ -125,7 +126,7 @@ def rename(pathsrc: Path, pathdest: Path, is_git: bool = False) -> None:
     if is_git:
         out, err = run(f'git mv -f "{pathsrc}" "{pathdest}"')
         if err:
-            log(f'Renaming "{pathsrc}"', f'git mv error: {err}')
+            log('rename', '"{pathsrc}"', f'git mv error: {err}')
     else:
         shutil.move(str(pathsrc), str(pathdest))
 
@@ -142,6 +143,7 @@ class Fpath:
         self.note = ''
         self.copies: List[Path] = []
         self.is_dir = path.is_dir()
+        self.appdash = '/' if self.is_dir else ''
         self.diagrepr = str(self.path)
         self.is_git = self.diagrepr in gitfiles
 
@@ -216,6 +218,17 @@ class Fpath:
             return any(self.path.iterdir())
         except Exception:
             return False
+
+    def log_pending_changes(self) -> None:
+        'Log all pending changes for this path'
+        if not self.newpath:
+            log('remove', f'"{self.diagrepr}"{self.note}', prompt=True)
+        elif self.newpath != self.path:
+            log('rename', f'"{self.diagrepr}" to '
+                f'"{self.newpath}{self.appdash}"', prompt=True)
+        for c in self.copies:
+            log('copy', f'"{self.diagrepr}" to '
+                f'"{c}{self.appdash}"{self.note}', prompt=True)
 
     @classmethod
     def remove_temps(cls) -> None:
@@ -324,19 +337,24 @@ def main() -> int:
             f'{CNFFILE}. The negation options (i.e. the --no-* options '
             'and their shortforms) allow you to temporarily override your '
             'defaults.')
+    opt.add_argument('-i', '--interactive', action='store_true',
+            help='prompt with summary of changes before doing them')
+    opt.add_argument('-I', '--no-interactive', dest='interactive',
+                     action='store_false',
+            help='negate the -i/--interactive option')
     opt.add_argument('-a', '--all', action='store_true',
             help='include all (including hidden) files')
     opt.add_argument('-A', '--no-all', dest='all', action='store_false',
-            help='negate the -a/--all/ option')
+            help='negate the -a/--all option')
     opt.add_argument('-r', '--recurse', action='store_true',
             help='recursively remove any files and directories in '
             'removed directories')
     opt.add_argument('-R', '--no-recurse', dest='recurse', action='store_false',
-            help='negate the -r/--recurse/ option')
+            help='negate the -r/--recurse option')
     opt.add_argument('-q', '--quiet', action='store_true',
             help='do not print successful rename/remove/copy actions')
     opt.add_argument('-Q', '--no-quiet', dest='quiet', action='store_false',
-            help='negate the -q/--quiet/ option')
+            help='negate the -q/--quiet option')
     opt.add_argument('-G', '--no-git', dest='git',
             action='store_const', const=0,
             help='do not use git if invoked within a git repository')
@@ -346,7 +364,7 @@ def main() -> int:
     opt.add_argument('-t', '--trash', action='store_true',
             help='use trash program to do deletions')
     opt.add_argument('-T', '--no-trash', dest='trash', action='store_false',
-            help='negate the -t/--trash/ option')
+            help='negate the -t/--trash option')
     opt.add_argument('--trash-program', default='trash-put',
             help='trash program to use, default="%(default)s"')
     opt.add_argument('-c', '--no-color', action='store_true',
@@ -363,7 +381,7 @@ def main() -> int:
     opt.add_argument('-N', '--sort-name', dest='sort',
             action='store_const', const=1,
             help='sort paths in file by name, alphabetically')
-    opt.add_argument('-I', '--sort-time', dest='sort',
+    opt.add_argument('-M', '--sort-time', dest='sort',
             action='store_const', const=2,
             help='sort paths in file by time, oldest first')
     opt.add_argument('-S', '--sort-size', dest='sort',
@@ -474,21 +492,31 @@ def main() -> int:
     # Reduce paths to only those that were removed or changed by the user
     paths = [p for p in Fpath.paths if p.path != p.newpath or p.copies]
 
+    if not paths:
+        return 0
+
+    # Lazy eval the next path value
+    for p in paths:
+        p.note = ' recursively' if p.is_recursive() else ''
+
+    # Prompt user with pending changes if required
+    if args.interactive:
+        for p in paths:
+            p.log_pending_changes()
+        if input('Proceed with changes? [y/N] ').lower() != 'y':
+            return 0
+
     err: Optional[str]
 
     # Pass 1: Rename all moved files & dirs to temps, delete all removed
     # files.
     for p in paths:
-        # Lazy eval the next path value
-
-        p.note = ' recursively' if p.is_recursive() else ''
-
         if p.newpath:
             if p.newpath != p.path:
                 p.rename_temp()
         elif not p.is_dir:
             err = remove(p.path, p.is_git, args.trash)
-            log(f'Removing "{p.diagrepr}"', err)
+            log('remove', f'"{p.diagrepr}"', err)
 
     # Pass 2: Delete all removed dirs, if empty or recursive delete.
     for p in paths:
@@ -496,18 +524,17 @@ def main() -> int:
             if remove(p.path, p.is_git, args.trash, args.recurse) is None:
                 # Have removed, so flag as finished for final dirs pass below
                 p.is_dir = False
-                log(f'Removing "{p.diagrepr}"{p.note}')
+                log('remove', f'"{p.diagrepr}"{p.note}')
 
     # Pass 3. Rename all temp files and dirs to final target, and make
     # copies.
     for p in paths:
-        appdash = '/' if p.is_dir else ''
         if p.restore_temp():
-            log(f'Renaming "{p.diagrepr}" to "{p.newpath}{appdash}"')
+            log('rename', f'"{p.diagrepr}" to "{p.newpath}{p.appdash}"')
 
         for c in p.copies:
             err = p.copy(c)
-            log(f'Copying "{p.diagrepr}" to "{c}{appdash}"{p.note}', err)
+            log('copy', f'"{p.diagrepr}" to "{c}{p.appdash}"{p.note}', err)
 
     # Remove all the temporary dirs we created
     Fpath.remove_temps()
@@ -516,7 +543,7 @@ def main() -> int:
     for p in paths:
         if p.is_dir and not p.newpath:
             err = remove(p.path, p.is_git, args.trash, args.recurse)
-            log(f'Removing "{p.diagrepr}"{p.note}', err)
+            log('remove', f'"{p.diagrepr}"{p.note}', err)
 
     # Return status code 0 = all good, 1 = some bad, 2 = all bad.
     return (1 if counts[0] > 0 else 2) if counts[1] > 0 else 0

@@ -102,16 +102,19 @@ the following ways:
     as opposed to `find | edir -`. Note that `vidir` requires the second
     form.
 
-11. `edir` adds a `-F/--files` option to only show files, or `-D/--dirs`
+11. `edir` adds a [`-i/--interactive` option](#previewing-changes) to
+    show pending changes and prompt the user before actioning them.
+
+12. `edir` adds a `-F/--files` option to only show files, or `-D/--dirs`
     to only show directories.
 
-12. `edir` adds a `-L/--nolinks` option to ignore symbolic links.
+13. `edir` adds a `-L/--nolinks` option to ignore symbolic links.
 
-13. `edir` adds a `-d/--dirnames` option to edit specified directory
+14. `edir` adds a `-d/--dirnames` option to edit specified directory
     names directly, not their contents. I.e. this is like `ls -d mydir`
     compared to `ls mydir`.
 
-14. `edir` adds a [`-t/--trash` option](#using-trash) to remove to your
+15. `edir` adds a [`-t/--trash` option](#using-trash) to remove to your
     [Trash](https://specifications.freedesktop.org/trash-spec/trashspec-1.0.html).
     By default this option invokes
     [`trash-put`](https://www.mankier.com/1/trash-put) from the
@@ -119,21 +122,21 @@ the following ways:
     do deletions but you can specify any alternative trash program, see
     [section below](#using-trash).
 
-15. `edir` adds `-N/--sort-name, -I/--sort-time, -S/--sort-size` options
+16. `edir` adds `-N/--sort-name, -M/--sort-time, -S/--sort-size` options
     to sort the paths when listed in your editor. There is also a
     `-E/--sort-reverse` option to reverse the order.
 
-16. `edir` adds `-X/--group-dirs-first` and `-Y/--group-dirs-last`
+17. `edir` adds `-X/--group-dirs-first` and `-Y/--group-dirs-last`
     options to display directories grouped together, either first or
     last. These can be combined with the above sorting options.
 
-17. `edir` shows a message "No files or directories" if there is nothing
+18. `edir` shows a message "No files or directories" if there is nothing
     to edit, rather than opening an empty file as `vidir` does.
 
-18. `edir` filters out any duplicate paths you may inadvertently specify
+19. `edir` filters out any duplicate paths you may inadvertently specify
     on it's command line.
 
-19. `edir` always invokes a consistent duplicate renaming scheme. E.g. if
+20. `edir` always invokes a consistent duplicate renaming scheme. E.g. if
     you rename `b`, `c`, `d` all to the same pre-existing name `a` then
     `edir` will rename `b` to `a~`, `c` to `a~1`, `d` to `a~2`.
     Depending on order of operations, `vidir` is not always consistent
@@ -141,31 +144,31 @@ the following ways:
     be a bug in `vidir` that nobody has ever bothered to
     report/address?).
 
-20. `edir` creates the temporary editing file with a `.sh` suffix so
+21. `edir` creates the temporary editing file with a `.sh` suffix so
     your EDITOR may syntax highlight the entries. Optionally, you can
     change this default suffix.
 
-21. `edir` provides an optional environment value to add custom options
+22. `edir` provides an optional environment value to add custom options
     to the invocation of your editor. See [section
     below](#edir_editor-environment-variable).
 
-22. `edir` provides an optional configuration file to set default `edir`
+23. `edir` provides an optional configuration file to set default `edir`
     command line options. See [section below](#command-default-options).
 
-23. Contrary to what it's name implies, `vidir` actually respects your
+24. Contrary to what it's name implies, `vidir` actually respects your
     `$EDITOR` variable and runs your preferred editor like `edir` does
     but `edir` has been given a generic name to make this more apparent.
     If `$EDITOR` is not set then `edir` uses a default editor
     appropriate to your system.
 
-24. `vidir` returns status code 0 if all files successful, or 1 if any
+25. `vidir` returns status code 0 if all files successful, or 1 if any
      error. `edir` returns 0 if all files successful, 1 if some had
      error, or 2 if all had error.
 
-25. `vidir` returns an error when attempting to rename across different
+26. `vidir` returns an error when attempting to rename across different
     file systems, which `edir` allows.
 
-26. `edir` always ensures editor line numbers have the same width (e.g.
+27. `edir` always ensures editor line numbers have the same width (e.g.
     `1` to `6` for 6 files, or `01` to `12` for 12 files, etc) so that
     file names always line up justified. This facilitates block editing
     of file names, e.g. using vim's [visual block
@@ -173,7 +176,7 @@ the following ways:
     do this so file names can be jagged wrt each other which makes block
     editing awkward.
 
-27. `edir` is very strict about the format of the lines you edit and
+28. `edir` is very strict about the format of the lines you edit and
     immediately exits with an error message (before changing anything)
     if you format one of the lines incorrectly. All lines in the edited
     list:
@@ -189,7 +192,7 @@ the following ways:
     line so an easy way to swap two file names is just to swap their
     numbers.
 
-28. `edir` always actions files consistently. The sequence of
+29. `edir` always actions files consistently. The sequence of
      operations applied is:
 
     1. Deleted files are removed and all renamed files and directories
@@ -246,6 +249,15 @@ trash`](https://man.archlinux.org/man/gio.1#COMMANDS), by setting the
 `--trash-program` option. Most likely you want to set this as a [default
 option](#command-default-options).
 
+## Previewing Changes
+
+Many users would like to see a preview of changes after they finish
+editing but before they are actioned by `edir`, i.e. to confirm exactly
+which files/dirs will be deleted, renamed, or copied. Add the
+`-i/--interactive` option and edir will present a list of changes and
+prompt you `[y/N]` to continue. Consider setting `--interactive` as
+[default option](#command-default-options) so you are always prompted.
+
 ## Installation or Upgrade
 
 Arch users can install [edir from the AUR](https://aur.archlinux.org/packages/edir/).
@@ -288,12 +300,12 @@ command line arguments. Comments in the file (i.e. starting with a `#`)
 are ignored. Type `edir -h` to see all [supported
 options](#command-line-options).
 
-The options `--all`, `--recurse`, `--quiet`, `--no-git`, `--trash`,
-`--suffix`, `--no-color`, `--group-dirs-first/last`, `--trash-program`
-are sensible candidates to consider setting as default. If you set these
-then "on-the-fly" negation options `-A`, `-R`, `-Q`, `-g`, `-T`, `-Z`
-are also provided to temporarily override and disable default options on
-the command line.
+The options `--interactive`, `--all`, `--recurse`, `--quiet`,
+`--no-git`, `--trash`, `--suffix`, `--no-color`,
+`--group-dirs-first/last`, `--trash-program` are sensible candidates to
+consider setting as default. If you set these then "on-the-fly" negation
+options `-I`, `-A`, `-R`, `-Q`, `-g`, `-T`, `-Z` are also provided to
+temporarily override and disable default options on the command line.
 
 ## Examples
 
@@ -327,9 +339,9 @@ $ fd -d1 -tf | edir -g
 Type `edir -h` to view the usage summary:
 
 ```
-usage: edir [-h] [-a] [-A] [-r] [-R] [-q] [-Q] [-G] [-g] [-t] [-T]
-               [--trash-program TRASH_PROGRAM] [-c] [-d] [-F | -D] [-L] [-N]
-               [-I] [-S] [-E] [-X] [-Y] [-Z] [--suffix SUFFIX] [-V]
+usage: edir [-h] [-i] [-I] [-a] [-A] [-r] [-R] [-q] [-Q] [-G] [-g] [-t]
+               [-T] [--trash-program TRASH_PROGRAM] [-c] [-d] [-F | -D] [-L]
+               [-N] [-M] [-S] [-E] [-X] [-Y] [-Z] [--suffix SUFFIX] [-V]
                [args ...]
 
 Program to rename, remove, or copy files and directories using your editor.
@@ -340,17 +352,19 @@ positional arguments:
 
 options:
   -h, --help            show this help message and exit
+  -i, --interactive     prompt with summary of changes before doing them
+  -I, --no-interactive  negate the -i/--interactive option
   -a, --all             include all (including hidden) files
-  -A, --no-all          negate the -a/--all/ option
+  -A, --no-all          negate the -a/--all option
   -r, --recurse         recursively remove any files and directories in
                         removed directories
-  -R, --no-recurse      negate the -r/--recurse/ option
+  -R, --no-recurse      negate the -r/--recurse option
   -q, --quiet           do not print successful rename/remove/copy actions
-  -Q, --no-quiet        negate the -q/--quiet/ option
+  -Q, --no-quiet        negate the -q/--quiet option
   -G, --no-git          do not use git if invoked within a git repository
   -g, --git             negate the --no-git option and DO use automatic git
   -t, --trash           use trash program to do deletions
-  -T, --no-trash        negate the -t/--trash/ option
+  -T, --no-trash        negate the -t/--trash option
   --trash-program TRASH_PROGRAM
                         trash program to use, default="trash-put"
   -c, --no-color        do not color rename/remove/copy messages
@@ -360,7 +374,7 @@ options:
   -D, --dirs            only show/edit directories
   -L, --nolinks         ignore all symlinks
   -N, --sort-name       sort paths in file by name, alphabetically
-  -I, --sort-time       sort paths in file by time, oldest first
+  -M, --sort-time       sort paths in file by time, oldest first
   -S, --sort-size       sort paths in file by size, smallest first
   -E, --sort-reverse    sort paths (by name/time/size) in reverse
   -X, --group-dirs-first
