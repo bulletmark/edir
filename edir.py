@@ -130,6 +130,15 @@ def rename(pathsrc: Path, pathdest: Path, is_git: bool = False) -> None:
     else:
         shutil.move(str(pathsrc), str(pathdest))
 
+def create_options(options: str) -> str:
+    'Create a string of options + keys for user to choose from'
+    letters = []
+    words = []
+    for arg in options.split():
+        letters.append(arg[0])
+        words.append(f'({arg[0].upper()}){arg[1:]}')
+    return ', '.join(words) + ': [' + '/'.join(letters) + ']? '
+
 class Fpath:
     'Class to manage each instance of a file/dir'
     paths = []
@@ -313,6 +322,72 @@ class Fpath:
             else:
                 path.newpath = newpath
 
+    @classmethod
+    def reset(cls) -> None:
+        'Reset all the read path changes to null state'
+        for p in cls.paths:
+            p.newpath = None
+            p.copies.clear()
+
+    @classmethod
+    def get_path_changes(cls) -> List:
+        'Get a list of change paths from the user'
+        with tempfile.TemporaryDirectory() as fdir:
+            # Create a temp file for the user to edit then read the lines back
+            fpath = Path(fdir, f'{PROG}{args.suffix}')
+            restart = True
+            while True:
+                cls.reset()
+                if restart:
+                    restart = False
+                    with fpath.open('w') as fp:
+                        cls.writefile(fp)
+
+                # Invoke editor on list of paths
+                editfile(fpath)
+
+                # Read the changed paths
+                with fpath.open() as fp:
+                    cls.readfile(fp)
+
+                # Reduce paths to those that were removed or changed by the user
+                paths = [p for p in cls.paths
+                         if p.path != p.newpath or p.copies]
+
+                if not paths:
+                    return []
+
+                # Lazy eval the next path value
+                for p in paths:
+                    p.note = ' recursively' if p.is_recursive() else ''
+
+                if not args.interactive:
+                    return paths
+
+                # Prompt user with pending changes if required
+                for p in paths:
+                    p.log_pending_changes()
+
+                options = create_options('proceed edit restart quit')
+                while True:
+                    try:
+                        ans = input(options).lower()
+                    except KeyboardInterrupt:
+                        print()
+                        return []
+
+                    if ans == 'p':
+                        return paths
+                    elif ans == 'e':
+                        break
+                    elif ans == 'r':
+                        restart = True
+                        break
+                    elif ans == 'q':
+                        return []
+                    else:
+                        print('Invalid answer.')
+
 def editfile(filename: Path) -> None:
     'Run the editor command'
     # Use explicit user defined editor or choose system default
@@ -480,31 +555,9 @@ def main() -> int:
             (ldirs if path.is_dir else lfiles).append(path)
         Fpath.paths = ldirs + lfiles if args.group_dirs else lfiles + ldirs
 
-    # Create a temp file for the user to edit then read the lines back
-    with tempfile.TemporaryDirectory() as fdir:
-        fpath = Path(fdir, f'{PROG}{args.suffix}')
-        with fpath.open('w') as fp:
-            Fpath.writefile(fp)
-        editfile(fpath)
-        with fpath.open() as fp:
-            Fpath.readfile(fp)
-
-    # Reduce paths to only those that were removed or changed by the user
-    paths = [p for p in Fpath.paths if p.path != p.newpath or p.copies]
-
+    paths = Fpath.get_path_changes()
     if not paths:
         return 0
-
-    # Lazy eval the next path value
-    for p in paths:
-        p.note = ' recursively' if p.is_recursive() else ''
-
-    # Prompt user with pending changes if required
-    if args.interactive:
-        for p in paths:
-            p.log_pending_changes()
-        if input('Proceed with changes? [y/N] ').lower() != 'y':
-            return 0
 
     err: Optional[str]
 

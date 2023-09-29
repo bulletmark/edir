@@ -255,8 +255,23 @@ Many users would like to see a preview of changes after they finish
 editing but before they are actioned by `edir`, i.e. to confirm exactly
 which files/dirs will be deleted, renamed, or copied. Add the
 `-i/--interactive` option and edir will present a list of changes and
-prompt you `[y/N]` to continue. Consider setting `--interactive` as
-[default option](#command-default-options) so you are always prompted.
+prompt you to continue, or allow you to re-edit the path list etc.
+Consider setting `--interactive` as a [default
+option](#command-default-options) so you are always prompted.
+
+After a preview of pending changes is shown a prompt is presented for
+the user to enter a single key:
+
+`(P)roceed, (E)dit, (R)estart, (Q)uit: [p/e/r/q]?`
+
+where:
+
+|Option   |Key|Action                                                      |
+|---      |---|---                                                         |
+|`Proceed`|`p`|Proceed with the path changes.                              |
+|`Edit`   |`e`|Edit the path list again, as it is was last edited.         |
+|`Restart`|`r`|Restart editing the path list again, as it originally began.|
+|`Quit`   |`q`|Quit immediately without making any changes.                |
 
 ## Installation or Upgrade
 
