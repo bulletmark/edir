@@ -103,7 +103,8 @@ the following ways:
     form.
 
 11. `edir` adds a [`-i/--interactive` option](#previewing-changes) to
-    show pending changes and prompt the user before actioning them.
+    show pending changes and prompt the user before actioning them. You
+    can also choose to re-edit the changes.
 
 12. `edir` adds a `-F/--files` option to only show files, or `-D/--dirs`
     to only show directories.
