@@ -130,7 +130,7 @@ def rename(pathsrc: Path, pathdest: Path, is_git: bool = False) -> None:
     else:
         shutil.move(str(pathsrc), str(pathdest))
 
-def create_options(options: str) -> str:
+def create_prompt(options: str) -> str:
     'Create a string of options + keys for user to choose from'
     letters = []
     words = []
@@ -332,6 +332,7 @@ class Fpath:
     @classmethod
     def get_path_changes(cls) -> List:
         'Get a list of change paths from the user'
+        options_prompt = create_prompt('proceed edit restart quit')
         with tempfile.TemporaryDirectory() as fdir:
             # Create a temp file for the user to edit then read the lines back
             fpath = Path(fdir, f'{PROG}{args.suffix}')
@@ -368,10 +369,9 @@ class Fpath:
                 for p in paths:
                     p.log_pending_changes()
 
-                options = create_options('proceed edit restart quit')
                 while True:
                     try:
-                        ans = input(options).lower()
+                        ans = input(options_prompt).lower()
                     except KeyboardInterrupt:
                         print()
                         return []
