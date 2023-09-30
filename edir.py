@@ -413,7 +413,8 @@ def main() -> int:
             'and their shortforms) allow you to temporarily override your '
             'defaults.')
     opt.add_argument('-i', '--interactive', action='store_true',
-            help='prompt with summary of changes before doing them')
+            help='prompt with summary of changes and allow re-edit before '
+                     'proceeding')
     opt.add_argument('-I', '--no-interactive', dest='interactive',
                      action='store_false',
             help='negate the -i/--interactive option')

@@ -368,7 +368,8 @@ positional arguments:
 
 options:
   -h, --help            show this help message and exit
-  -i, --interactive     prompt with summary of changes before doing them
+  -i, --interactive     prompt with summary of changes and allow re-edit
+                        before proceeding
   -I, --no-interactive  negate the -i/--interactive option
   -a, --all             include all (including hidden) files
   -A, --no-all          negate the -a/--all option
