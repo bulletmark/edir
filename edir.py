@@ -17,7 +17,7 @@ import sys
 import tempfile
 from collections import OrderedDict
 from pathlib import Path
-from typing import List, Optional, TextIO, Tuple
+from typing import List, Optional, Tuple
 
 from platformdirs import user_config_path
 
@@ -279,77 +279,76 @@ class Fpath:
             cls.append(path)
 
     @classmethod
-    def writefile(cls, fp: TextIO) -> None:
+    def writefile(cls, fpath: Path) -> None:
         'Write the file for user to edit'
-        # Ensure consistent width for line numbers
-        num_width = len(str(len(cls.paths)))
-        fp.writelines(f'{i:0{num_width}}  {p.linerepr}\n'
-                      for i, p in enumerate(cls.paths, 1))
+        with fpath.open('w') as fp:
+            # Ensure consistent width for line numbers
+            num_width = len(str(len(cls.paths)))
+            fp.writelines(f'{i:0{num_width}}  {p.linerepr}\n'
+                        for i, p in enumerate(cls.paths, 1))
 
     @classmethod
-    def readfile(cls, fp: TextIO) -> None:
+    def readfile(cls, fpath: Path) -> None:
         'Read the list of files/dirs as edited by user'
-        for count, line in enumerate(fp, 1):
-            # Skip blank or commented lines
-            rawline = line.rstrip('\n\r')
-            line = rawline.lstrip()
-            if not line or line[0] == '#':
-                continue
-
-            try:
-                n, pathstr = line.split(maxsplit=1)
-            except Exception:
-                sys.exit(f'ERROR: line {count} invalid:\n{rawline}')
-            try:
-                num = int(n)
-            except Exception:
-                sys.exit(f'ERROR: line {count} number {n} invalid:\n{rawline}')
-
-            if num <= 0 or num > len(cls.paths):
-                sys.exit(f'ERROR: line {count} number {num} '
-                        f'out of range:\n{rawline}')
-
-            path = cls.paths[num - 1]
-
-            if len(pathstr) > 1:
-                pathstr = pathstr.rstrip('/')
-
-            newpath = Path(pathstr)
-
-            if path.newpath:
-                if newpath != path.path:
-                    path.copies.append(newpath)
-            else:
-                path.newpath = newpath
-
-    @classmethod
-    def reset(cls) -> None:
-        'Reset all the read path changes to null state'
+        # Reset all the read path changes to null state
         for p in cls.paths:
             p.newpath = None
             p.copies.clear()
 
+        # Now read file and record changes
+        with fpath.open() as fp:
+            for count, line in enumerate(fp, 1):
+                # Skip blank or commented lines
+                rawline = line.rstrip('\n\r')
+                line = rawline.lstrip()
+                if not line or line[0] == '#':
+                    continue
+
+                try:
+                    n, pathstr = line.split(maxsplit=1)
+                except Exception:
+                    sys.exit(f'ERROR: line {count} invalid:\n{rawline}')
+                try:
+                    num = int(n)
+                except Exception:
+                    sys.exit(f'ERROR: line {count} number {n} invalid:'
+                             f'\n{rawline}')
+
+                if num <= 0 or num > len(cls.paths):
+                    sys.exit(f'ERROR: line {count} number {num} '
+                            f'out of range:\n{rawline}')
+
+                path = cls.paths[num - 1]
+
+                if len(pathstr) > 1:
+                    pathstr = pathstr.rstrip('/')
+
+                newpath = Path(pathstr)
+
+                if path.newpath:
+                    if newpath != path.path:
+                        path.copies.append(newpath)
+                else:
+                    path.newpath = newpath
+
     @classmethod
     def get_path_changes(cls) -> List:
         'Get a list of change paths from the user'
-        options_prompt = create_prompt('proceed edit restart quit')
+        options_prompt = create_prompt('proceed edit restart quit[default]')
         with tempfile.TemporaryDirectory() as fdir:
             # Create a temp file for the user to edit then read the lines back
             fpath = Path(fdir, f'{PROG}{args.suffix}')
             restart = True
             while True:
-                cls.reset()
                 if restart:
                     restart = False
-                    with fpath.open('w') as fp:
-                        cls.writefile(fp)
+                    cls.writefile(fpath)
 
                 # Invoke editor on list of paths
                 editfile(fpath)
 
                 # Read the changed paths
-                with fpath.open() as fp:
-                    cls.readfile(fp)
+                cls.readfile(fpath)
 
                 # Reduce paths to those that were removed or changed by the user
                 paths = [p for p in cls.paths
@@ -371,7 +370,7 @@ class Fpath:
 
                 while True:
                     try:
-                        ans = input(options_prompt).lower()
+                        ans = input(options_prompt).strip().lower()
                     except KeyboardInterrupt:
                         print()
                         return []
@@ -383,7 +382,7 @@ class Fpath:
                     elif ans == 'r':
                         restart = True
                         break
-                    elif ans == 'q':
+                    elif not ans or ans == 'q':
                         return []
                     else:
                         print('Invalid answer.')
@@ -475,7 +474,7 @@ def main() -> int:
             action='store_const', const=-1,
             help='negate the options to group directories')
     opt.add_argument('--suffix', default=SUFFIX,
-            help='specify suffix for editor file, default="%(default)s"')
+            help='specify suffix for temp editor file, default="%(default)s"')
     opt.add_argument('-V', '--version', action='store_true',
             help=f'show {PROG} version')
     opt.add_argument('args', nargs='*',
