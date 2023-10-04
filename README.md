@@ -263,7 +263,7 @@ option](#command-default-options) so you are always prompted.
 After a preview of pending changes is shown a prompt is presented for
 the user to enter a single key:
 
-`(P)roceed, (E)dit, (R)estart, (Q)uit: [p/e/r/q]?`
+`(P)roceed, (E)dit, (R)estart, (Q)uit[default]: [p/e/r/q]?`
 
 where:
 
