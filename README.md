@@ -267,12 +267,12 @@ the user to enter a single key:
 
 where:
 
-|Option   |Key|Action                                                      |
-|---      |---|---                                                         |
-|`Proceed`|`p`|Proceed with the path changes.                              |
-|`Edit`   |`e`|Edit the path list again, as it is was last edited.         |
-|`Restart`|`r`|Restart editing the path list again, as it originally began.|
-|`Quit`   |`q`|Quit immediately without making any changes.                |
+|Option   |Key|Action                                                                                |
+|---      |---|---                                                                                   |
+|`Proceed`|`p`|Proceed with the path changes.                                                        |
+|`Edit`   |`e`|Edit the path list again, as it is was last edited.                                   |
+|`Restart`|`r`|Restart editing the path list again, as it originally began.                          |
+|`Quit`   |`q`|Quit immediately without making any changes. This is the default if no key is entered.|
 
 ## Installation or Upgrade
 
