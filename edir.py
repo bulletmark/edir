@@ -121,14 +121,23 @@ def remove(path: Path, git: bool = False, trash: bool = False,
         except Exception as e:
             return str(e)
 
-def rename(pathsrc: Path, pathdest: Path, is_git: bool = False) -> None:
+def rename(pathsrc: Path, pathdest: Path, is_git: bool = False) -> str:
     'Rename given pathsrc to pathdest'
     if is_git:
         out, err = run(f'git mv -f "{pathsrc}" "{pathdest}"')
         if err:
-            log('rename', '"{pathsrc}"', f'git mv error: {err}')
+            err = f'git mv error: {err}'
     else:
-        shutil.move(str(pathsrc), str(pathdest))
+        try:
+            shutil.move(str(pathsrc), str(pathdest))
+        except Exception as e:
+            # Remove any trailing colon and specific file since we may
+            # be renaming a temp file.
+            err = str(e).split(':')[0]
+        else:
+            err = ''
+
+    return err
 
 def create_prompt(options: str) -> str:
     'Create a string of options + keys for user to choose from'
@@ -151,7 +160,11 @@ class Fpath:
         self.temppath = None
         self.note = ''
         self.copies: List[Path] = []
-        self.is_dir = path.is_dir()
+        try:
+            self.is_dir = path.is_dir()
+        except Exception as e:
+            sys.exit(f'ERROR: Can not read {path}: {e}')
+
         self.appdash = '/' if self.is_dir else ''
         self.diagrepr = str(self.path)
         self.is_git = self.diagrepr in gitfiles
@@ -163,15 +176,17 @@ class Fpath:
             self.diagrepr += '/'
 
     @staticmethod
-    def inc_path(path: Path) -> Optional[Path]:
+    def inc_path(path: Path) -> Path:
         'Find next unique file name'
         # Iterate forever, there can only be a finite number of existing
         # paths
         name = path.name
         for c in itertools.count():
             if not path.is_symlink() and not path.exists():
-                return path
+                break
             path = path.with_name(name + ('~' if c <= 0 else f'~{c}'))
+
+        return path
 
     def copy(self, pathdest: Path) -> Optional[str]:
         'Copy given pathsrc to pathdest'
@@ -181,31 +196,28 @@ class Fpath:
         except Exception as e:
             return str(e)
 
-    def rename_temp(self) -> None:
+    def rename_temp(self) -> Optional[str]:
         'Move this path to a temp place in advance of final move'
         if not self.newpath:
-            return
+            return None
         tempdir = self.newpath.parent / TEMPDIR
         try:
             tempdir.mkdir(parents=True, exist_ok=True)
-        except Exception:
-            print(f'Create dir for {self.diagrepr} ERROR: '
-                    f'Can not write in {tempdir.parent}', file=sys.stderr)
-        else:
-            self.temppath = self.inc_path(tempdir / self.newpath.name)
-            if self.temppath:
-                self.tempdirs.add(tempdir)
-                rename(self.path, self.temppath, self.is_git)
+        except Exception as e:
+            # Remove any trailing colon and specific file since we are
+            # renaming a temp file.
+            return str(e).split(':')[0]
 
-    def restore_temp(self) -> bool:
+        self.temppath = self.inc_path(tempdir / self.newpath.name)
+        self.tempdirs.add(tempdir)
+        return rename(self.path, self.temppath, self.is_git)
+
+    def restore_temp(self) -> Optional[str]:
         'Restore temp path to final destination'
         if not self.temppath or not self.newpath:
-            return False
+            return None
         self.newpath = self.inc_path(self.newpath)
-        if self.newpath:
-            rename(self.temppath, self.newpath, self.is_git)
-            return True
-        return False
+        return rename(self.temppath, self.newpath, self.is_git)
 
     def sort_name(self) -> str:
         'Return name for sort'
@@ -566,7 +578,10 @@ def main() -> int:
     for p in paths:
         if p.newpath:
             if p.newpath != p.path:
-                p.rename_temp()
+                err = p.rename_temp()
+                if err:
+                    log('rename',
+                        f'"{p.diagrepr}" to "{p.newpath}{p.appdash}"', err)
         elif not p.is_dir:
             err = remove(p.path, p.is_git, args.trash)
             log('remove', f'"{p.diagrepr}"', err)
@@ -582,8 +597,9 @@ def main() -> int:
     # Pass 3. Rename all temp files and dirs to final target, and make
     # copies.
     for p in paths:
-        if p.restore_temp():
-            log('rename', f'"{p.diagrepr}" to "{p.newpath}{p.appdash}"')
+        err = p.restore_temp()
+        if err is not None:
+            log('rename', f'"{p.diagrepr}" to "{p.newpath}{p.appdash}"', err)
 
         for c in p.copies:
             err = p.copy(c)
