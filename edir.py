@@ -30,17 +30,18 @@ SUFFIX = '.sh'
 # The temp dir we will use in the dir of each target move
 TEMPDIR = '.tmp-' + PROG
 
-# Define ANSI escape sequences for colors ..
-COLOR_red = '\033[31m'
-COLOR_green = '\033[32m'
-COLOR_yellow = '\033[33m'
-COLOR_reset = '\033[39m'
-
+# Define action verbs and ANSI escape sequences for action colors
+# Refer https://en.wikipedia.org/wiki/ANSI_escape_code#Colors
 ACTIONS = {
-    'remove': (COLOR_red, ('Removing', 'Remove', 'Removed')),
-    'rename': (COLOR_yellow, ('Renaming', 'Rename', 'Renamed')),
-    'copy': (COLOR_green, ('Copying', 'Copy', 'Copied')),
+    'remove': (('\033[31m', '\033[30;41m'),  # Red
+               ('Removing', 'Remove', 'Removed')),
+    'copy': (('\033[32m', '\033[30;42m'),  # Green
+             ('Copying', 'Copy', 'Copied')),
+    'rename': (('\033[33m', '\033[30;43m'),  # Yellow
+               ('Renaming', 'Rename', 'Renamed')),
 }
+
+COLOR_reset = '\033[39;49m'
 
 args = argparse.Namespace()
 gitfiles = set()
@@ -58,7 +59,7 @@ def log(action: str, msg: str, error: Optional[str] = None, *,
     'Output message with appropriate color'
     counts[bool(error)] += 1
 
-    color, tense = ACTIONS[action]
+    colors, tense = ACTIONS[action]
 
     if error:
         out = sys.stderr
@@ -69,10 +70,11 @@ def log(action: str, msg: str, error: Optional[str] = None, *,
         out = sys.stdout
         msg = f'{tense[0] if prompt else tense[2]} {msg}'
 
-    if args.no_color:
-        print(msg, file=out)
-    else:
-        print(color + msg + COLOR_reset, file=out)
+    if not args.no_color:
+        msg = colors[bool(error and not args.no_invert_color)] \
+                + msg + COLOR_reset
+
+    print(msg, file=out)
 
 def run(cmd: str) -> Tuple[str, str]:
     'Run given command and return (stdout, stderr) strings'
@@ -460,6 +462,8 @@ def main() -> int:
             help='trash program to use, default="%(default)s"')
     opt.add_argument('-c', '--no-color', action='store_true',
             help='do not color rename/remove/copy messages')
+    opt.add_argument('-C', '--no-invert-color', action='store_true',
+            help='do not invert the color to highlight error messages')
     opt.add_argument('-d', '--dirnames', action='store_true',
             help='edit given directory names directly, not their contents')
     grp = opt.add_mutually_exclusive_group()

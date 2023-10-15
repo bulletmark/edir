@@ -317,7 +317,7 @@ are ignored. Type `edir -h` to see all [supported
 options](#command-line-options).
 
 The options `--interactive`, `--all`, `--recurse`, `--quiet`,
-`--no-git`, `--trash`, `--suffix`, `--no-color`,
+`--no-git`, `--trash`, `--suffix`, `--no-color`, `--no-invert-color`,
 `--group-dirs-first/last`, `--trash-program` are sensible candidates to
 consider setting as default. If you set these then "on-the-fly" negation
 options `-I`, `-A`, `-R`, `-Q`, `-g`, `-T`, `-Z` are also provided to
@@ -356,8 +356,8 @@ Type `edir -h` to view the usage summary:
 
 ```
 usage: edir [-h] [-i] [-I] [-a] [-A] [-r] [-R] [-q] [-Q] [-G] [-g] [-t]
-               [-T] [--trash-program TRASH_PROGRAM] [-c] [-d] [-F | -D] [-L]
-               [-N] [-M] [-S] [-E] [-X] [-Y] [-Z] [--suffix SUFFIX] [-V]
+               [-T] [--trash-program TRASH_PROGRAM] [-c] [-C] [-d] [-F | -D]
+               [-L] [-N] [-M] [-S] [-E] [-X] [-Y] [-Z] [--suffix SUFFIX] [-V]
                [args ...]
 
 Program to rename, remove, or copy files and directories using your editor.
@@ -385,6 +385,8 @@ options:
   --trash-program TRASH_PROGRAM
                         trash program to use, default="trash-put"
   -c, --no-color        do not color rename/remove/copy messages
+  -C, --no-invert-color
+                        do not invert the color to highlight error messages
   -d, --dirnames        edit given directory names directly, not their
                         contents
   -F, --files           only show/edit files
@@ -399,7 +401,7 @@ options:
   -Y, --group-dirs-last
                         group directories last (including when sorted)
   -Z, --no-group-dirs   negate the options to group directories
-  --suffix SUFFIX       specify suffix for editor file, default=".sh"
+  --suffix SUFFIX       specify suffix for temp editor file, default=".sh"
   -V, --version         show edir version
 
 Note you can set default starting options in $HOME/.config/edir-
