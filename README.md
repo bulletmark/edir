@@ -43,9 +43,9 @@ the following ways:
    3	./c
    4	./d
    ```
- 
+
    But `edir` presents these as:
- 
+
    ```
    1	./a
    2	./b
@@ -199,14 +199,14 @@ the following ways:
     1. Deleted files are removed and all renamed files and directories
        are renamed to temporaries. The temporaries are made on the same
        file-system as the target.
- 
+
     2. Empty deleted directories are removed.
- 
+
     3. Renamed temporary files and directories are renamed to their
        target name. Any required copies are created.
- 
+
     4. Remaining deleted directories are removed.
- 
+
     In simple terms, remember that files are processed before
     directories so you can rename files into a different directory and
     then delete the original directory, all in one edit. However in
