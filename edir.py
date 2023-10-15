@@ -342,7 +342,7 @@ class Fpath:
                 newpath = Path(pathstr)
 
                 if path.newpath:
-                    if newpath != path.path:
+                    if newpath != path.path and newpath not in path.copies:
                         path.copies.append(newpath)
                 else:
                     path.newpath = newpath
