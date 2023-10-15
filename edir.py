@@ -208,9 +208,13 @@ class Fpath:
             # renaming a temp file.
             return str(e).split(':')[0]
 
-        self.temppath = self.inc_path(tempdir / self.newpath.name)
         self.tempdirs.add(tempdir)
-        return rename(self.path, self.temppath, self.is_git)
+        temppath = self.inc_path(tempdir / self.newpath.name)
+        err = rename(self.path, temppath, self.is_git)
+        if not err:
+            self.temppath = temppath
+
+        return err
 
     def restore_temp(self) -> Optional[str]:
         'Restore temp path to final destination'
