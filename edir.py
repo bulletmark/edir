@@ -54,6 +54,20 @@ def get_default_editor() -> str:
     from platform import system
     return EDITORS.get(system(), EDITORS['default'])
 
+def editfile(filename: Path) -> None:
+    'Run the editor command'
+    # Use explicit user defined editor or choose system default
+    editor = os.getenv(EDITOR) or os.getenv('EDITOR') or get_default_editor()
+    editcmd = shlex.split(editor) + [str(filename)]
+
+    # Run the editor ..
+    with open('/dev/tty') as tty:
+        res = subprocess.run(editcmd, stdin=tty)
+
+    # Check if editor returned error
+    if res.returncode != 0:
+        sys.exit(f'ERROR: {editor} returned error {res.returncode}')
+
 def log(action: str, msg: str, error: Optional[str] = None, *,
         prompt: bool = False) -> None:
     'Output message with appropriate color'
@@ -404,20 +418,6 @@ class Fpath:
                         return []
                     else:
                         print('Invalid answer.')
-
-def editfile(filename: Path) -> None:
-    'Run the editor command'
-    # Use explicit user defined editor or choose system default
-    editor = os.getenv(EDITOR) or os.getenv('EDITOR') or get_default_editor()
-    editcmd = shlex.split(editor) + [str(filename)]
-
-    # Run the editor ..
-    with open('/dev/tty') as tty:
-        res = subprocess.run(editcmd, stdin=tty)
-
-    # Check if editor returned error
-    if res.returncode != 0:
-        sys.exit(f'ERROR: {editor} returned error {res.returncode}')
 
 def main() -> int:
     'Main code'
