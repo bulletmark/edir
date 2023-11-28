@@ -61,8 +61,11 @@ def editfile(filename: Path) -> None:
     editcmd = shlex.split(editor) + [str(filename)]
 
     # Run the editor ..
-    with open('/dev/tty') as tty:
-        res = subprocess.run(editcmd, stdin=tty)
+    if sys.stdin.isatty():
+        res = subprocess.run(editcmd)
+    else:
+        with open('/dev/tty') as tty:
+            res = subprocess.run(editcmd, stdin=tty)
 
     # Check if editor returned error
     if res.returncode != 0:
