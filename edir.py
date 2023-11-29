@@ -26,6 +26,7 @@ PROG = Path(sys.argv[0]).stem
 CNFFILE = user_config_path() / f'{PROG}-flags.conf'
 EDITOR = PROG.upper() + '_EDITOR'
 SUFFIX = '.sh'
+SEP = os.sep
 
 # The temp dir we will use in the dir of each target move
 TEMPDIR = '.tmp-' + PROG
@@ -184,15 +185,15 @@ class Fpath:
         except Exception as e:
             sys.exit(f'ERROR: Can not read {path}: {e}')
 
-        self.appdash = '/' if self.is_dir else ''
+        self.appdash = SEP if self.is_dir else ''
         self.diagrepr = str(self.path)
         self.is_git = self.diagrepr in gitfiles
 
-        self.linerepr = self.diagrepr if self.diagrepr.startswith('/') \
-                else './' + self.diagrepr
-        if self.is_dir and not self.diagrepr.endswith('/'):
-            self.linerepr += '/'
-            self.diagrepr += '/'
+        self.linerepr = self.diagrepr if self.path.is_absolute() \
+                else f'.{SEP}{self.diagrepr}'
+        if self.is_dir and not self.diagrepr.endswith(SEP):
+            self.linerepr += SEP
+            self.diagrepr += SEP
 
     @staticmethod
     def inc_path(path: Path) -> Path:
@@ -356,7 +357,7 @@ class Fpath:
                 path = cls.paths[num - 1]
 
                 if len(pathstr) > 1:
-                    pathstr = pathstr.rstrip('/')
+                    pathstr = pathstr.rstrip(SEP)
 
                 newpath = Path(pathstr)
 
