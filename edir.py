@@ -164,9 +164,12 @@ def create_prompt(options: str) -> str:
     letters = []
     words = []
     for arg in options.split():
-        letters.append(arg[0])
-        words.append(f'({arg[0].upper()}){arg[1:]}')
-    return ', '.join(words) + ': [' + '/'.join(letters) + ']? '
+        subwords = []
+        for subarg in arg.split('/'):
+            letters.append(subarg[0])
+            subwords.append(f'({subarg[0].upper()}){subarg[1:]}')
+        words.append('/'.join(subwords))
+    return ', '.join(words) + ': [' + '|'.join(letters) + ']? '
 
 class Fpath:
     'Class to manage each instance of a file/dir'
@@ -370,7 +373,9 @@ class Fpath:
     @classmethod
     def get_path_changes(cls) -> List:
         'Get a list of change paths from the user'
-        options_prompt = create_prompt('proceed edit restart quit[default]')
+        prompt = create_prompt('proceed/yes edit restart quit[default]') \
+                if args.interactive else None
+
         with tempfile.TemporaryDirectory() as fdir:
             # Create a temp file for the user to edit then read the lines back
             fpath = Path(fdir, f'{PROG}{args.suffix}')
@@ -397,7 +402,7 @@ class Fpath:
                 for p in paths:
                     p.note = ' recursively' if p.is_recursive() else ''
 
-                if not args.interactive:
+                if not prompt:
                     return paths
 
                 # Prompt user with pending changes if required
@@ -406,27 +411,26 @@ class Fpath:
 
                 while True:
                     try:
-                        ans = input(options_prompt).strip().lower()
+                        ans = input(prompt).strip().lower()
                     except KeyboardInterrupt:
                         print()
                         return []
 
-                    if ans == 'p':
+                    if not ans or ans == 'q':
+                        return []
+                    elif ans in 'py':
                         return paths
                     elif ans == 'e':
                         break
                     elif ans == 'r':
                         restart = True
                         break
-                    elif not ans or ans == 'q':
-                        return []
                     else:
-                        print('Invalid answer.')
+                        print(f'Invalid answer "{ans}".')
 
 def main() -> int:
     'Main code'
     global args
-
     # Process command line options
     opt = argparse.ArgumentParser(description=__doc__.strip(),
             epilog='Note you can set default starting options in '
