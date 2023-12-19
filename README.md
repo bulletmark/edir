@@ -263,16 +263,16 @@ option](#command-default-options) so you are always prompted.
 After a preview of pending changes is shown a prompt is presented for
 the user to enter a single key:
 
-`(P)roceed, (E)dit, (R)estart, (Q)uit[default]: [p/e/r/q]?`
+`(P)roceed/(Y)es, (E)dit, (R)estart, (Q)uit[default]: [p|y|e|r|q]?`
 
 where:
 
-|Option   |Key|Action                                                                                |
-|---      |---|---                                                                                   |
-|`Proceed`|`p`|Proceed with the path changes.                                                        |
-|`Edit`   |`e`|Edit the path list again, as it is was last edited.                                   |
-|`Restart`|`r`|Restart editing the path list again, as it originally began.                          |
-|`Quit`   |`q`|Quit immediately without making any changes. This is the default if no key is entered.|
+|Option       |Key       |Action|
+|---          |---       |---|
+|`Proceed/Yes`|`p` or `y`|Proceed with the path changes.|
+|`Edit`       |`e`       |Edit the path list again, as it is was last edited.|
+|`Restart`    |`r`       |Restart editing the path list again, as it originally began.|
+|`Quit`       |`q`       |Quit immediately without making any changes. This is the default if no key is entered.|
 
 ## Installation or Upgrade
 
