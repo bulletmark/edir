@@ -252,11 +252,21 @@ class Fpath:
 
     def sort_time(self) -> float:
         'Return time for sort'
-        return self.path.stat().st_mtime
+        try:
+            ret = self.path.lstat().st_mtime
+        except Exception:
+            ret = 0
+
+        return ret
 
     def sort_size(self) -> int:
         'Return size for sort'
-        return self.path.stat().st_size
+        try:
+            ret = self.path.lstat().st_size
+        except Exception:
+            ret = 0
+
+        return ret
 
     def is_recursive(self) -> bool:
         'Return True if directory and we can view it and contains children'
