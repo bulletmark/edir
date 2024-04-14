@@ -127,7 +127,7 @@ def remove(path: Path, git: bool = False, trash: bool = False,
         out, err = run(f'{args.trash_program} "{path}"')
         return f'{args.trash_program} error: {err}' if err else None
 
-    if recurse:
+    if recurse and not path.is_symlink():
         try:
             shutil.rmtree(str(path))
         except Exception as e:
@@ -184,7 +184,7 @@ class Fpath:
         self.note = ''
         self.copies: List[Path] = []
         try:
-            self.is_dir = path.is_dir()
+            self.is_dir = path.is_dir() and not path.is_symlink()
         except Exception as e:
             sys.exit(f'ERROR: Can not read {path}: {e}')
 
