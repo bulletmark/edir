@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "edir"
 description = "Utility to rename, remove, and copy files/dirs using your editor"
 readme = "README.md"
-requires-python = ">=3.6"
+requires-python = ">=3.8"
 keywords = ["vidir", "git", "trash", "trash-put", "thrash-d"]
 classifiers = [
   "Programming Language :: Python :: 3",
@@ -14,7 +14,6 @@ classifiers = [
 dynamic = ["version"]
 dependencies = [
   "platformdirs",
-  "importlib-metadata; python_version < '3.8'",
 ]
 
 [[project.authors]]
