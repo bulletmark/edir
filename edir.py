@@ -234,8 +234,7 @@ class Fpath:
 
         self.tempdirs.add(tempdir)
         temppath = self.inc_path(tempdir / self.newpath.name)
-        err = rename(self.path, temppath, self.is_git)
-        if not err:
+        if not (err := rename(self.path, temppath, self.is_git)):
             self.temppath = temppath
 
         return err
@@ -607,8 +606,7 @@ def main() -> int:
     for p in paths:
         if p.newpath:
             if p.newpath != p.path:
-                err = p.rename_temp()
-                if err:
+                if err := p.rename_temp():
                     log('rename',
                         f'"{p.diagrepr}" to "{p.newpath}{p.appdash}"', err)
         elif not p.is_dir:
@@ -626,8 +624,7 @@ def main() -> int:
     # Pass 3. Rename all temp files and dirs to final target, and make
     # copies.
     for p in paths:
-        err = p.restore_temp()
-        if err is not None:
+        if (err := p.restore_temp()) is not None:
             log('rename', f'"{p.diagrepr}" to "{p.newpath}{p.appdash}"', err)
 
         for c in p.copies:
