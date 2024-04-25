@@ -5,7 +5,6 @@ editor. Will use git to action the rename and remove if run within a git
 repository.
 '''
 # Author: Mark Blakeney, May 2019.
-
 import argparse
 import itertools
 import os
@@ -17,7 +16,7 @@ import sys
 import tempfile
 from collections import OrderedDict
 from pathlib import Path
-from typing import List, Optional, Tuple
+from typing import List, Optional, Tuple, Sequence
 
 from platformdirs import user_config_path
 
@@ -94,12 +93,12 @@ def log(action: str, msg: str, error: Optional[str] = None, *,
 
     print(msg, file=out)
 
-def run(cmd: str) -> Tuple[str, str]:
+def run(cmd: Sequence[str]) -> Tuple[str, str]:
     'Run given command and return (stdout, stderr) strings'
     stdout = ''
     stderr = ''
     try:
-        res = subprocess.run(cmd, stdout=subprocess.PIPE, shell=True,
+        res = subprocess.run(cmd, stdout=subprocess.PIPE,
                              stderr=subprocess.PIPE, universal_newlines=True)
     except Exception as e:
         stderr = str(e)
@@ -119,13 +118,15 @@ def remove(path: Path, git: bool = False, trash: bool = False,
         return 'Directory not empty'
 
     if git:
-        ropt = '-r' if recurse else ''
-        out, err = run(f'git rm -f {ropt} "{path}"')
+        cmd = 'git rm -f'.split()
+        if recurse:
+            cmd.append('-r')
+        out, err = run(cmd + [str(path)])
         return f'git error: {err}' if err else None
 
     if trash:
-        out, err = run(f'{args.trash_program} "{path}"')
-        return f'{args.trash_program} error: {err}' if err else None
+        out, err = run(args.trash_program + [str(path)])
+        return f'{shlex.join(args.trash_program)} error: {err}' if err else None
 
     if recurse and not path.is_symlink():
         try:
@@ -144,7 +145,7 @@ def remove(path: Path, git: bool = False, trash: bool = False,
 def rename(pathsrc: Path, pathdest: Path, is_git: bool = False) -> str:
     'Rename given pathsrc to pathdest'
     if is_git:
-        out, err = run(f'git mv -f "{pathsrc}" "{pathdest}"')
+        out, err = run('git mv -f'.split() + [str(pathsrc), str(pathdest)])
         if err:
             err = f'git mv error: {err}'
     else:
@@ -543,9 +544,15 @@ def main() -> int:
         print(ver)
         return 0
 
+    if args.trash:
+        if not args.trash_program:
+            opt.error('must specify trash program with --trash-program option')
+
+        args.trash_program = args.trash_program.split()
+
     # Check if we are in a git repo
     if args.git != 0:
-        out, giterr = run('git ls-files')
+        out, giterr = run(('git', 'ls-files'))
         if giterr and args.git:
             print(f'Git invocation error: {giterr}', file=sys.stderr)
         if out:
