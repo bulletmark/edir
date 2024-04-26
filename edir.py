@@ -16,7 +16,7 @@ import sys
 import tempfile
 from collections import OrderedDict
 from pathlib import Path
-from typing import List, Optional, Tuple, Sequence
+from typing import List, Optional, Tuple, Sequence, Callable
 
 from platformdirs import user_config_path
 
@@ -215,7 +215,7 @@ class Fpath:
     def copy(self, pathdest: Path) -> Optional[str]:
         'Copy given pathsrc to pathdest'
         if self.is_dir:
-            func = shutil.copytree
+            func: Callable = shutil.copytree
         else:
             func = shutil.copy2
 
