@@ -219,7 +219,7 @@ class Fpath:
         else:
             func = shutil.copy2
 
-            # copytree will create the parent dir[s], but copy2 will not
+            # copytree() will create the parent dir[s], but copy2() will not
             try:
                 pathdest.parent.mkdir(parents=True, exist_ok=True)
             except Exception as e:
