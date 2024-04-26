@@ -214,7 +214,16 @@ class Fpath:
 
     def copy(self, pathdest: Path) -> Optional[str]:
         'Copy given pathsrc to pathdest'
-        func = shutil.copytree if self.is_dir else shutil.copy2
+        if self.is_dir:
+            func = shutil.copytree
+        else:
+            func = shutil.copy2
+
+            # copytree will create the parent dir[s], but copy2 will not
+            try:
+                pathdest.parent.mkdir(parents=True, exist_ok=True)
+            except Exception as e:
+                return str(e)
         try:
             func(str(self.newpath), str(pathdest))  # type:ignore
         except Exception as e:
