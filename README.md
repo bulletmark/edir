@@ -62,8 +62,8 @@ the following ways:
    entry so that any leading spaces are clearly seen, and can be edited.
 
 3. `edir` adds the ability to copy files or directories one or more
-   times when you duplicate a numbered line. `vidir` does not have copy
-   functionality.
+   times when you duplicate a numbered line (after the original).
+   `vidir` does not have copy functionality.
 
 4. `edir` allows you to remove a file/directory by deleting the line, as
    `vidir` does, but you can also remove it by pre-pending a `#` to
