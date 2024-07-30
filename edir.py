@@ -5,6 +5,8 @@ editor. Will use git to action the rename and remove if run within a git
 repository.
 '''
 # Author: Mark Blakeney, May 2019.
+from __future__ import annotations
+
 import argparse
 import itertools
 import os
@@ -16,7 +18,7 @@ import sys
 import tempfile
 from collections import OrderedDict
 from pathlib import Path
-from typing import List, Optional, Tuple, Sequence, Callable
+from typing import Callable, Sequence
 
 from platformdirs import user_config_path
 
@@ -71,7 +73,7 @@ def editfile(filename: Path) -> None:
     if res.returncode != 0:
         sys.exit(f'ERROR: {editor} returned error {res.returncode}')
 
-def log(action: str, msg: str, error: Optional[str] = None, *,
+def log(action: str, msg: str, error: str | None = None, *,
         prompt: bool = False) -> None:
     'Output message with appropriate color'
     counts[bool(error)] += 1
@@ -93,7 +95,7 @@ def log(action: str, msg: str, error: Optional[str] = None, *,
 
     print(msg, file=out)
 
-def run(cmd: Sequence[str]) -> Tuple[str, str]:
+def run(cmd: Sequence[str]) -> tuple[str, str]:
     'Run given command and return (stdout, stderr) strings'
     stdout = ''
     stderr = ''
@@ -111,7 +113,7 @@ def run(cmd: Sequence[str]) -> Tuple[str, str]:
     return stdout, stderr
 
 def remove(path: Path, git: bool = False, trash: bool = False,
-           recurse: bool = False) -> Optional[str]:
+           recurse: bool = False) -> str | None:
     'Delete given file/directory'
     if not recurse and not path.is_symlink() and path.is_dir() and \
             any(path.iterdir()):
@@ -183,7 +185,7 @@ class Fpath:
         self.newpath = None
         self.temppath = None
         self.note = ''
-        self.copies: List[Path] = []
+        self.copies: list[Path] = []
         try:
             self.is_dir = path.is_dir() and not path.is_symlink()
         except Exception as e:
@@ -212,7 +214,7 @@ class Fpath:
 
         return path
 
-    def copy(self, pathdest: Path) -> Optional[str]:
+    def copy(self, pathdest: Path) -> str | None:
         'Copy given pathsrc to pathdest'
         if self.is_dir:
             func: Callable = shutil.copytree
@@ -229,7 +231,7 @@ class Fpath:
         except Exception as e:
             return str(e)
 
-    def rename_temp(self) -> Optional[str]:
+    def rename_temp(self) -> str | None:
         'Move this path to a temp place in advance of final move'
         if not self.newpath:
             return None
@@ -248,7 +250,7 @@ class Fpath:
 
         return err
 
-    def restore_temp(self) -> Optional[str]:
+    def restore_temp(self) -> str | None:
         'Restore temp path to final destination'
         if not self.temppath or not self.newpath:
             return None
@@ -390,7 +392,7 @@ class Fpath:
                     path.newpath = newpath
 
     @classmethod
-    def get_path_changes(cls) -> List:
+    def get_path_changes(cls) -> list:
         'Get a list of change paths from the user'
         prompt = create_prompt('proceed/yes edit restart quit[default]') \
                 if args.interactive else None
@@ -451,7 +453,7 @@ def main() -> int:
     'Main code'
     global args
     # Process command line options
-    opt = argparse.ArgumentParser(description=__doc__.strip(),
+    opt = argparse.ArgumentParser(description=__doc__,
             epilog='Note you can set default starting options in '
             f'{CNFFILE}. The negation options (i.e. the --no-* options '
             'and their shortforms) allow you to temporarily override your '
@@ -598,8 +600,8 @@ def main() -> int:
         Fpath.paths.sort(key=Fpath.sort_size, reverse=args.sort_reverse)
 
     if args.group_dirs is not None and args.group_dirs >= 0:
-        ldirs: List[Fpath] = []
-        lfiles: List[Fpath] = []
+        ldirs: list[Fpath] = []
+        lfiles: list[Fpath] = []
         for path in Fpath.paths:
             (ldirs if path.is_dir else lfiles).append(path)
         Fpath.paths = ldirs + lfiles if args.group_dirs else lfiles + ldirs
@@ -608,7 +610,7 @@ def main() -> int:
     if not paths:
         return 0
 
-    err: Optional[str]
+    err: str | None
 
     # Pass 1: Rename all moved files & dirs to temps, delete all removed
     # files.
