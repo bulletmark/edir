@@ -413,7 +413,7 @@ shortforms) allow you to temporarily override your defaults.
 ## Embed in Ranger File Manager
 
 In many ways `edir` (and `vidir`) is better than the
-[ranger](https://ranger.github.io/)
+[ranger](https://ranger.github.io/) terminal file manager
 [bulkrename](https://github.com/ranger/ranger/wiki/Official-user-guide#bulk-renaming)
 command which does not handle name swaps and clashes etc. To add `edir`
 as a command within [ranger](https://ranger.github.io/), add or create
@@ -435,6 +435,9 @@ class edir(Command):
     def tab(self, tabnum):
         return self._tab_directory_content()
 ```
+
+Note if you use [yazi](https://yazi-rs.github.io/) for your file manager
+you don't need any special configuration in `yazi`. Just type `:edir`.
 
 ## License
 
