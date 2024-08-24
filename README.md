@@ -59,7 +59,8 @@ the following ways:
    directory `c` to `e`.
 
    Note also, that both `edir` and `vidir` show the leading `./` on each
-   entry so that any leading spaces are clearly seen, and can be edited.
+   entry so that any leading spaces on the filename are clearly seen,
+   and can be edited.
 
 3. `edir` adds the ability to copy files or directories one or more
    times when you duplicate a numbered line (after the original).
