@@ -2,16 +2,16 @@
 [![PyPi](https://img.shields.io/pypi/v/edir)](https://pypi.org/project/edir/)
 [![AUR](https://img.shields.io/aur/version/edir)](https://aur.archlinux.org/packages/edir/)
 
-[edir](http://github.com/bulletmark/edir) is a command line utility to
-rename, remove, and copy filenames and directories using your text
-editor. Run it in the current directory and `edir` will open your editor
-on a list of files and directories in that directory. Each item in the
-directory will appear on its own numbered line. These numbers are how
-`edir` keeps track of what items are changed. Delete lines to remove
-files/directories, edit lines to rename files/directories, or duplicate
-line numbers to copy files/directories. You can also switch pairs of
-numbers to swap files or directories. If run from within a
-[Git](https://git-scm.com/) repository, `edir` will [use
+[edir][edir] is a command line utility to rename, remove, and copy
+filenames and directories using your text editor. Run it in the current
+directory and `edir` will open your editor on a list of files and
+directories in that directory. Each item in the directory will appear on
+its own numbered line. These numbers are how `edir` keeps track of what
+items are changed. Delete lines to remove files/directories, edit lines
+to rename files/directories, or duplicate line numbers to copy
+files/directories. You can also switch pairs of numbers to swap files or
+directories. If run from within a [Git](https://git-scm.com/)
+repository, `edir` will [use
 Git](#renames-and-deletes-in-a-git-repository) to rename or remove
 tracked files/directories. You can use a [trash program](#using-trash)
 to remove files.
@@ -21,10 +21,10 @@ https://github.com/bulletmark/edir.
 
 ## Advantages Compared to Vidir
 
-[edir](http://github.com/bulletmark/edir) unashamedly mimics the
-functionality of the [vidir](https://linux.die.net/man/1/vidir) utility
-from [moreutils](https://joeyh.name/code/moreutils/) but aims to improve it in
-the following ways:
+[edir][edir] unashamedly mimics the functionality of the
+[vidir](https://linux.die.net/man/1/vidir) utility from
+[moreutils](https://joeyh.name/code/moreutils/) but aims to improve it
+in the following ways:
 
 1. `edir` automatically uses `git mv` instead of `mv` and `git rm`
     instead of `rm` for tracked files when invoked within a
@@ -278,12 +278,13 @@ where:
 
 ## Installation or Upgrade
 
-Arch users can install [edir from the AUR](https://aur.archlinux.org/packages/edir/).
+Python 3.8 or later is required. Arch Linux users can install [`edir`
+from the AUR](https://aur.archlinux.org/packages/edir) and skip this
+section.
 
-Python 3.8 or later is required. Note [edir is on
-PyPI](https://pypi.org/project/edir/) so just ensure that
-[`pipx`](https://pypa.github.io/pipx/) is installed then type the
-following:
+The easiest way to install `edir` is to use [`pipx`][pipx] (or
+[`pipxu`][pipxu], or [`uv tool`][uvtool]) which installs [`edir` from
+PyPi][edirpy]. To install:
 
 ```
 $ pipx install edir
@@ -443,14 +444,19 @@ you don't need any special configuration in `yazi`. Just type `:edir`.
 ## License
 
 Copyright (C) 2019 Mark Blakeney. This program is distributed under the
-terms of the GNU General Public License.
-This program is free software: you can redistribute it and/or modify it
-under the terms of the GNU General Public License as published by the
-Free Software Foundation, either version 3 of the License, or any later
-version.
-This program is distributed in the hope that it will be useful, but
-WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
-Public License at <http://www.gnu.org/licenses/> for more details.
+terms of the GNU General Public License. This program is free software:
+you can redistribute it and/or modify it under the terms of the GNU
+General Public License as published by the Free Software Foundation,
+either version 3 of the License, or any later version. This program is
+distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or
+FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License at
+<http://www.gnu.org/licenses/> for more details.
+
+[edir]: https://github.com/bulletmark/edir
+[edirpy]: https://pypi.org/project/edir
+[pipx]: https://github.com/pypa/pipx
+[pipxu]: https://github.com/bulletmark/pipxu
+[uvtool]: https://docs.astral.sh/uv/guides/tools/#installing-tools
 
 <!-- vim: se ai syn=markdown: -->
