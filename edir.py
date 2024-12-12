@@ -18,7 +18,7 @@ import sys
 import tempfile
 from collections import OrderedDict
 from pathlib import Path
-from typing import Callable, Sequence
+from typing import Callable, Sequence, Iterable
 
 from platformdirs import user_config_path
 
@@ -174,6 +174,19 @@ def create_prompt(options: str) -> str:
         words.append('/'.join(subwords))
     return ', '.join(words) + ': [' + '|'.join(letters) + ']? '
 
+def find_in_dir(path: Path, depth: int, allfiles: bool) -> Iterable[Path]:
+    'Find files/dirs in given path'
+    if depth == 0:
+        yield path
+        return
+
+    for p in sorted(path.iterdir()):
+        if allfiles or not p.name.startswith('.'):
+            if not p.is_dir() or depth == 1:
+                yield p
+            else:
+                yield from find_in_dir(p, depth - 1, allfiles)
+
 class Fpath:
     'Class to manage each instance of a file/dir'
     paths = []
@@ -325,16 +338,15 @@ class Fpath:
         cls.paths.append(cls(path))
 
     @classmethod
-    def add(cls, name: str, expand: bool) -> None:
+    def add(cls, name: str, depth: int) -> None:
         'Add file[s]/dir[s] to the list of paths'
         path = Path(name)
         if not path.exists():
             sys.exit(f'ERROR: {name} does not exist')
 
-        if expand and path.is_dir():
-            for child in sorted(path.iterdir()):
-                if args.all or not child.name.startswith('.'):
-                    cls.append(child)
+        if path.is_dir():
+            for child in find_in_dir(path, depth, args.all):
+                cls.append(child)
         else:
             cls.append(path)
 
@@ -493,8 +505,8 @@ def main() -> int:
             help='do not color rename/remove/copy messages')
     opt.add_argument('-C', '--no-invert-color', action='store_true',
             help='do not invert the color to highlight error messages')
-    opt.add_argument('-d', '--dirnames', action='store_true',
-            help='edit given directory names directly, not their contents')
+    opt.add_argument('-d', '--depth', type=int, default=1,
+            help='edit paths to specified depth, default=%(default)d')
     grp = opt.add_mutually_exclusive_group()
     grp.add_argument('-F', '--files', action='store_true',
             help='only show/edit files')
@@ -579,11 +591,9 @@ def main() -> int:
     for name in OrderedDict.fromkeys(filelist):
         if name == '-':
             for line in sys.stdin:
-                name = line.rstrip('\n\r')
-                if name != '.':
-                    Fpath.add(line.rstrip('\n\r'), False)
+                Fpath.add(line.rstrip('\n\r'), 0)
         else:
-            Fpath.add(name, not args.dirnames)
+            Fpath.add(name, args.depth)
 
     # Sanity check that we have something to edit
     if not Fpath.paths:

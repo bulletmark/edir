@@ -112,9 +112,11 @@ in the following ways:
 
 13. `edir` adds a `-L/--nolinks` option to ignore symbolic links.
 
-14. `edir` adds a `-d/--dirnames` option to edit specified directory
-    names directly, not their contents. I.e. this is like `ls -d mydir`
-    compared to `ls mydir`.
+14. `edir` adds a `-d/--depth` option to edit to the specified directory
+    depth. The default is 1 so `edir a` (if a is a directory) will edit
+    names to `a/*`, `edir -d2 a` will edit names to `a/*/*`, etc. `edir
+    -d0 a` will just edit the `a` name directly. Can specify `-1` to
+    edit to all depths (or use a large positive number).
 
 15. `edir` adds a [`-t/--trash` option](#using-trash) to remove to your
     [Trash](https://specifications.freedesktop.org/trash-spec/trashspec-1.0.html).
@@ -359,8 +361,9 @@ Type `edir -h` to view the usage summary:
 
 ```
 usage: edir [-h] [-i] [-I] [-a] [-A] [-r] [-R] [-q] [-Q] [-G] [-g] [-t]
-               [-T] [--trash-program TRASH_PROGRAM] [-c] [-C] [-d] [-F | -D]
-               [-L] [-N] [-M] [-S] [-E] [-X] [-Y] [-Z] [--suffix SUFFIX] [-V]
+               [-T] [--trash-program TRASH_PROGRAM] [-c] [-C] [-d DEPTH]
+               [-F | -D] [-L] [-N] [-M] [-S] [-E] [-X] [-Y] [-Z]
+               [--suffix SUFFIX] [-V]
                [args ...]
 
 Program to rename, remove, or copy files and directories using your editor.
@@ -390,8 +393,8 @@ options:
   -c, --no-color        do not color rename/remove/copy messages
   -C, --no-invert-color
                         do not invert the color to highlight error messages
-  -d, --dirnames        edit given directory names directly, not their
-                        contents
+  -d DEPTH, --depth DEPTH
+                        edit paths to specified depth, default=1
   -F, --files           only show/edit files
   -D, --dirs            only show/edit directories
   -L, --nolinks         ignore all symlinks
