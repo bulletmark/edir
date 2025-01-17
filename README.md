@@ -284,18 +284,24 @@ Python 3.8 or later is required. Arch Linux users can install [`edir`
 from the AUR](https://aur.archlinux.org/packages/edir) and skip this
 section.
 
-The easiest way to install `edir` is to use [`pipx`][pipx] (or
-[`pipxu`][pipxu], or [`uv tool`][uvtool]) which installs [`edir` from
-PyPi][edirpy]. To install:
+Note [edir is on PyPI](https://pypi.org/project/edir/) so the easiest
+way to install it is to use [`uv tool`][uvtool] (or [`pipx`][pipx] or
+[`pipxu`][pipxu]).
 
-```
-$ pipx install edir
+```sh
+$ uv tool install edir
 ```
 
 To upgrade:
 
+```sh
+$ uv tool upgrade edir
 ```
-$ pipx upgrade edir
+
+To uninstall:
+
+```sh
+$ uv tool uninstall edir
 ```
 
 [Git](https://git-scm.com/) must be installed if you want to use the git
