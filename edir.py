@@ -19,7 +19,7 @@ import sys
 import tempfile
 from collections import OrderedDict
 from pathlib import Path
-from typing import Callable, Sequence, Iterable
+from typing import Callable, Iterable, Sequence
 
 from platformdirs import user_config_path
 
