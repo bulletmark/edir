@@ -9,7 +9,7 @@ check:
 
 build:
 	rm -rf dist
-	python3 -m build
+	python3 -m build --sdist --wheel
 
 upload: build
 	twine3 upload dist/*
