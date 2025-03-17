@@ -2,7 +2,7 @@
 [![PyPi](https://img.shields.io/pypi/v/edir)](https://pypi.org/project/edir/)
 [![AUR](https://img.shields.io/aur/version/edir)](https://aur.archlinux.org/packages/edir/)
 
-[edir][edir] is a command line utility to rename, remove, and copy
+[`edir`][edir] is a command line utility to rename, remove, and copy
 filenames and directories using your text editor. Run it in the current
 directory and `edir` will open your editor on a list of files and
 directories in that directory. Each item in the directory will appear on
@@ -21,7 +21,7 @@ https://github.com/bulletmark/edir.
 
 ## Advantages Compared to Vidir
 
-[edir][edir] unashamedly mimics the functionality of the
+[`edir`][edir] unashamedly mimics the functionality of the
 [vidir](https://linux.die.net/man/1/vidir) utility from
 [moreutils](https://joeyh.name/code/moreutils/) but aims to improve it
 in the following ways:
@@ -259,7 +259,7 @@ want to set this as a [default option](#command-default-options).
 Many users would like to see a preview of changes after they finish
 editing but before they are actioned by `edir`, i.e. to confirm exactly
 which files/dirs will be deleted, renamed, or copied. Add the
-`-i/--interactive` option and edir will present a list of changes and
+`-i/--interactive` option and `edir` will present a list of changes and
 prompt you to continue, or allow you to re-edit the path list etc.
 Consider setting `--interactive` as a [default
 option](#command-default-options) so you are always prompted.
@@ -284,7 +284,7 @@ Python 3.8 or later is required. Arch Linux users can install [`edir`
 from the AUR](https://aur.archlinux.org/packages/edir) and skip this
 section.
 
-Note [edir is on PyPI](https://pypi.org/project/edir/) so the easiest
+Note [`edir` is on PyPI](https://pypi.org/project/edir/) so the easiest
 way to install it is to use [`uv tool`][uvtool] (or [`pipx`][pipx] or
 [`pipxu`][pipxu]).
 
@@ -367,9 +367,9 @@ Type `edir -h` to view the usage summary:
 
 ```
 usage: edir [-h] [-i] [-I] [-a] [-A] [-r] [-R] [-q] [-Q] [-G] [-g] [-t]
-               [-T] [--trash-program TRASH_PROGRAM] [-c] [-C] [-d DEPTH]
-               [-F | -D] [-L] [-N] [-M] [-S] [-E] [-X] [-Y] [-Z]
-               [--suffix SUFFIX] [-V]
+               [-T] [--trash-program TRASH_PROGRAM] [-c] [-C] [-d DEPTH] [-F |
+               -D] [-L] [-N] [-M] [-S] [-E] [-X] [-Y] [-Z] [--suffix SUFFIX]
+               [-V]
                [args ...]
 
 Program to rename, remove, or copy files and directories using your editor.
@@ -399,8 +399,7 @@ options:
   -c, --no-color        do not color rename/remove/copy messages
   -C, --no-invert-color
                         do not invert the color to highlight error messages
-  -d DEPTH, --depth DEPTH
-                        edit paths to specified depth, default=1
+  -d, --depth DEPTH     edit paths to specified depth, default=1
   -F, --files           only show/edit files
   -D, --dirs            only show/edit directories
   -L, --nolinks         ignore all symlinks
@@ -423,13 +422,13 @@ shortforms) allow you to temporarily override your defaults.
 
 ## Embed in Ranger File Manager
 
-In many ways `edir` (and `vidir`) is better than the
-[ranger](https://ranger.github.io/) terminal file manager
-[bulkrename](https://github.com/ranger/ranger/wiki/Official-user-guide#bulk-renaming)
-command which does not handle name swaps and clashes etc. To add `edir`
-as a command within [ranger](https://ranger.github.io/), add or create
-the following in `~/.config/ranger/commands.py`. Then run it from within
-[ranger](https://ranger.github.io/) by typing `:edir`.
+In many ways `edir` (and even `vidir`) is better than the [`ranger`][ranger]
+terminal file manager
+[`bulkrename`](https://github.com/ranger/ranger/wiki/Official-user-guide#bulk-renaming)
+command which does not handle name swaps and clashes etc. To add `edir` as a
+command within [`ranger`][ranger], add or create the following in
+`~/.config/ranger/commands.py`. Then run it from within [`ranger`][ranger] by
+typing `:edir`.
 
 ```python
 from ranger.api.commands import Command
@@ -447,8 +446,10 @@ class edir(Command):
         return self._tab_directory_content()
 ```
 
-Note if you use [yazi](https://yazi-rs.github.io/) for your file manager
-you don't need any special configuration in `yazi`. Just type `:edir`.
+## Use with Yazi File Manager
+
+If you use [`yazi`][yazi] for your file manager then you don't need any special
+configuration. Just type `:edir` from within [`yazi`][yazi].
 
 ## License
 
@@ -467,5 +468,7 @@ FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License at
 [pipx]: https://github.com/pypa/pipx
 [pipxu]: https://github.com/bulletmark/pipxu
 [uvtool]: https://docs.astral.sh/uv/guides/tools/#installing-tools
+[ranger]: https://ranger.github.io/
+[yazi]: https://yazi-rs.github.io/
 
 <!-- vim: se ai syn=markdown: -->
