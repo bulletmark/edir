@@ -1,24 +1,24 @@
 NAME = $(shell basename $(CURDIR))
 PYFILES = $(NAME).py
 
-check:
+check::
 	ruff check $(PYFILES)
 	mypy $(PYFILES)
 	pyright $(PYFILES)
 	vermin -vv --no-tips -i $(PYFILES)
 
-build:
+build::
 	rm -rf dist
-	python3 -m build --sdist --wheel
+	uv build --sdist --wheel
 
-upload: build
-	twine3 upload dist/*
+upload:: build
+	uv-publish
 
-doc:
+doc::
 	update-readme-usage
 
-format:
+format::
 	ruff check --select I --fix $(PYFILES) && ruff format $(PYFILES)
 
-clean:
+clean::
 	@rm -vrf *.egg-info .venv/ build/ dist/ __pycache__/
