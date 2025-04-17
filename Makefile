@@ -9,7 +9,7 @@ check::
 
 build::
 	rm -rf dist
-	uv build --sdist --wheel
+	uv build
 
 upload:: build
 	uv-publish

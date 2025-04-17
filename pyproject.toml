@@ -6,6 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "edir"
 description = "Utility to rename, remove, and copy files/dirs using your editor"
 readme = "README.md"
+license = "GPL-3.0-or-later"
 requires-python = ">=3.8"
 keywords = ["vidir", "git", "trash", "trash-put", "thrash-d"]
 classifiers = [
@@ -25,9 +26,6 @@ Homepage = "https://github.com/bulletmark/edir"
 
 [project.scripts]
 edir = "edir:main"
-
-[project.license]
-text = "GPLv3"
 
 [tool.setuptools_scm]
 version_scheme = "post-release"
