@@ -119,7 +119,7 @@ in the following ways:
     edit to all depths (or use a large positive number).
 
 15. `edir` adds a [`-t/--trash` option](#using-trash) to remove to your
-    [Trash](https://specifications.freedesktop.org/trash-spec/trashspec-1.0.html).
+    [Trash][trash].
     By default this option invokes
     [`trash-put`](https://www.mankier.com/1/trash-put) from the
     [trash-cli](https://github.com/andreafrancia/trash-cli) package to
@@ -234,14 +234,12 @@ default option off temporarily and re-enable git functionality.
 
 ## Using Trash
 
-Given how easy `edir` facilitates deleting files, some users may prefer
-to remove them to system
-[Trash](https://specifications.freedesktop.org/trash-spec/trashspec-1.0.html)
-from where they can be later listed and/or recovered. Specifying
-`-t/--trash` does this by executing the
+Given how easy `edir` facilitates deleting files, some users may prefer to
+remove them to system [Trash][trash] from where they can be later listed and/or
+recovered. Specifying `-t/--trash` does this by executing the
 [`trash-put`](https://www.mankier.com/1/trash-put) command, from the
-[`trash-cli`](https://github.com/andreafrancia/trash-cli) package, to
-remove files rather than removing them natively.
+[`trash-cli`](https://github.com/andreafrancia/trash-cli) package, to remove
+files rather than removing them natively.
 
 You may want to set `-t/--trash` as a default option. If you do so then
 you can use `-T` on the command line to turn that default option off
@@ -416,8 +414,8 @@ options:
   -V, --version         show edir version
 
 Note you can set default starting options in $HOME/.config/edir-
-flags.conf. The negation options (i.e. the --no-* options and their
-shortforms) allow you to temporarily override your defaults.
+flags.conf. The negation options (i.e. the --no-* options) allow you to
+temporarily override your defaults.
 ```
 
 ## Embed in Ranger File Manager
@@ -470,5 +468,6 @@ FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License at
 [uvtool]: https://docs.astral.sh/uv/guides/tools/#installing-tools
 [ranger]: https://ranger.github.io/
 [yazi]: https://yazi-rs.github.io/
+[trash]: https://specifications.freedesktop.org/trash-spec/1.0/
 
 <!-- vim: se ai syn=markdown: -->
