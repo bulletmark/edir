@@ -48,6 +48,10 @@ ACTIONS = {
         ('\033[33m', '\033[30;43m'),  # Yellow
         ('Renaming', 'Rename', 'Renamed'),
     ),
+    'create': (
+        ('\033[34m', '\033[30;44m'),  # Blue
+        ('Creating', 'Create', 'Created'),
+    ),
 }
 
 COLOR_reset = '\033[39;49m'
@@ -218,6 +222,7 @@ class Fpath:
         self.temppath = None
         self.note = ''
         self.copies: list[Path] = []
+        self.creates: list[Path] = []
         try:
             self.is_dir = path.is_dir() and not path.is_symlink()
         except Exception as e:
@@ -263,6 +268,22 @@ class Fpath:
             func(str(self.newpath), str(pathdest))  # type:ignore
         except Exception as e:
             return str(e)
+
+    def create(self, pathdest: Path) -> str | None:
+        "Create new file at pathdest"
+        try:
+            # Create parent directories if they don't exist
+            pathdest.parent.mkdir(parents=True, exist_ok=True)
+
+            # Create empty file if it doesn't exist
+            if not pathdest.exists():
+                pathdest.touch()
+            else:
+                return f'File {pathdest} already exists'
+        except Exception as e:
+            return str(e)
+
+        return None
 
     def rename_temp(self) -> str | None:
         "Move this path to a temp place in advance of final move"
@@ -337,6 +358,12 @@ class Fpath:
                 f'"{self.diagrepr}" to "{c}{self.appdash}"{self.note}',
                 prompt=True,
             )
+        for c in self.creates:
+            log(
+                'create',
+                f'"{c}"',
+                prompt=True,
+            )
 
     @classmethod
     def remove_temps(cls) -> None:
@@ -393,6 +420,10 @@ class Fpath:
         for p in cls.paths:
             p.newpath = None
             p.copies.clear()
+            p.creates.clear()
+
+        # Track new files to create
+        creates: list[Path] = []
 
         # Now read file and record changes
         with fpath.open() as fp:
@@ -406,10 +437,18 @@ class Fpath:
                 try:
                     n, pathstr = line.split(maxsplit=1)
                 except Exception:
+                    # Check if this is a new file creation (line without number)
+                    if line.strip() and not line.strip().startswith('#'):
+                        creates.append(Path(line.strip()))
+                        continue
                     sys.exit(f'ERROR: line {count} invalid:\n{rawline}')
                 try:
                     num = int(n)
                 except Exception:
+                    # Check if this is a new file creation (line without number)
+                    if line.strip() and not line.strip().startswith('#'):
+                        creates.append(Path(line.strip()))
+                        continue
                     sys.exit(f'ERROR: line {count} number {n} invalid:\n{rawline}')
 
                 if num <= 0 or num > len(cls.paths):
@@ -429,6 +468,16 @@ class Fpath:
                         path.copies.append(newpath)
                 else:
                     path.newpath = newpath
+
+        # Add creates to the first path object (or create a dummy one)
+        if creates:
+            if cls.paths:
+                cls.paths[0].creates.extend(creates)
+            else:
+                # Create a dummy path object to hold creates
+                dummy_path = cls(Path('.'))
+                dummy_path.creates.extend(creates)
+                cls.paths.append(dummy_path)
 
     @classmethod
     def get_path_changes(cls) -> list:
@@ -455,7 +504,7 @@ class Fpath:
                 cls.readfile(fpath)
 
                 # Reduce paths to those that were removed or changed by the user
-                paths = [p for p in cls.paths if p.path != p.newpath or p.copies]
+                paths = [p for p in cls.paths if p.path != p.newpath or p.copies or p.creates]
 
                 if not paths:
                     return []
@@ -785,6 +834,10 @@ def main() -> int:
         for c in p.copies:
             err = p.copy(c)
             log('copy', f'"{p.diagrepr}" to "{c}{p.appdash}"{p.note}', err)
+
+        for c in p.creates:
+            err = p.create(c)
+            log('create', f'"{c}"', err)
 
     # Remove all the temporary dirs we created
     Fpath.remove_temps()
