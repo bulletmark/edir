@@ -1,15 +1,16 @@
-## EDIR - Rename, Remove, and Copy Files and Directories Using Your Editor
+## EDIR - Rename, Remove, Copy, and Create Files and Directories Using Your Editor
 [![PyPi](https://img.shields.io/pypi/v/edir)](https://pypi.org/project/edir/)
 [![AUR](https://img.shields.io/aur/version/edir)](https://aur.archlinux.org/packages/edir/)
 
-[`edir`][edir] is a command line utility to rename, remove, and copy
+[`edir`][edir] is a command line utility to rename, remove, copy, and create
 filenames and directories using your text editor. Run it in the current
 directory and `edir` will open your editor on a list of files and
 directories in that directory. Each item in the directory will appear on
 its own numbered line. These numbers are how `edir` keeps track of what
 items are changed. Delete lines to remove files/directories, edit lines
-to rename files/directories, or duplicate line numbers to copy
-files/directories. You can also switch pairs of numbers to swap files or
+to rename files/directories, duplicate line numbers to copy
+files/directories, or add new lines (without numbers) to create new files/directories.
+You can also switch pairs of numbers to swap files or
 directories. If run from within a [Git](https://git-scm.com/)
 repository, `edir` will [use
 Git](#renames-and-deletes-in-a-git-repository) to rename or remove
@@ -216,6 +217,34 @@ in the following ways:
     practice it is far **less confusing and less risky** if you perform
     complicated renames and moves in distinct steps.
 
+30. `edir` supports creating new files and directories by adding lines
+    without line numbers in the editor. Simply add a line like
+    `new_file.txt` or `new_dir/nested_file.txt` and `edir` will create
+    the file or directory (including any necessary parent directories).
+    `vidir` does not support file creation.
+
+## Creating New Files and Directories
+
+`edir` supports creating new files and directories by adding new lines in the editor without line numbers. When you add a line like `new_file.txt` or `new_dir/`, `edir` will create the specified file or directory.
+
+For example, if your editor shows:
+```
+1  ./existing_file.txt
+2  ./another_file.txt
+```
+
+You can add new files by adding lines without numbers:
+```
+1  ./existing_file.txt
+2  ./another_file.txt
+new_file.txt
+subdir/nested_file.txt
+```
+
+This will create `new_file.txt` in the current directory and `nested_file.txt` in a newly created `subdir` directory. Parent directories are created automatically if they don't exist.
+
+Created files are displayed in blue in the interactive preview mode to distinguish them from other operations.
+
 ## Renames and Deletes in a GIT Repository
 
 When working within a [Git](https://git-scm.com/) repository, you nearly
@@ -334,7 +363,7 @@ temporarily override and disable default options on the command line.
 
 ## Examples
 
-Rename and/or remove any files and directories in the current directory:
+Rename, remove, copy, and/or create files and directories in the current directory:
 
 ```
 $ edir
@@ -357,6 +386,16 @@ repository files only, in the current directory only:
 
 ```
 $ fd -d1 -tf | edir -g
+```
+
+Create new files by adding lines without numbers in the editor:
+
+```
+$ edir
+# In editor, add lines like:
+# new_file.txt
+# docs/README.md
+# Then save and exit
 ```
 
 ## Command Line Options
