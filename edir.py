@@ -17,7 +17,6 @@ import shutil
 import subprocess
 import sys
 import tempfile
-from collections import OrderedDict
 from pathlib import Path
 from typing import Callable, Iterable, Sequence
 
@@ -718,7 +717,7 @@ def main() -> int:
         filelist.insert(0, '-')
 
     # Iterate over all (unique) inputs to get a list of files/dirs
-    for name in OrderedDict.fromkeys(filelist):
+    for name in dict.fromkeys(filelist):
         if name == '-':
             for line in sys.stdin:
                 Fpath.add(line.rstrip('\n\r'), 0)
