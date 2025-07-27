@@ -115,7 +115,7 @@ in the following ways:
 14. `edir` adds a `-d/--depth` option to edit to the specified directory
     depth. The default is 1 so `edir a` (if a is a directory) will edit
     names to `a/*`, `edir -d2 a` will edit names to `a/*/*`, etc. `edir
-    -d0 a` will just edit the `a` name directly. Can specify `-1` to
+    -d0 a` will just edit the `a` name directly. Can specify `-d -1` to
     edit to all depths (or use a large positive number).
 
 15. `edir` adds a [`-t/--trash` option](#using-trash) to remove to your
