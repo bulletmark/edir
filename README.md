@@ -459,7 +459,7 @@ either version 3 of the License, or any later version. This program is
 distributed in the hope that it will be useful, but WITHOUT ANY
 WARRANTY; without even the implied warranty of MERCHANTABILITY or
 FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License at
-<http://www.gnu.org/licenses/> for more details.
+<https://en.wikipedia.org/wiki/GNU_General_Public_License> for more details.
 
 [edir]: https://github.com/bulletmark/edir
 [edirpy]: https://pypi.org/project/edir
