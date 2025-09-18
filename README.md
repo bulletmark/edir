@@ -336,26 +336,26 @@ temporarily override and disable default options on the command line.
 
 Rename and/or remove any files and directories in the current directory:
 
-```
+```sh
 $ edir
 ```
 
 Rename and/or remove any jpeg files in current dir:
 
-```
+```sh
 $ edir *.jpg
 ```
 
 Rename and/or remove any files under current directory and subdirectories:
 
-```
+```sh
 $ find | edir -F
 ```
 
 Use [`fd`](https://github.com/sharkdp/fd) to view and `git mv/rm`
 repository files only, in the current directory only:
 
-```
+```sh
 $ fd -d1 -tf | edir -g
 ```
 
