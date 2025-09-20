@@ -65,8 +65,10 @@ def get_default_editor() -> str:
     return EDITORS.get(system(), EDITORS['default'])
 
 
-def editfile(filename: Path, sudo_user: str) -> None:
-    "Run the editor command"
+def make_editor_command(filename: str, sudo_user: str) -> tuple[str, list[str]]:
+    "Create the edit command"
+    editcmd = ['runuser', '-u', sudo_user, '--'] if sudo_user else []
+
     # Use explicit user defined editor or choose system default
     editor = (
         os.getenv(EDITOR)
@@ -74,10 +76,14 @@ def editfile(filename: Path, sudo_user: str) -> None:
         or os.getenv('EDITOR')
         or get_default_editor()
     )
-    editcmd = shlex.split(editor) + [str(filename)]
 
-    if sudo_user:
-        editcmd = ['runuser', '-u', sudo_user, '--'] + editcmd
+    editcmd.extend(shlex.split(editor))
+    editcmd.append(filename)
+    return editor, editcmd
+
+
+def editfile(editor: str, editcmd: list[str]) -> None:
+    "Run the editor command"
 
     # Run the editor ..
     if sys.stdin.isatty():
@@ -88,7 +94,7 @@ def editfile(filename: Path, sudo_user: str) -> None:
 
     # Check if editor returned error
     if res.returncode != 0:
-        sys.exit(f'ERROR: {editor} returned error {res.returncode}')
+        sys.exit(f'ERROR: "{editor}" returned error {res.returncode}')
 
 
 def log(
@@ -454,6 +460,10 @@ class Fpath:
 
             # Create a temp file for the user to edit then read the lines back
             fpath = Path(fdir, f'{PROG}{args.suffix}')
+
+            # Get the editor and editor command
+            editor, editcmd = make_editor_command(str(fpath), sudo_user)
+
             restart = True
             while True:
                 if restart:
@@ -463,10 +473,10 @@ class Fpath:
                 if sudo_user:
                     shutil.chown(fpath, sudo_user)
 
-                # Invoke editor on list of paths
-                editfile(fpath, sudo_user)
+                # Invoke editor on file containing the list of paths
+                editfile(editor, editcmd)
 
-                # Read the changed paths
+                # Read the changed paths from the file
                 cls.readfile(fpath)
 
                 # Reduce paths to those that were removed or changed by the user
