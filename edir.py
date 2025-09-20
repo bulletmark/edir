@@ -136,11 +136,11 @@ def remove(
         cmd = 'git rm -f'.split()
         if recurse:
             cmd.append('-r')
-        out, err = run(cmd + [str(path)])
+        _, err = run(cmd + [str(path)])
         return f'git error: {err}' if err else None
 
     if trash:
-        out, err = run(args.trash_program + [str(path)])
+        _, err = run(args.trash_program + [str(path)])
         return f'{shlex.join(args.trash_program)} error: {err}' if err else None
 
     if recurse and not path.is_symlink():
@@ -161,7 +161,7 @@ def remove(
 def rename(pathsrc: Path, pathdest: Path, is_git: bool = False) -> str:
     "Rename given pathsrc to pathdest"
     if is_git:
-        out, err = run('git mv -f'.split() + [str(pathsrc), str(pathdest)])
+        _, err = run('git mv -f'.split() + [str(pathsrc), str(pathdest)])
         if err:
             err = f'git mv error: {err}'
     else:
