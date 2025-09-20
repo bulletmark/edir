@@ -17,8 +17,8 @@ import shutil
 import subprocess
 import sys
 import tempfile
-from pathlib import Path
 from collections.abc import Callable, Iterable, Sequence
+from pathlib import Path
 
 from platformdirs import user_config_path
 
@@ -65,11 +65,19 @@ def get_default_editor() -> str:
     return EDITORS.get(system(), EDITORS['default'])
 
 
-def editfile(filename: Path) -> None:
+def editfile(filename: Path, sudo_user: str) -> None:
     "Run the editor command"
     # Use explicit user defined editor or choose system default
-    editor = os.getenv(EDITOR) or os.getenv('EDITOR') or get_default_editor()
+    editor = (
+        os.getenv(EDITOR)
+        or (sudo_user and os.getenv('SUDO_EDITOR'))
+        or os.getenv('EDITOR')
+        or get_default_editor()
+    )
     editcmd = shlex.split(editor) + [str(filename)]
+
+    if sudo_user:
+        editcmd = ['runuser', '-u', sudo_user, '--'] + editcmd
 
     # Run the editor ..
     if sys.stdin.isatty():
@@ -438,7 +446,12 @@ class Fpath:
             else None
         )
 
+        sudo_user = os.getenv('SUDO_USER', '')
+
         with tempfile.TemporaryDirectory() as fdir:
+            if sudo_user:
+                shutil.chown(fdir, sudo_user)
+
             # Create a temp file for the user to edit then read the lines back
             fpath = Path(fdir, f'{PROG}{args.suffix}')
             restart = True
@@ -447,8 +460,11 @@ class Fpath:
                     restart = False
                     cls.writefile(fpath)
 
+                if sudo_user:
+                    shutil.chown(fpath, sudo_user)
+
                 # Invoke editor on list of paths
-                editfile(fpath)
+                editfile(fpath, sudo_user)
 
                 # Read the changed paths
                 cls.readfile(fpath)

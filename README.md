@@ -22,9 +22,9 @@ https://github.com/bulletmark/edir.
 ## Advantages Compared to Vidir
 
 [`edir`][edir] unashamedly mimics the functionality of the
-[vidir](https://linux.die.net/man/1/vidir) utility from
-[moreutils](https://joeyh.name/code/moreutils/) but aims to improve it
-in the following ways:
+[vidir](https://man.archlinux.org/man/extra/moreutils/vidir.1.en) utility from
+[moreutils](https://joeyh.name/code/moreutils/) but aims to improve it in the
+following ways:
 
 1. `edir` automatically uses `git mv` instead of `mv` and `git rm`
     instead of `rm` for tracked files when invoked within a
@@ -418,6 +418,21 @@ flags.conf. The negation options (i.e. the --no-* options) allow you to
 temporarily override your defaults.
 ```
 
+## Running with sudo
+
+You can use `edir` with `sudo` to rename, delete, or copy system files. For
+improved security, `edir` runs the editing session as your regular user, not as
+root - similar to how `sudoedit` works. This approach allows you to use graphical
+editors (like VS Code), which should not be run as root. To ensure your editor
+settings are preserved, use `sudo -E` so that your `$EDIR_EDITOR` or `$EDITOR`
+environment variable is available. For example, to edit files in `/etc` with VS
+Code:
+
+```sh
+export EDIR_EDITOR="code -w"
+sudo -E edir /etc
+```
+
 ## Embed in Ranger File Manager
 
 In many ways `edir` (and even `vidir`) is better than the [`ranger`][ranger]
@@ -458,8 +473,8 @@ General Public License as published by the Free Software Foundation,
 either version 3 of the License, or any later version. This program is
 distributed in the hope that it will be useful, but WITHOUT ANY
 WARRANTY; without even the implied warranty of MERCHANTABILITY or
-FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License at
-<https://en.wikipedia.org/wiki/GNU_General_Public_License> for more details.
+FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public
+License at <https://opensource.org/license/gpl-3-0> for more details.
 
 [edir]: https://github.com/bulletmark/edir
 [edirpy]: https://pypi.org/project/edir
