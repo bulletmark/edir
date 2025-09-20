@@ -422,10 +422,10 @@ temporarily override your defaults.
 
 You can use `edir` with `sudo` to rename, delete, or copy system files. For
 improved security, `edir` runs the editing session as your regular user, not as
-root - similar to how `sudoedit` works. This approach allows you to use graphical
-editors (like VS Code), which should not be run as root. To ensure your editor
-settings are preserved, use `sudo -E` so that your `$EDIR_EDITOR` or `$EDITOR`
-environment variable is available. For example, to edit files in `/etc` with VS
+root - similar to how `sudoedit` works. This approach allows you to use
+graphical editors (like VS Code), which should not be run as root. Use `sudo -E`
+so that your preferred editor is selected via your `$EDIR_EDITOR` or `$EDITOR`
+environment variable. For example, to rename or delete files in `/etc` using VS
 Code:
 
 ```sh
