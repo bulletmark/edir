@@ -429,8 +429,8 @@ environment variable. For example, to rename or delete files in `/etc` using VS
 Code:
 
 ```sh
-export EDIR_EDITOR="code -w"
-sudo -E edir /etc
+$ export EDIR_EDITOR="code -w"
+$ sudo -E edir /etc
 ```
 
 ## Embed in Ranger File Manager
