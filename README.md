@@ -370,8 +370,11 @@ usage: edir [-h] [-i] [-I] [-a] [-A] [-r] [-R] [-q] [-Q] [-G] [-g] [-t]
                [-V]
                [args ...]
 
-Program to rename, remove, or copy files and directories using your editor.
-Will use git to action the rename and remove if run within a git repository.
+Command line utility to rename, remove, or copy files and directories directly
+from your editor. When run, you'll see a numbered list of files in your
+editor. Delete a line to remove a file, modify a line to rename a file, or
+duplicate a line to copy a file. Swap line numbers to swap file names. If
+inside a git repository, git will be used for renames and removals.
 
 positional arguments:
   args                  file|dir, or "-" for stdin
