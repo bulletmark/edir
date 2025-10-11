@@ -10,10 +10,9 @@ repository, git will be used for renames and removals.
 # Author: Mark Blakeney, May 2019.
 from __future__ import annotations
 
-import argparse
+import argparse_from_file as argparse
 import itertools
 import os
-import re
 import shlex
 import shutil
 import subprocess
@@ -22,11 +21,8 @@ import tempfile
 from collections.abc import Callable, Iterable, Sequence
 from pathlib import Path
 
-from platformdirs import user_config_path
-
 # Some constants
 PROG = Path(sys.argv[0]).stem
-CNFFILE = user_config_path() / f'{PROG}-flags.conf'
 EDITOR = PROG.upper() + '_EDITOR'
 SUFFIX = '.sh'
 SEP = os.sep
@@ -525,7 +521,7 @@ def main() -> int:
     opt = argparse.ArgumentParser(
         description=__doc__,
         epilog='Note you can set default starting options in '
-        f'{CNFFILE}. The negation options (i.e. the --no-* options) '
+        '#FROM_FILE_PATH#. The negation options (i.e. the --no-* options) '
         'allow you to temporarily override your defaults.',
     )
     opt.add_argument(
@@ -697,16 +693,7 @@ def main() -> int:
     )
     opt.add_argument('args', nargs='*', help='file|dir, or "-" for stdin')
 
-    # Merge in default args from user config file. Then parse the
-    # command line.
-    if CNFFILE.exists():
-        with CNFFILE.open() as fp:
-            lines = [re.sub(r'#.*$', '', line).strip() for line in fp]
-        cnflines = ' '.join(lines).strip()
-    else:
-        cnflines = ''
-
-    args = opt.parse_args(shlex.split(cnflines) + sys.argv[1:])
+    args = opt.parse_args()
 
     if args.version:
         from importlib.metadata import version

@@ -14,7 +14,7 @@ classifiers = [
 ]
 dynamic = ["version"]
 dependencies = [
-  "platformdirs",
+  "argparse-from-file",
 ]
 
 [[project.authors]]
