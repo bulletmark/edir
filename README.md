@@ -423,16 +423,16 @@ temporarily override your defaults.
 
 ## Running with sudo
 
-You can use `edir` with `sudo` to rename, delete, or copy system files. For
-improved security, `edir` runs the editing session as your regular user, not as
-root - similar to how `sudoedit` works. This approach allows you to use
-graphical editors (like VS Code), which should not be run as root. Use `sudo -E`
-so that your preferred editor is selected via your `$EDIR_EDITOR` or `$EDITOR`
-environment variable. For example, to rename or delete files in `/etc` using VS
-Code:
+You can use `edir` with [`sudo`][sudo] to rename, delete, or copy system files.
+For improved convenience and security, `edir` runs the editing session as your
+regular user, not as root - similar to how [`sudoedit`][sudoedit] works. This
+approach allows you to use graphical editors (like VS Code), which should not be
+run as root. Use `sudo -E` so that your preferred editor is selected via your
+`$EDIR_EDITOR` or `$EDITOR` environment variable. For example, to rename or
+delete files in `/etc` using VS Code:
 
 ```sh
-$ export EDIR_EDITOR="code -w"
+$ export EDIR_EDITOR="code -nw"
 $ sudo -E edir /etc
 ```
 
@@ -487,5 +487,7 @@ License at <https://opensource.org/license/gpl-3-0> for more details.
 [ranger]: https://ranger.github.io/
 [yazi]: https://yazi-rs.github.io/
 [trash]: https://specifications.freedesktop.org/trash-spec/1.0/
+[sudo]: https://man7.org/linux/man-pages/man8/sudo.8.html
+[sudoedit]:  https://man7.org/linux/man-pages/man8/sudoedit.8.html
 
 <!-- vim: se ai syn=markdown: -->
