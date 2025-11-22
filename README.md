@@ -486,7 +486,7 @@ License at <https://opensource.org/license/gpl-3-0> for more details.
 [uvtool]: https://docs.astral.sh/uv/guides/tools/#installing-tools
 [ranger]: https://ranger.github.io/
 [yazi]: https://yazi-rs.github.io/
-[trash]: https://specifications.freedesktop.org/trash-spec/1.0/
+[trash]: https://www.freedesktop.org/wiki/Specifications/trash-spec/
 [sudo]: https://man7.org/linux/man-pages/man8/sudo.8.html
 [sudoedit]:  https://man7.org/linux/man-pages/man8/sudoedit.8.html
 
