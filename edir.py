@@ -10,7 +10,6 @@ repository, git will be used for renames and removals.
 # Author: Mark Blakeney, May 2019.
 from __future__ import annotations
 
-import argparse_from_file as argparse
 import itertools
 import os
 import shlex
@@ -20,6 +19,8 @@ import sys
 import tempfile
 from collections.abc import Callable, Iterable, Sequence
 from pathlib import Path
+
+import argparse_from_file as argparse
 
 # Some constants
 PROG = Path(sys.argv[0]).stem
