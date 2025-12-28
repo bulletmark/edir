@@ -21,6 +21,7 @@ from collections.abc import Callable, Iterable, Sequence
 from pathlib import Path
 
 import argparse_from_file as argparse
+import natsort
 
 # Some constants
 PROG = Path(sys.argv[0]).stem
@@ -217,11 +218,17 @@ def find_in_dir(path: Path, depth: int, allfiles: bool) -> Iterable[Path]:
                 yield from find_in_dir(p, depth - 1, allfiles)
 
 
+def removeprefix(s: str, prefix: str) -> str:
+    "Remove prefix from string if present"
+    return s[len(prefix) :] if s.startswith(prefix) else s
+
+
 class Fpath:
     "Class to manage each instance of a file/dir"
 
     paths = []
     tempdirs = set()
+    natsort_key: Callable
 
     def __init__(self, path: Path):
         "Class constructor"
@@ -236,12 +243,11 @@ class Fpath:
             sys.exit(f'ERROR: Can not read {path}: {e}')
 
         self.appdash = SEP if self.is_dir else ''
-        self.diagrepr = str(self.path)
-        self.is_git = self.diagrepr in gitfiles
+        self.repr = str(self.path)
+        self.diagrepr = self.repr
+        self.is_git = self.repr in gitfiles
 
-        self.linerepr = (
-            self.diagrepr if self.path.is_absolute() else f'.{SEP}{self.diagrepr}'
-        )
+        self.linerepr = self.repr if self.path.is_absolute() else f'.{SEP}{self.repr}'
         if self.is_dir and not self.diagrepr.endswith(SEP):
             self.linerepr += SEP
             self.diagrepr += SEP
@@ -304,7 +310,7 @@ class Fpath:
 
     def sort_name(self) -> str:
         "Return name for sort"
-        return str(self.path)
+        return self.repr
 
     def sort_time(self) -> float:
         "Return time for sort"
@@ -321,6 +327,15 @@ class Fpath:
             ret = self.path.lstat().st_size
         except Exception:
             ret = 0
+
+        return ret
+
+    def sort_natural(self):
+        "Return key for natural sort"
+        try:
+            ret = self.natsort_key()
+        except Exception:
+            ret = self.repr
 
         return ret
 
@@ -349,6 +364,26 @@ class Fpath:
                 f'"{self.diagrepr}" to "{c}{self.appdash}"{self.note}',
                 prompt=True,
             )
+
+    @classmethod
+    def make_natsort_key(cls, optstr: str | None) -> None:
+        "Create natsort key function from given option string"
+        if optstr:
+            sep = '|' if '|' in optstr else ','
+            optval = 0
+            for opt in optstr.split(sep):
+                if opt := removeprefix(opt.strip().upper(), 'NS.'):
+                    try:
+                        nsval = getattr(natsort.ns, opt)
+                    except AttributeError as e:
+                        sys.exit(f'ERROR: invalid natsort option: {str(e)}')
+
+                    if nsval and isinstance(nsval, int):
+                        optval |= nsval
+
+            cls.natsort_key = natsort.natsort_keygen(key=lambda x: x.repr, alg=optval)
+        else:
+            cls.natsort_key = natsort.natsort_keygen(key=lambda x: x.repr)
 
     @classmethod
     def remove_temps(cls) -> None:
@@ -635,7 +670,7 @@ def main() -> int:
         '--sort-name',
         dest='sort',
         action='store_const',
-        const=1,
+        const='name',
         help='sort paths in file by name, alphabetically',
     )
     opt.add_argument(
@@ -643,7 +678,7 @@ def main() -> int:
         '--sort-time',
         dest='sort',
         action='store_const',
-        const=2,
+        const='time',
         help='sort paths in file by time, oldest first',
     )
     opt.add_argument(
@@ -651,14 +686,28 @@ def main() -> int:
         '--sort-size',
         dest='sort',
         action='store_const',
-        const=3,
+        const='size',
         help='sort paths in file by size, smallest first',
+    )
+    opt.add_argument(
+        '-O',
+        '--sort-natural',
+        dest='sort',
+        action='store_const',
+        const='natural',
+        help='sort paths using natural sort (using natsort package)',
+    )
+    opt.add_argument(
+        '--OP',
+        '--sort-natural-opt',
+        help='pass given option[s] to natsort, optionally delimitered by "," or "|", '
+        'see options at https://natsort.readthedocs.io/en/stable/api.html#the-ns-enum',
     )
     opt.add_argument(
         '-E',
         '--sort-reverse',
         action='store_true',
-        help='sort paths (by name/time/size) in reverse',
+        help='sort paths (by name/time/size/natural) in reverse',
     )
     opt.add_argument(
         '-X',
@@ -752,12 +801,15 @@ def main() -> int:
         print(f'No {desc}.')
         return 0
 
-    if args.sort == 1:
+    if args.sort == 'name':
         Fpath.paths.sort(key=Fpath.sort_name, reverse=args.sort_reverse)
-    elif args.sort == 2:
+    elif args.sort == 'time':
         Fpath.paths.sort(key=Fpath.sort_time, reverse=args.sort_reverse)
-    elif args.sort == 3:
+    elif args.sort == 'size':
         Fpath.paths.sort(key=Fpath.sort_size, reverse=args.sort_reverse)
+    elif args.sort == 'natural':
+        Fpath.make_natsort_key(args.OP)
+        Fpath.paths.sort(key=Fpath.sort_natural, reverse=args.sort_reverse)
 
     if args.group_dirs is not None and args.group_dirs >= 0:
         ldirs: list[Fpath] = []

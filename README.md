@@ -114,9 +114,9 @@ following ways:
 
 14. `edir` adds a `-d/--depth` option to edit to the specified directory
     depth. The default is 1 so `edir a` (if a is a directory) will edit
-    names to `a/*`, `edir -d2 a` will edit names to `a/*/*`, etc. `edir
-    -d0 a` will just edit the `a` name directly. Can specify `-d -1` to
-    edit to all depths (or use a large positive number).
+    names to `a/*`, `edir -d2 a` will edit names to `a/*/*`, etc.
+    `edir -d0 a` will just edit the `a` name directly. Can specify `-d -1`
+    to edit to all depths (or use a large positive number).
 
 15. `edir` adds a [`-t/--trash` option](#using-trash) to remove to your
     [Trash][trash].
@@ -126,9 +126,9 @@ following ways:
     do deletions but you can specify any alternative trash program, see
     [section below](#using-trash).
 
-16. `edir` adds `-N/--sort-name, -M/--sort-time, -S/--sort-size` options
-    to sort the paths when listed in your editor. There is also a
-    `-E/--sort-reverse` option to reverse the order.
+16. `edir` adds `-N/--sort-name`, `-M/--sort-time`, `-S/--sort-size`, and
+    `-O/--sort-natural` options to sort the paths when listed in your editor.
+    There is also a `-E/--sort-reverse` option to reverse the order.
 
 17. `edir` adds `-X/--group-dirs-first` and `-Y/--group-dirs-last`
     options to display directories grouped together, either first or
@@ -366,8 +366,8 @@ Type `edir -h` to view the usage summary:
 ```
 usage: edir [-h] [-i] [-I] [-a] [-A] [-r] [-R] [-q] [-Q] [-G] [-g] [-t]
                [-T] [--trash-program TRASH_PROGRAM] [-c] [-C] [-d DEPTH] [-F |
-               -D] [-L] [-N] [-M] [-S] [-E] [-X] [-Y] [-Z] [--suffix SUFFIX]
-               [-V]
+               -D] [-L] [-N] [-M] [-S] [-O] [--OP OP] [-E] [-X] [-Y] [-Z]
+               [--suffix SUFFIX] [-V]
                [args ...]
 
 Command line utility to rename, remove, or copy files and directories directly
@@ -407,7 +407,13 @@ options:
   -N, --sort-name       sort paths in file by name, alphabetically
   -M, --sort-time       sort paths in file by time, oldest first
   -S, --sort-size       sort paths in file by size, smallest first
-  -E, --sort-reverse    sort paths (by name/time/size) in reverse
+  -O, --sort-natural    sort paths using natural sort (using natsort package)
+  --OP, --sort-natural-opt OP
+                        pass given option[s] to natsort, optionally
+                        delimitered by "," or "|", see options at
+                        https://natsort.readthedocs.io/en/stable/api.html#the-
+                        ns-enum
+  -E, --sort-reverse    sort paths (by name/time/size/natural) in reverse
   -X, --group-dirs-first
                         group directories first (including when sorted)
   -Y, --group-dirs-last
@@ -416,9 +422,9 @@ options:
   --suffix SUFFIX       specify suffix for temp editor file, default=".sh"
   -V, --version         show edir version
 
-Note you can set default starting options in $HOME/.config/edir-
-flags.conf. The negation options (i.e. the --no-* options) allow you to
-temporarily override your defaults.
+Note you can set default starting options in ~/.config/edir-flags.conf. The
+negation options (i.e. the --no-* options) allow you to temporarily override
+your defaults.
 ```
 
 ## Running with sudo

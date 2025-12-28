@@ -2,7 +2,7 @@ PYFILES := file_name(justfile_dir()) + '.py'
 
 check:
   ruff check {{PYFILES}}
-  ty check --python /usr/bin/python {{PYFILES}}
+  ty check --python=/usr/bin/python3 {{PYFILES}}
   vermin -vv --no-tips -i {{PYFILES}}
   md-link-checker
 

@@ -15,6 +15,7 @@ classifiers = [
 dynamic = ["version"]
 dependencies = [
   "argparse-from-file",
+  "natsort",
 ]
 
 [[project.authors]]
