@@ -21,7 +21,6 @@ from collections.abc import Callable, Iterable, Sequence
 from pathlib import Path
 
 import argparse_from_file as argparse
-import natsort
 
 # Some constants
 PROG = Path(sys.argv[0]).stem
@@ -368,22 +367,24 @@ class Fpath:
     @classmethod
     def make_natsort_key(cls, optstr: str | None) -> None:
         "Create natsort key function from given option string"
+        from natsort import natsort_keygen, ns
+
         if optstr:
             sep = '|' if '|' in optstr else ','
             optval = 0
             for opt in optstr.split(sep):
                 if opt := removeprefix(opt.strip().upper(), 'NS.'):
                     try:
-                        nsval = getattr(natsort.ns, opt)
+                        nsval = getattr(ns, opt)
                     except AttributeError as e:
                         sys.exit(f'ERROR: invalid natsort option: {str(e)}')
 
                     if nsval and isinstance(nsval, int):
                         optval |= nsval
 
-            cls.natsort_key = natsort.natsort_keygen(key=lambda x: x.repr, alg=optval)
+            cls.natsort_key = natsort_keygen(key=lambda x: x.repr, alg=optval)
         else:
-            cls.natsort_key = natsort.natsort_keygen(key=lambda x: x.repr)
+            cls.natsort_key = natsort_keygen(key=lambda x: x.repr)
 
     @classmethod
     def remove_temps(cls) -> None:
