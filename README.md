@@ -172,7 +172,13 @@ following ways:
 26. `vidir` returns an error when attempting to rename across different
     file systems, which `edir` allows.
 
-27. `edir` always ensures editor line numbers have the same width (e.g.
+27. By default, `edir` shows given paths relative to the current working
+    directory so that file names are shorter and easier to read/edit. `vidir`
+    shows absolute paths (if they are given like that on the command line, e.g.
+    by an external tool). You can disable this relative path behavior in `edir`
+    if you want.
+
+28. `edir` always ensures editor line numbers have the same width (e.g.
     `1` to `6` for 6 files, or `01` to `12` for 12 files, etc) so that
     file names always line up justified. This facilitates block editing
     of file names, e.g. using vim's [visual block
@@ -180,7 +186,7 @@ following ways:
     do this so file names can be jagged wrt each other which makes block
     editing awkward.
 
-28. `edir` is very strict about the format of the lines you edit and
+29. `edir` is very strict about the format of the lines you edit and
     immediately exits with an error message (before changing anything)
     if you format one of the lines incorrectly. All lines in the edited
     list:
@@ -196,7 +202,7 @@ following ways:
     line so an easy way to swap two file names is just to swap their
     numbers.
 
-29. `edir` always actions files consistently. The sequence of
+30. `edir` always actions files consistently. The sequence of
      operations applied is:
 
     1. Deleted files are removed and all renamed files and directories
@@ -325,12 +331,10 @@ command line arguments. Comments in the file (i.e. starting with a `#`)
 are ignored. Type `edir -h` to see all [supported
 options](#command-line-options).
 
-The options `--interactive`, `--all`, `--recurse`, `--quiet`,
-`--no-git`, `--trash`, `--suffix`, `--no-color`, `--no-invert-color`,
-`--group-dirs-first/last`, `--trash-program` are sensible candidates to
-consider setting as default. If you set these then "on-the-fly" negation
-options `-I`, `-A`, `-R`, `-Q`, `-g`, `-T`, `-Z` are also provided to
-temporarily override and disable default options on the command line.
+Some options, e.g. `--recurse`, which can be set as a default option, provide
+another "on-the-fly" negation option to temporarily override and disable the
+default using the command line. E.g. use `-R` to override default `--recurse`.
+See the usage summary for details.
 
 ## Examples
 
@@ -367,7 +371,7 @@ Type `edir -h` to view the usage summary:
 usage: edir [-h] [-i] [-I] [-a] [-A] [-r] [-R] [-q] [-Q] [-G] [-g] [-t]
                [-T] [--trash-program TRASH_PROGRAM] [-c] [-C] [-d DEPTH] [-F |
                -D] [-L] [-N] [-M] [-S] [-O] [--OP OP] [-E] [-X] [-Y] [-Z]
-               [--suffix SUFFIX] [-V]
+               [--suffix SUFFIX] [--no-relative] [-V]
                [args ...]
 
 Command line utility to rename, remove, or copy files and directories directly
@@ -420,6 +424,8 @@ options:
                         group directories last (including when sorted)
   -Z, --no-group-dirs   negate the options to group directories
   --suffix SUFFIX       specify suffix for temp editor file, default=".sh"
+  --no-relative         do not forcibly show paths relative to current working
+                        directory
   -V, --version         show edir version
 
 Note you can set default starting options in ~/.config/edir-flags.conf. The

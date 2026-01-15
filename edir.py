@@ -53,6 +53,7 @@ COLOR_reset = '\033[39;49m'
 args = argparse.Namespace()
 gitfiles = set()
 counts = [0, 0]
+cwd = Path.cwd()
 
 EDITORS = {'Windows': 'notepad', 'Darwin': 'open -e', 'default': 'vim'}
 
@@ -277,7 +278,7 @@ class Fpath:
             except Exception as e:
                 return str(e)
         try:
-            func(str(self.newpath), str(pathdest))  # type:ignore
+            func(str(self.newpath), str(pathdest))
         except Exception as e:
             return str(e)
 
@@ -415,8 +416,16 @@ class Fpath:
     def add(cls, name: str, depth: int) -> None:
         "Add file[s]/dir[s] to the list of paths"
         path = Path(name)
+
         if not path.exists():
             sys.exit(f'ERROR: {name} does not exist')
+
+        if not args.no_relative:
+            # Make path relative to current working dir if possible
+            try:
+                path = path.relative_to(cwd)
+            except ValueError:
+                pass
 
         if path.is_dir():
             for child in find_in_dir(path, depth, args.all):
@@ -738,6 +747,11 @@ def main() -> int:
         '--suffix',
         default=SUFFIX,
         help='specify suffix for temp editor file, default="%(default)s"',
+    )
+    opt.add_argument(
+        '--no-relative',
+        action='store_true',
+        help='do not forcibly show paths relative to current working directory',
     )
     opt.add_argument(
         '-V', '--version', action='store_true', help=f'show {PROG} version'
