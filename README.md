@@ -253,7 +253,7 @@ temporarily.
 
 You can specify an alternative trash program, e.g.
 [`trash-d`](https://github.com/rushsteve1/trash-d), or
-[`gio trash`](https://man.archlinux.org/man/gio.1#COMMANDS), or
+[`gio trash`](https://man.archlinux.org/man/gio.1), or
 [`gtrash put`](https://github.com/umlx5h/gtrash),
 by setting the `--trash-program` option. Most likely you
 want to set this as a [default option](#command-default-options).
@@ -336,6 +336,12 @@ another "on-the-fly" negation option to temporarily override and disable the
 default using the command line. E.g. use `-R` to override default `--recurse`.
 See the usage summary for details.
 
+You can conveniently edit your default options file using the `--conf` option:
+
+```sh
+$ edir --conf
+```
+
 ## Examples
 
 Rename and/or remove any files and directories in the current directory:
@@ -371,7 +377,7 @@ Type `edir -h` to view the usage summary:
 usage: edir [-h] [-i] [-I] [-a] [-A] [-r] [-R] [-q] [-Q] [-G] [-g] [-t]
                [-T] [--trash-program TRASH_PROGRAM] [-c] [-C] [-d DEPTH] [-F |
                -D] [-L] [-N] [-M] [-S] [-O] [--OP OP] [-E] [-X] [-Y] [-Z]
-               [--suffix SUFFIX] [--no-relative] [-V]
+               [--suffix SUFFIX] [--no-relative] [-V] [--conf]
                [args ...]
 
 Command line utility to rename, remove, or copy files and directories directly
@@ -427,6 +433,8 @@ options:
   --no-relative         do not forcibly show paths relative to current working
                         directory
   -V, --version         show edir version
+  --conf                just invoke your editor on your startup options
+                        configuration file
 
 Note you can set default starting options in ~/.config/edir-flags.conf. The
 negation options (i.e. the --no-* options) allow you to temporarily override

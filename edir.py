@@ -57,12 +57,11 @@ cwd = Path.cwd()
 
 EDITORS = {'Windows': 'notepad', 'Darwin': 'open -e', 'default': 'vim'}
 
-
 def get_default_editor() -> str:
     "Return default editor for this system"
     from platform import system
 
-    return EDITORS.get(system(), EDITORS['default'])
+    return EDITORS.get(system()) or EDITORS['default']
 
 
 def make_editor_command(filename: str, sudo_user: str) -> tuple[str, list[str]]:
@@ -756,6 +755,11 @@ def main() -> int:
     opt.add_argument(
         '-V', '--version', action='store_true', help=f'show {PROG} version'
     )
+    opt.add_argument(
+        '--conf',
+        action='store_true',
+        help='just invoke your editor on your startup options configuration file',
+    )
     opt.add_argument('args', nargs='*', help='file|dir, or "-" for stdin')
 
     args = opt.parse_args()
@@ -771,9 +775,31 @@ def main() -> int:
         print(ver)
         return 0
 
+    if args.conf:
+        # Edit the configuration file and exit
+        if not (conf_file := opt.from_file_path):
+            opt.error('No configuration file path determined.')
+            return 1
+
+        conf_file.parent.mkdir(parents=True, exist_ok=True)
+
+        if not conf_file.is_file() or conf_file.stat().st_size == 0:
+            conf_file.write_text(
+                '# Add your default edir options, one option per line. Comments are ignored.\n'
+            )
+
+        editor = os.getenv('EDITOR') or get_default_editor()
+        editfile(editor, [editor, str(conf_file)])
+
+        # Remove the edited config file if it is empty
+        if conf_file.is_file() and conf_file.stat().st_size == 0:
+            conf_file.unlink()
+
+        return 0
+
     if args.trash:
         if not args.trash_program:
-            opt.error('must specify trash program with --trash-program option')
+            opt.error('must specify trash program with --trash-program option.')
 
         args.trash_program = args.trash_program.split()
 
@@ -786,7 +812,7 @@ def main() -> int:
             gitfiles.update(out.splitlines())
 
         if args.git and not gitfiles:
-            opt.error('must be within a git repo to use -g/--git option')
+            opt.error('must be within a git repo to use -g/--git option.')
 
     # Set input list to a combination of arguments and stdin
     filelist = args.args
