@@ -485,7 +485,19 @@ class edir(Command):
 ## Use with Yazi File Manager
 
 If you use [`yazi`][yazi] for your file manager then you don't need any special
-configuration. Just type `:edir` from within [`yazi`][yazi].
+configuration. Just type `:edir` from within [`yazi`][yazi] to edit all file
+names in the current directory.
+
+You can also replace the standard rename function (`r` key) in [`yazi`][yazi]
+to use `edir` on selected files by adding the following to your
+`~/.config/yazi/keymap.toml` file:
+
+```toml
+[[mgr.prepend_keymap]]
+on   = "r"
+run  = "shell --block -- edir -q %s"
+desc = "Run edir on selected files/dirs"
+```
 
 ## License
 
