@@ -216,11 +216,11 @@ following ways:
 
     4. Remaining deleted directories are removed.
 
-    In simple terms, remember that files are processed before
-    directories so you can rename files into a different directory and
-    then delete the original directory, all in one edit. However in
-    practice it is far **less confusing and less risky** if you perform
-    complicated renames and moves in distinct steps.
+    In simple terms, remember that files are processed before directories so
+    you can rename files into a different directory and then delete the
+    original directory, all in one edit. However in practice it is far **less
+    confusing and less risky** if you perform complicated renames and moves
+    across changed directories in distinct steps.
 
 ## Renames and Deletes in a GIT Repository
 

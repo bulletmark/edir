@@ -1,4 +1,4 @@
-PYFILES := file_name(justfile_dir()) + '.py'
+PYFILES := file_name(justfile_directory()) + '.py'
 
 check:
   ruff check {{PYFILES}}
