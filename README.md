@@ -446,10 +446,10 @@ your defaults.
 You can use `edir` with [`sudo`][sudo] to rename, delete, or copy system files.
 For improved convenience and security, `edir` runs the editing session as your
 regular user, not as root - similar to how [`sudoedit`][sudoedit] works. This
-approach allows you to use graphical editors (like VS Code), which should not be
-run as root. Use `sudo -E` so that your preferred editor is selected via your
-`$EDIR_EDITOR` or `$EDITOR` environment variable. For example, to rename or
-delete files in `/etc` using VS Code:
+approach allows you to use graphical editors (like VS Code or Zed etc), which
+normally should not be run as root. Use `sudo -E` so that your preferred editor
+is selected via your `$EDIR_EDITOR` or `$EDITOR` environment variable. For
+example, to rename or delete files in `/etc` using VS Code:
 
 ```sh
 $ export EDIR_EDITOR="code -nw"
@@ -495,9 +495,13 @@ to use `edir` on selected files by adding the following to your
 ```toml
 [[mgr.prepend_keymap]]
 on   = "r"
-run  = "shell --block -- edir -q %s"
+run  = "shell --block -- edir -d0 -q %s"
 desc = "Run edir on selected files/dirs"
 ```
+
+So press `r` on the current selection to rename (or delete or copy) that single
+file name using `edir`. Alternately, select multiple files (or all files with
+the `yazi` standard key binding `Ctrl+a`), before pressing `r`.
 
 ## License
 
