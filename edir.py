@@ -57,6 +57,7 @@ cwd = Path.cwd()
 
 EDITORS = {'Windows': 'notepad', 'Darwin': 'open -e', 'default': 'vim'}
 
+
 def get_default_editor() -> str:
     "Return default editor for this system"
     from platform import system
@@ -81,7 +82,7 @@ def make_editor_command(filename: str, sudo_user: str) -> tuple[str, list[str]]:
     return editor, editcmd
 
 
-def editfile(editor: str, editcmd: list[str]) -> None:
+def edit_file(editor: str, editcmd: list[str]) -> None:
     "Run the editor command"
 
     # Run the editor ..
@@ -94,6 +95,23 @@ def editfile(editor: str, editcmd: list[str]) -> None:
     # Check if editor returned error
     if res.returncode != 0:
         sys.exit(f'ERROR: "{editor}" returned error {res.returncode}')
+
+
+def edit_file_conf(conf_file: Path) -> None:
+    "Edit the startup options configuration file"
+    conf_file.parent.mkdir(parents=True, exist_ok=True)
+
+    if not conf_file.is_file() or conf_file.stat().st_size == 0:
+        conf_file.write_text(
+            '# Add your default edir options, one option per line. Comments are ignored.\n'
+        )
+
+    editor = os.getenv('EDITOR') or get_default_editor()
+    edit_file(editor, [editor, str(conf_file)])
+
+    # Remove the edited config file if it is empty
+    if conf_file.is_file() and conf_file.stat().st_size == 0:
+        conf_file.unlink()
 
 
 def log(
@@ -517,7 +535,7 @@ class Fpath:
                     shutil.chown(fpath, sudo_user)
 
                 # Invoke editor on file containing the list of paths
-                editfile(editor, editcmd)
+                edit_file(editor, editcmd)
 
                 # Read the changed paths from the file
                 cls.readfile(fpath)
@@ -781,20 +799,7 @@ def main() -> int:
             opt.error('No configuration file path determined.')
             return 1
 
-        conf_file.parent.mkdir(parents=True, exist_ok=True)
-
-        if not conf_file.is_file() or conf_file.stat().st_size == 0:
-            conf_file.write_text(
-                '# Add your default edir options, one option per line. Comments are ignored.\n'
-            )
-
-        editor = os.getenv('EDITOR') or get_default_editor()
-        editfile(editor, [editor, str(conf_file)])
-
-        # Remove the edited config file if it is empty
-        if conf_file.is_file() and conf_file.stat().st_size == 0:
-            conf_file.unlink()
-
+        edit_file_conf(conf_file)
         return 0
 
     if args.trash:
