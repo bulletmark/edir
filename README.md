@@ -461,8 +461,9 @@ $ sudo -E edir /etc
 In many ways `edir` (and even `vidir`) is better than the [`ranger`][ranger]
 terminal file manager
 [`bulkrename`](https://github.com/ranger/ranger/wiki/Official-user-guide#bulk-renaming)
-command which does not handle name swaps and clashes etc. To add `edir` as a
-command within [`ranger`][ranger], add or create the following in
+command which does not handle name swaps and clashes etc. Also, use `edir` to
+delete or copy files, not just rename them. To add `edir` as a command within
+[`ranger`][ranger], add or create the following in
 `~/.config/ranger/commands.py`. Then run it from within [`ranger`][ranger] by
 typing `:edir`.
 
@@ -485,8 +486,8 @@ class edir(Command):
 ## Use with Yazi File Manager
 
 If you use [`yazi`][yazi] for your file manager then you don't need any special
-configuration. Just type `:edir` from within [`yazi`][yazi] to edit all file
-names in the current directory.
+configuration. Just type `:edir` from within [`yazi`][yazi] to rename or delete
+or copy file names in the current directory.
 
 You can also replace the standard rename function (`r` key) in [`yazi`][yazi]
 to use `edir` on selected files by adding the following to your
