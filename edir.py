@@ -282,6 +282,10 @@ class Fpath:
 
         return path
 
+    def changed(self, newpath: Path | None = None) -> bool:
+        "Return True if path has been changed"
+        return str(newpath or self.newpath) != self.repr
+
     def copy(self, pathdest: Path) -> str | None:
         "Copy given pathsrc to pathdest"
         if self.is_dir:
@@ -369,7 +373,7 @@ class Fpath:
         "Log all pending changes for this path"
         if not self.newpath:
             log('remove', f'"{self.diagrepr}"{self.note}', prompt=True)
-        elif self.newpath != self.path:
+        elif self.changed():
             log(
                 'rename',
                 f'"{self.diagrepr}" to "{self.newpath}{self.appdash}"',
@@ -499,7 +503,7 @@ class Fpath:
                 newpath = Path(pathstr)
 
                 if path.newpath:
-                    if newpath != path.path and newpath not in path.copies:
+                    if path.changed(newpath) and newpath not in path.copies:
                         path.copies.append(newpath)
                 else:
                     path.newpath = newpath
@@ -541,7 +545,7 @@ class Fpath:
                 cls.readfile(fpath)
 
                 # Reduce paths to those that were removed or changed by the user
-                paths = [p for p in cls.paths if p.path != p.newpath or p.copies]
+                paths = [p for p in cls.paths if p.changed() or p.copies]
 
                 if not paths:
                     return []
@@ -874,7 +878,7 @@ def main() -> int:
     # files.
     for p in paths:
         if p.newpath:
-            if p.newpath != p.path:
+            if p.changed():
                 if err := p.rename_temp():
                     log('rename', f'"{p.diagrepr}" to "{p.newpath}{p.appdash}"', err)
         elif not p.is_dir:
