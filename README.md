@@ -140,45 +140,49 @@ following ways:
 19. `edir` filters out any duplicate paths you may inadvertently specify
     on it's command line.
 
-20. `edir` always invokes a consistent duplicate renaming scheme. E.g. if
-    you rename `b`, `c`, `d` all to the same pre-existing name `a` then
-    `edir` will rename `b` to `a~`, `c` to `a~1`, `d` to `a~2`.
-    Depending on order of operations, `vidir` is not always consistent
-    about this, E.g. sometimes it creates a `a~1` with no `a~` (this may
-    be a bug in `vidir` that nobody has ever bothered to
-    report/address?).
+20. `edir` provides an optional configuration file to set default `edir`
+    command line options. See [section below](#command-default-options).
 
-21. `edir` creates the temporary editing file with a `.sh` suffix so
+21. `edir` always invokes a consistent duplicate renaming scheme. E.g. if
+    you rename `b`, `c`, `d` all to the same pre-existing name `a` then
+    `edir` will rename `b` to `a~`, `c` to `a~1`, and `d` to `a~2`.
+    Depending on order of operations, `vidir` is not always consistent
+    about this, E.g. sometimes it creates a `a~1` with no `a~`, or starts the
+    numbers with `a~2`. (these may be bugs in `vidir` that nobody has ever
+    bothered to report/address?).
+
+22. Further to the previous item, `edir` allows you to change the format of the
+    name of copied files by specifying the `--copy-name-template` option. Refer
+    to the [section below](#custom-copied-file-template) for details.
+
+23. `edir` creates the temporary editing file with a `.sh` suffix so
     your EDITOR may syntax highlight the entries. Optionally, you can
     change this default suffix.
 
-22. `edir` provides an optional environment value to add custom options
+24. `edir` provides an optional environment value to add custom options
     to the invocation of your editor. See [section
     below](#edir_editor-environment-variable).
 
-23. `edir` provides an optional configuration file to set default `edir`
-    command line options. See [section below](#command-default-options).
-
-24. Contrary to what it's name implies, `vidir` actually respects your
+25. Contrary to what it's name implies, `vidir` actually respects your
     `$EDITOR` variable and runs your preferred editor like `edir` does
     but `edir` has been given a generic name to make this more apparent.
     If `$EDITOR` is not set then `edir` uses a default editor
     appropriate to your system.
 
-25. `vidir` returns status code 0 if all files successful, or 1 if any
+26. `vidir` returns status code 0 if all files successful, or 1 if any
      error. `edir` returns 0 if all files successful, 1 if some had
      error, or 2 if all had error.
 
-26. `vidir` returns an error when attempting to rename across different
+27. `vidir` returns an error when attempting to rename across different
     file systems, which `edir` allows.
 
-27. By default, `edir` shows given paths relative to the current working
+28. By default, `edir` shows given paths relative to the current working
     directory so that file names are shorter and easier to read/edit. `vidir`
     shows absolute paths (if they are given like that on the command line, e.g.
     by an external tool). You can disable this relative path behavior in `edir`
     if you want.
 
-28. `edir` always ensures editor line numbers have the same width (e.g.
+29. `edir` always ensures editor line numbers have the same width (e.g.
     `1` to `6` for 6 files, or `01` to `12` for 12 files, etc) so that
     file names always line up justified. This facilitates block editing
     of file names, e.g. using vim's [visual block
@@ -186,7 +190,7 @@ following ways:
     do this so file names can be jagged wrt each other which makes block
     editing awkward.
 
-29. `edir` is very strict about the format of the lines you edit and
+30. `edir` is very strict about the format of the lines you edit and
     immediately exits with an error message (before changing anything)
     if you format one of the lines incorrectly. All lines in the edited
     list:
@@ -202,7 +206,7 @@ following ways:
     line so an easy way to swap two file names is just to swap their
     numbers.
 
-30. `edir` always actions files consistently. The sequence of
+31. `edir` always actions files consistently. The sequence of
      operations applied is:
 
     1. Deleted files are removed and all renamed files and directories
@@ -377,7 +381,8 @@ Type `edir -h` to view the usage summary:
 usage: edir [-h] [-i] [-I] [-a] [-A] [-r] [-R] [-q] [-Q] [-G] [-g] [-t]
                [-T] [--trash-program TRASH_PROGRAM] [-c] [-C] [-d DEPTH] [-F |
                -D] [-L] [-N] [-M] [-S] [-O] [--OP OP] [-E] [-X] [-Y] [-Z]
-               [--suffix SUFFIX] [--no-relative] [-V] [--conf]
+               [--suffix SUFFIX] [--copy-name-template COPY_NAME_TEMPLATE]
+               [--no-relative] [-V] [--conf]
                [args ...]
 
 Command line utility to rename, remove, or copy files and directories directly
@@ -430,6 +435,10 @@ options:
                         group directories last (including when sorted)
   -Z, --no-group-dirs   negate the options to group directories
   --suffix SUFFIX       specify suffix for temp editor file, default=".sh"
+  --copy-name-template COPY_NAME_TEMPLATE
+                        specify copy file/path name template (%F=filename,
+                        %Nd, %nd(no zero) where "d" is starting number),
+                        default="%F~%n1"
   --no-relative         do not forcibly show paths relative to current working
                         directory
   -V, --version         show edir version
@@ -455,6 +464,46 @@ example, to rename or delete files in `/etc` using VS Code:
 $ export EDIR_EDITOR="code -nw"
 $ sudo -E edir /etc
 ```
+
+## Custom Copied File Template
+
+When you duplicate a line to copy a file or directory, `edir` ensures the new
+copy has a unique name. By default it uses the same scheme as `vidir`, i.e, if
+you rename `b`, `c`, `d` all to the same pre-existing name `a` then `edir` will
+rename:
+
+    b -> a~
+    c -> a~1
+    d -> a~2
+
+The format of the copied file name is defined by the `edir` default setting for
+`--copy-name-template="%F~%n1"` where `%F` is the original file name, `%n1`
+means suppress showing the first copy number (i.e. `~` instead of `~1` as in the
+above example) and then start the remaining copies from 1.
+
+You can also specify `%Nd` instead of `%nd` in the template to always show the
+copy number even for the first copy, e.g. `--copy-name-template="%F~%N1"` would
+instead produce:
+
+    b -> a~1
+    c -> a~2
+    d -> a~3
+
+Some example other settings of `--copy-name-template` follow:
+
+`--copy-name-template="%F-%N2"`:
+
+    b -> a-2
+    c -> a-3
+    d -> a-4
+
+`--copy-name-template="%F-copy-%n2"`:
+
+    b -> a-copy
+    c -> a-copy-2
+    d -> a-copy-3
+
+You are likely to want to set `--copy-name-template` as a [default option](#command-default-options).
 
 ## Embed in Ranger File Manager
 

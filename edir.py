@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import itertools
 import os
+import re
 import shlex
 import shutil
 import subprocess
@@ -19,6 +20,7 @@ import sys
 import tempfile
 from collections.abc import Callable, Iterable, Sequence
 from pathlib import Path
+from typing import NoReturn
 
 import argparse_from_file as argparse
 
@@ -240,6 +242,46 @@ def removeprefix(s: str, prefix: str) -> str:
     return s[len(prefix) :] if s.startswith(prefix) else s
 
 
+class CopyNameTemplate:
+    "Class to manage copy file/path name template"
+
+    DEFAULT = '%F~%n1'
+    HELP = (
+        'specify copy file/path name template (%%F=filename, %%Nd, %%nd(no zero) '
+        'where "d" is starting number), default="%(default)s"'
+    )
+
+    def __init__(self, template: str) -> None:
+        "Create a template for copy file/path names from given name"
+
+        def _exit(msg: str) -> NoReturn:
+            sys.exit(f'ERROR: --copy-name-template "{template}" {msg}')
+
+        if '%F' not in template:
+            _exit('must contain "%F" for filename')
+
+        m = re.search(r'%[nN]\d+', template)
+        if not m:
+            _exit('must contain "%nd" or "%Nd" for count')
+
+        if len(m.groups()) > 1:
+            _exit('can contain only one "%nd" or "%Nd" specifier for count')
+
+        numstr = m.group(0)
+        self.count_start = int(numstr[2:])
+        self.include_first = numstr[1] == 'N'
+
+        if not self.include_first:
+            self.count_start -= 1
+
+        self.template = template.replace('%F', '{name}').replace(numstr, '{num}')
+
+    def create(self, name: str, num: int) -> str:
+        "Return a copy name from the template for given name and count"
+        numstr = str(num + self.count_start) if num > 0 or self.include_first else ''
+        return self.template.format(name=name, num=numstr)
+
+
 class Fpath:
     "Class to manage each instance of a file/dir"
 
@@ -278,7 +320,7 @@ class Fpath:
         for c in itertools.count():
             if not path.is_symlink() and not path.exists():
                 break
-            path = path.with_name(name + ('~' if c <= 0 else f'~{c}'))
+            path = path.with_name(args._copy_name(name, c))
 
         return path
 
@@ -770,6 +812,11 @@ def main() -> int:
         help='specify suffix for temp editor file, default="%(default)s"',
     )
     opt.add_argument(
+        '--copy-name-template',
+        default=CopyNameTemplate.DEFAULT,
+        help=CopyNameTemplate.HELP,
+    )
+    opt.add_argument(
         '--no-relative',
         action='store_true',
         help='do not forcibly show paths relative to current working directory',
@@ -801,7 +848,6 @@ def main() -> int:
         # Edit the configuration file and exit
         if not (conf_file := opt.from_file_path):
             opt.error('No configuration file path determined.')
-            return 1
 
         edit_file_conf(conf_file)
         return 0
@@ -811,6 +857,8 @@ def main() -> int:
             opt.error('must specify trash program with --trash-program option.')
 
         args.trash_program = args.trash_program.split()
+
+    args._copy_name = CopyNameTemplate(args.copy_name_template).create
 
     # Check if we are in a git repo
     if args.git != 0:
