@@ -289,7 +289,7 @@ class Fpath:
     tempdirs = set()
     natsort_key: Callable
 
-    def __init__(self, path: Path):
+    def __init__(self, path: Path) -> None:
         "Class constructor"
         self.path = path
         self.newpath = None
@@ -312,14 +312,18 @@ class Fpath:
             self.diagrepr += SEP
 
     @staticmethod
-    def inc_path(path: Path) -> Path:
+    def inc_path(path: Path, check_list: list[Path] | None = None) -> Path:
         "Find next unique file name"
         # Iterate forever, there can only be a finite number of existing
         # paths
+        if check_list is None:
+            check_list = []
+
         name = path.name
         for c in itertools.count():
-            if not path.is_symlink() and not path.exists():
+            if not path.is_symlink() and not path.exists() and path not in check_list:
                 break
+
             path = path.with_name(args._copy_name(name, c))
 
         return path
@@ -545,8 +549,7 @@ class Fpath:
                 newpath = Path(pathstr)
 
                 if path.newpath:
-                    if path.changed(newpath) and newpath not in path.copies:
-                        path.copies.append(newpath)
+                    path.copies.append(cls.inc_path(newpath, path.copies))
                 else:
                     path.newpath = newpath
 
