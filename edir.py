@@ -507,7 +507,7 @@ class Fpath:
             # Ensure consistent width for line numbers
             num_width = len(str(len(cls.paths)))
             fp.writelines(
-                f'{i:0{num_width}}  {p.linerepr}\n' for i, p in enumerate(cls.paths, 1)
+                f'{i:0{num_width}}\t{p.linerepr}\n' for i, p in enumerate(cls.paths, 1)
             )
 
     @classmethod

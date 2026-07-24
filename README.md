@@ -196,7 +196,7 @@ following ways:
     list:
 
     1. Must start with a number and that number must be in range.
-    2. Must have at least one white space/tab after the number,
+    2. Must have at least one white space and/or tab after the number,
     3. Must have a remaining valid path name.
     4. Can start with a `#` or be completely blank to be considered the
        same as deleted.
