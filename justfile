@@ -1,4 +1,4 @@
-PYFILES := file_name(justfile_directory()) + '.py'
+PYFILES := `echo *.py`
 
 check:
   ruff check {{PYFILES}}

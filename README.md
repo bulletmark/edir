@@ -332,8 +332,7 @@ You can add default options to a personal configuration file
 `~/.config/edir-flags.conf`. If that file exists then each line of
 options will be concatenated and automatically prepended to your `edir`
 command line arguments. Comments in the file (i.e. starting with a `#`)
-are ignored. Type `edir -h` to see all [supported
-options](#command-line-options).
+are ignored. Type `edir -h` to see all [supported options](#usage).
 
 Some options, e.g. `--recurse`, which can be set as a default option, provide
 another "on-the-fly" negation option to temporarily override and disable the
@@ -373,7 +372,7 @@ repository files only, in the current directory only:
 $ fd -d1 -tf | edir -g
 ```
 
-## Command Line Options
+## Usage
 
 Type `edir -h` to view the usage summary:
 

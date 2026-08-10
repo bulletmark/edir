@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 Command line utility to rename, remove, or copy files and directories directly
 from your editor. When run, you'll see a numbered list of files in your editor.
@@ -20,7 +19,7 @@ import sys
 import tempfile
 from collections.abc import Callable, Iterable, Sequence
 from pathlib import Path
-from typing import NoReturn
+from typing import ClassVar, NoReturn
 
 import argparse_from_file as argparse
 
@@ -144,9 +143,7 @@ def run(cmd: Sequence[str]) -> tuple[str, str]:
     stdout = ''
     stderr = ''
     try:
-        res = subprocess.run(
-            cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True
-        )
+        res = subprocess.run(cmd, capture_output=True, text=True)
     except Exception as e:
         stderr = str(e)
     else:
@@ -285,8 +282,8 @@ class CopyNameTemplate:
 class Fpath:
     "Class to manage each instance of a file/dir"
 
-    paths = []
-    tempdirs = set()
+    paths: ClassVar = []
+    tempdirs: ClassVar = set()
     natsort_key: Callable
 
     def __init__(self, path: Path) -> None:
@@ -445,7 +442,7 @@ class Fpath:
                     try:
                         nsval = getattr(ns, opt)
                     except AttributeError as e:
-                        sys.exit(f'ERROR: invalid natsort option: {str(e)}')
+                        sys.exit(f'ERROR: invalid natsort option: {e}')
 
                     if nsval and isinstance(nsval, int):
                         optval |= nsval
@@ -469,9 +466,8 @@ class Fpath:
         if args.files:
             if path.is_dir():
                 return
-        elif args.dirs:
-            if not path.is_dir():
-                return
+        elif args.dirs and not path.is_dir():
+            return
 
         # Filter out links if asked
         if args.nolinks and path.is_symlink():
@@ -929,20 +925,22 @@ def main() -> int:
     # files.
     for p in paths:
         if p.newpath:
-            if p.changed():
-                if err := p.rename_temp():
-                    log('rename', f'"{p.diagrepr}" to "{p.newpath}{p.appdash}"', err)
+            if p.changed() and (err := p.rename_temp()):
+                log('rename', f'"{p.diagrepr}" to "{p.newpath}{p.appdash}"', err)
         elif not p.is_dir:
             err = remove(p.path, p.is_git, args.trash)
             log('remove', f'"{p.diagrepr}"', err)
 
     # Pass 2: Delete all removed dirs, if empty or recursive delete.
     for p in paths:
-        if p.is_dir and not p.newpath:
-            if remove(p.path, p.is_git, args.trash, args.recurse) is None:
-                # Have removed, so flag as finished for final dirs pass below
-                p.is_dir = False
-                log('remove', f'"{p.diagrepr}"{p.note}')
+        if (
+            p.is_dir
+            and not p.newpath
+            and remove(p.path, p.is_git, args.trash, args.recurse) is None
+        ):
+            # Have removed, so flag as finished for final dirs pass below
+            p.is_dir = False
+            log('remove', f'"{p.diagrepr}"{p.note}')
 
     # Pass 3. Rename all temp files and dirs to final target, and make
     # copies.

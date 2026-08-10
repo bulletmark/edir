@@ -30,6 +30,8 @@ version_scheme = "post-release"
 
 [tool.ruff.format]
 quote-style = "single"
-skip-magic-trailing-comma = true
+
+[tool.ruff.lint]
+ignore = ["SIM115", "SIM905", "BLE001", "PLW1510"]
 
 # vim:se sw=2:
