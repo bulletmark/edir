@@ -5,18 +5,18 @@ Delete a line to remove a file, modify a line to rename a file, or duplicate a
 line to copy a file. Swap line numbers to swap file names. If inside a git
 repository, git will be used for renames and removals.
 """
-
 # Author: Mark Blakeney, May 2019.
 from __future__ import annotations
 
-import itertools
+import sys
+
+if sys.version_info >= (3, 15):
+    sys.set_lazy_imports('all')
+
 import os
-import re
 import shlex
 import shutil
 import subprocess
-import sys
-import tempfile
 from collections.abc import Callable, Iterable, Sequence
 from pathlib import Path
 from typing import ClassVar, NoReturn
@@ -250,6 +250,7 @@ class CopyNameTemplate:
 
     def __init__(self, template: str) -> None:
         "Create a template for copy file/path names from given name"
+        import re
 
         def _exit(msg: str) -> NoReturn:
             sys.exit(f'ERROR: --copy-name-template "{template}" {msg}')
@@ -310,6 +311,7 @@ class Fpath:
 
     @staticmethod
     def inc_path(path: Path, check_list: list[Path] | None = None) -> Path:
+        import itertools
         "Find next unique file name"
         # Iterate forever, there can only be a finite number of existing
         # paths
@@ -552,6 +554,7 @@ class Fpath:
     @classmethod
     def get_path_changes(cls) -> list:
         "Get a list of change paths from the user"
+        import tempfile
         prompt = (
             create_prompt('proceed/yes edit restart quit[default]')
             if args.interactive
