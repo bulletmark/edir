@@ -5,6 +5,7 @@ Delete a line to remove a file, modify a line to rename a file, or duplicate a
 line to copy a file. Swap line numbers to swap file names. If inside a git
 repository, git will be used for renames and removals.
 """
+
 # Author: Mark Blakeney, May 2019.
 from __future__ import annotations
 
@@ -18,6 +19,7 @@ import shlex
 import shutil
 import subprocess
 from collections.abc import Callable, Iterable, Sequence
+from os.path import lexists
 from pathlib import Path
 from typing import ClassVar, NoReturn
 
@@ -311,8 +313,9 @@ class Fpath:
 
     @staticmethod
     def inc_path(path: Path, check_list: list[Path] | None = None) -> Path:
-        import itertools
         "Find next unique file name"
+        import itertools
+
         # Iterate forever, there can only be a finite number of existing
         # paths
         if check_list is None:
@@ -320,7 +323,7 @@ class Fpath:
 
         name = path.name
         for c in itertools.count():
-            if not path.is_symlink() and not path.exists() and path not in check_list:
+            if not lexists(path) and path not in check_list:
                 break
 
             path = path.with_name(args._copy_name(name, c))
@@ -482,7 +485,7 @@ class Fpath:
         "Add file[s]/dir[s] to the list of paths"
         path = Path(name)
 
-        if not path.exists():
+        if not lexists(path):
             sys.exit(f'ERROR: {name} does not exist')
 
         if not args.no_relative:
@@ -555,6 +558,7 @@ class Fpath:
     def get_path_changes(cls) -> list:
         "Get a list of change paths from the user"
         import tempfile
+
         prompt = (
             create_prompt('proceed/yes edit restart quit[default]')
             if args.interactive
